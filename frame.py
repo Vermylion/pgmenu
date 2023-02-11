@@ -100,3 +100,6 @@ class Frame:
         frameBase[frameId][2] = 'disabled'
 
         Frame.setWidgetsOffset()
+
+    def update(event):
+        pass

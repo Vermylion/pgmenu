@@ -295,6 +295,8 @@ def update(event):
     checkbox.Checkbox.update(event)
     textbox.Textbox.update(event)
 
+    frame.Frame.update(event)
+
     pygame.mouse.set_cursor(GlobalFunctions.cursorRequested)
     GlobalFunctions.cursorRequested = pygame.SYSTEM_CURSOR_ARROW
 
