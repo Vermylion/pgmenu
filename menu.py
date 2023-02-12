@@ -2,6 +2,7 @@ import button
 import checkbox
 import text as textfile
 import textbox
+import image as imagefile
 
 menus = dict({})
 activeMenu = ''
@@ -57,6 +58,8 @@ class Menu:
                 textbox.Textbox.draw(widgetId)
             if widgetId.split()[0] == 'Text':
                 textfile.Text.draw(widgetId)
+            if widgetId.split()[0] == 'Image':
+                imagefile.Image.draw(widgetId)
 
     def enable(menuName):
         for widgetId in menus[menuName]:

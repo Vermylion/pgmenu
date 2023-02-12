@@ -89,7 +89,6 @@ def draw(surface, drawRect, color=(255, 255, 255), image=None, outlineWidth=0, o
 
     return drawSurface
 
-
 def frameOffset(surface, widgetId, widgetBase, frameBase, frameVisuals):
     if str(surface).split()[0] == 'Frame':
         print(widgetBase[widgetId][0])
