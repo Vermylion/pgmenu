@@ -28,64 +28,117 @@
 
 ## Button
 
-- **[create()](#create--)**
-- **[modify()](#modify--)**
-- **[visuals()](#visuals--)**
-- **[draw()](#draw--)**
-- **[enable()](#enable--)**
-- **[disable()](#disable--)**
+- **[create()](#buttoncreate)**
+- **[modify()](#buttonmodify)**
+- **[visuals()](#buttonvisuals)**
+- **[draw()](#buttondraw)**
+- **[enable()](#buttonenable)**
+- **[disable()](#buttondisable)**
 
-### create()
+### Button.create()
 
-### modify()
+### Button.modify()
 
-### visuals()
+### Button.visuals()
 
-### draw()
+### Button.draw()
 
-### enable()
+### Button.enable()
 
-### disable()
+### Button.disable()
 
 ## Checkbox
 
-- **[create()](#create---1)**
-- **[modify()](#modify---1)**
-- **[visuals()](#visuals---1)**
-- **[draw()](#draw---1)**
-- **[enable()](#enable---1)**
-- **[disable()](#disable---1)**
-- **[statusOn()](#statuson--)**
-- **[statusOff()](#statusoff--)**
-- **[get()](#get--)**
-- **[group()](#group--)**
-- **[ungroup()](#ungroup--)**
+- **[create()](#checkboxcreate)**
+- **[modify()](#checkboxmodify)**
+- **[visuals()](#checkboxvisuals)**
+- **[draw()](#checkboxdraw)**
+- **[enable()](#checkboxenable)**
+- **[disable()](#checkboxdisable)**
+- **[statusOn()](#checkboxstatuson)**
+- **[statusOff()](#checkboxstatusoff)**
+- **[get()](#checkboxget)**
+- **[group()](#checkboxgroup)**
+- **[ungroup()](#checkboxungroup)**
 
-### create()
+### Checkbox.create()
 
-### modify()
+### Checkbox.modify()
 
-### visuals()
+### Checkbox.visuals()
 
-### draw()
+### Checkbox.draw()
 
-### enable()
+### Checkbox.enable()
 
-### disable()
+### Checkbox.disable()
 
-### statusOn()
+### Checkbox.statusOn()
 
-### statusOff()
+### Checkbox.statusOff()
 
-### get()
+### Checkbox.get()
 
-### group()
+### Checkbox.group()
 
-### ungroup()
+### Checkbox.ungroup()
 
 ## Textbox
 
+- **[create()](#textboxcreate)**
+- **[modify()](#textboxmodify)**
+- **[visuals()](#textboxvisuals)**
+- **[draw()](#textboxdraw)**
+- **[delete()](#textboxdelete)**
+- **[insert()](#textboxinsert)**
+- **[enable()](#textboxenable)**
+- **[disable()](#textboxdisable)**
+- **[get()](#textboxget)**
+
+### Textbox.create()
+
+### Textbox.modify()
+
+### Textbox.visuals()
+
+### Textbox.draw()
+
+### Textbox.delete()
+
+### Textbox.insert()
+
+### Textbox.enable()
+
+### Textbox.disable()
+
+### Textbox.get()
+
 ## Frame
+
+- **[create()](#framecreate)**
+- **[modify()](#framemodify)**
+- **[visuals()](#framevisuals)**
+- **[draw()](#framedraw)**
+- **[add()](#frameadd)**
+- **[remove()](#frameremove)**
+- **[enable()](#frameenable)**
+- **[disable()](#framedisable)**
+
+### Frame.create()
+
+### Frame.modify()
+
+### Frame.visuals()
+
+### Frame.draw()
+
+### Frame.add()
+
+### Frame.remove()
+
+### Frame.enable()
+
+### Frame.disable()
 
 ## Text
 
@@ -94,21 +147,3 @@
 ## Menu
 
 ## Themes
-
----
-
-# Subject1
-
-text
-
-## Properties {#properties-1}
-
-text
-
-# Subject2
-
-text
-
-## Properties {#properties-2}
-
-text
