@@ -18,7 +18,7 @@
 - **[Text](#text)**
 - **[Image](#image)**
 - **[Menu](#menu)**
-- **[Themes](#themes)**
+- **[Theme](#theme)**
 
 ## Introduction
 
@@ -142,10 +142,77 @@
 
 ## Text
 
+- **[create()](#textcreate)**
+- **[modify()](#textmodify)**
+- **[draw()](#textdraw)**
+- **[set()](#textset)**
+- **[write](#textwrite)**
+
+### Text.create()
+
+### Text.modify()
+
+### Text.draw()
+
+### Text.set()
+
+### Text.write()
+
 ## Image
+
+- **[create()](#imagecreate)**
+- **[modify()](#imagemodify)**
+- **[draw()](#imagedraw)**
+- **[set()](#imageset)**
+
+### Image.create()
+
+### Image.modify()
+
+### Image.draw()
+
+### Image.set()
 
 ## Menu
 
-## Themes
+- **[create()](#menucreate)**
+- **[delete()](#menudelete)**
+- **[add()](#menuadd)**
+- **[remove()](#menuremove)**
+- **[show()](#menushow)**
+- **[draw()](#menudraw)**
+- **[enable()](#menuenable)**
+- **[disable()](#menudisable)**
+- **[enableAll()](#menuenableall)**
+- **[disableAll()](#menudisableall)**
+
+### Menu.create()
+
+### Menu.delete()
+
+### Menu.add()
+
+### Menu.remove()
+
+### Menu.show()
+
+### Menu.draw()
+
+### Menu.enable()
+
+### Menu.disable()
+
+### Menu.enableAll()
+
+### Menu.disableAll()
+
+## Theme
+
+- **[set()](#themeset)**
+- **[custom()](#themecreate)**
+
+### Theme.set()
+
+### Theme.custom()
 
 ---
