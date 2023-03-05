@@ -1,7 +1,6 @@
 import pygame
 
 import GlobalFunctions
-import frame
 import text as textfile
 
 textboxBase = dict({})
@@ -20,13 +19,19 @@ class Textbox:
     def __init__(self) -> None:
         pass
 
+    def default_submit_func(textboxId):
+        print(Textbox.get(textboxId))
+
+    def default_typed_func():
+        pass
+
     def default_action_func():
-        print('Textbox Action')
+        print('Textbox Activated')
 
     def default_hover_func():
         pass
 
-    def create(coords, dimensions, limitType, limitLength, limitInt, activatedFunction, hoveredFunction, typedFunction,
+    def create(coords, dimensions, limitType, limitLength, limitNumbers, activatedFunction, hoveredFunction, typedFunction,
                submitFunction, state):
         global textboxBase, textboxCount, cursorBase
 
@@ -34,51 +39,62 @@ class Textbox:
         cursorPos = 0
         textboxId = f'Textbox {textboxCount}'
         textboxRect = pygame.Rect(coords[0], coords[1], dimensions[0], dimensions[1])
-        textboxBase[textboxId] = [textboxRect, limitType, limitLength, limitInt, cursorPos, activatedFunction,
+        textboxBase[textboxId] = [textboxRect, limitType, limitLength, limitNumbers, cursorPos, activatedFunction,
                                   hoveredFunction, typedFunction, submitFunction, state]
 
-        cursorBase[
-            textboxId] = []  # [pygame.Rect(pygame.Rect(textboxBase[textboxId][0][0] + (0.015 * textboxBase[textboxId][0][2]) + textLength, textboxBase[textboxId][0][1] + (0.15 * textboxBase[textboxId][0][3]), 2, textboxVisuals[textboxId][5]))]
+        cursorBase[textboxId] = []
 
         return textboxId
 
-    def modify(textboxId, coords, dimensions, limitType, limitLength, limitInt, activatedFunction, hoveredFunction,
-               typedFunction, submitFunction, state):
+    def modify(textboxId, **kwargs):
         global textboxBase
+
+        coords = GlobalFunctions.kwargsSwitchCase('coords', (textboxBase[textboxId][0][0], textboxBase[textboxId][0][1]), kwargs)
+        dimensions = GlobalFunctions.kwargsSwitchCase('dimensions', (textboxBase[textboxId][0][2], textboxBase[textboxId][0][3]), kwargs)
+        limitType = GlobalFunctions.kwargsSwitchCase('limitType', textboxBase[textboxId][1], kwargs)
+        limitLength = GlobalFunctions.kwargsSwitchCase('limitLength', textboxBase[textboxId][2], kwargs)
+        limitNumbers = GlobalFunctions.kwargsSwitchCase('limitNumbers', textboxBase[textboxId][3], kwargs)
+        activatedFunction = GlobalFunctions.kwargsSwitchCase('activatedFunction', textboxBase[textboxId][5], kwargs)
+        hoveredFunction = GlobalFunctions.kwargsSwitchCase('hoveredFunction', textboxBase[textboxId][6], kwargs)
+        typedFunction = GlobalFunctions.kwargsSwitchCase('typedFunction', textboxBase[textboxId][7], kwargs)
+        submitFunction = GlobalFunctions.kwargsSwitchCase('submitFunction', textboxBase[textboxId][8], kwargs)
+        state = GlobalFunctions.kwargsSwitchCase('state', textboxBase[textboxId][9], kwargs)
 
         cursorPos = 0
         textboxRect = pygame.Rect(coords[0], coords[1], dimensions[0], dimensions[1])
-        textboxBase[textboxId] = [textboxRect, limitType, limitLength, limitInt, cursorPos, activatedFunction,
+        textboxBase[textboxId] = [textboxRect, limitType, limitLength, limitNumbers, cursorPos, activatedFunction,
                                   hoveredFunction, typedFunction, submitFunction, state]
+
+        if textboxId in textboxVisuals:
+            surface, color, imageName, text, textColor, textSize, textFont, textCoverUp, outlineWidth, outlineColor, borderWidth, borderRadius, borderedOverlay,  cursorWidth, cursorColor, cursorBorderRadius, idleBorderedOverlayColor, activeBorderedOverlayColor, darkenActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = textboxVisuals[textboxId]
+            Textbox.visuals(surface, textboxId, color, imageName, text, textColor, textFont, textCoverUp, outlineWidth, outlineColor,
+                borderWidth, borderRadius, borderedOverlay, cursorWidth, cursorColor, cursorBorderRadius, idleBorderedOverlayColor, activeBorderedOverlayColor,
+                darkenActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
+                border_bottom_right_radius)
 
         return textboxId
 
-    def visuals(surface, textboxId, color, image, text, textColor, textFont, textCoverUp, outlineWidth, outlineColor,
-                borderWidth, borderRadius, borderedOverlay, idleBorderedOverlayColor, activeBorderedOverlayColor,
-                darkenActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
-                border_bottom_right_radius):
+    def visuals(surface, textboxId, color, imageName, text, textColor, textFont, textCoverUp, outlineWidth, outlineColor,
+                borderWidth, borderRadius, borderedOverlay, cursorWidth, cursorColor, cursorBorderRadius,
+                idleBorderedOverlayColor, activeBorderedOverlayColor, darkenActive, border_top_left_radius,
+                border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius):
         global textboxVisuals, lettersText
-
-        if str(surface).split()[0] == 'Frame':
-            if frame.frameBase[surface][2] == 'enabled':
-                surface = frame.frameBase[surface][1]
-            else:
-                surface = frame.frameVisuals[surface][0]
 
         actualText = text
         if text == '' and textboxBase[textboxId][1] == int and textboxBase[textboxId][3] != None:
-            # if type(limitInt[0]) == int
+            # if type(limitNumbers[0]) == int
             actualText = str(textboxBase[textboxId][3][0])
             text = str(textboxBase[textboxId][3][0])
         if textCoverUp != None:
             text = str(textCoverUp) * len(text)
 
         textSize = textboxBase[textboxId][0][3] - round(textboxBase[textboxId][0][3] / 4)
-        textboxVisuals[textboxId] = [surface, color, image, actualText, textColor, textSize, textFont, textCoverUp,
-                                     outlineWidth, outlineColor, borderWidth, borderRadius, borderedOverlay,
-                                     idleBorderedOverlayColor, activeBorderedOverlayColor, darkenActive,
-                                     border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
-                                     border_bottom_right_radius]
+        textboxVisuals[textboxId] = [surface, color, imageName, actualText, textColor, textSize, textFont, textCoverUp,
+                                     outlineWidth, outlineColor, borderWidth, borderRadius, borderedOverlay, cursorWidth,
+                                     cursorColor, cursorBorderRadius, idleBorderedOverlayColor,
+                                     activeBorderedOverlayColor, darkenActive, border_top_left_radius,
+                                     border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius]
+
         totalText = textfile.Text.create_text_for_widgets(textboxId, text, textColor, (
         textboxBase[textboxId][0][0] + 3 + textboxVisuals[textboxId][12],
         textboxBase[textboxId][0][1] + (textboxBase[textboxId][0][3] / 2)), textFont, textSize, centerX=False,
@@ -88,17 +104,13 @@ class Textbox:
         visualCursorPos[textboxId] = 0
 
     def draw(textboxId):
-        surface, color, image, text, textColor, textSize, textFont, textCoverUp, outlineWidth, outlineColor, borderWidth, borderRadius, borderedOverlay, idleBorderedOverlayColor, activeBorderedOverlayColor, darkenActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = \
-        textboxVisuals[textboxId]
+        surface, color, imageName, text, textColor, textSize, textFont, textCoverUp, outlineWidth, outlineColor, borderWidth, borderRadius, borderedOverlay, cursorWidth, cursorColor, cursorBorderRadius, idleBorderedOverlayColor, activeBorderedOverlayColor, darkenActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = textboxVisuals[textboxId]
         if textboxSelected == textboxId:
             if type(darkenActive) == int or type(darkenActive) == float:
-                color = list(color)
-                color[0], color[1], color[2] = max(color[0] - darkenActive, 0), max(color[1] - darkenActive, 0), max(
-                    color[2] - darkenActive, 0)
-                color = tuple(color)
+                color = GlobalFunctions.modifyColor(color, -darkenActive, 0)
 
         drawRect = textboxBase[textboxId][0]
-        GlobalFunctions.draw(surface, drawRect, color, image, outlineWidth, outlineColor, borderWidth, borderRadius,
+        GlobalFunctions.draw(surface, drawRect, color, imageName, outlineWidth, outlineColor, borderWidth, borderRadius,
                              border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                              border_bottom_right_radius)
 
@@ -109,13 +121,13 @@ class Textbox:
         surface.blit(croppedTextSurf, textPos)
 
         if textboxSelected == textboxId:
-            pygame.draw.rect(surface, (255, 255, 255), cursorBase[textboxId][0])
+            pygame.draw.rect(surface, cursorColor, cursorBase[textboxId][0], border_radius = cursorBorderRadius)
 
         if borderedOverlay > 0:
             borderedOverlayColor = idleBorderedOverlayColor
             if textboxId == textboxSelected:
                 borderedOverlayColor = activeBorderedOverlayColor
-            GlobalFunctions.draw(surface, drawRect, borderedOverlayColor, image, outlineWidth, outlineColor,
+            GlobalFunctions.draw(surface, drawRect, borderedOverlayColor, imageName, outlineWidth, outlineColor,
                                  borderedOverlay, borderRadius, border_top_left_radius, border_top_right_radius,
                                  border_bottom_left_radius, border_bottom_right_radius)
 
@@ -166,7 +178,7 @@ class Textbox:
         text = textboxVisuals[textboxId][3]
 
         if textboxVisuals[textboxId][7] != None:
-            text = str(textboxVisuals[textboxId][7]) * len(text)
+            text = str(textboxVisuals[textboxId][7][0]) * len(text)
 
         if cursorBase[textboxId][0][0] >= (textboxBase[textboxId][0][0] + textboxBase[textboxId][0][2]) - (
                 textboxVisuals[textboxId][5] / 2):
@@ -189,15 +201,19 @@ class Textbox:
     def update_cursor_pos(textboxId):
         global cursorBase
 
+        text = textboxVisuals[textboxId][3]
+        if textboxVisuals[textboxId][7] != None:
+            text = str(textboxVisuals[textboxId][7][0]) * len(text)
+
         totalText = textfile.Text.set(
-            textboxVisuals[textboxId][3][visualCursorPos[textboxId]:textboxBase[textboxId][4]], (255, 255, 255), (0, 0),
+            text[visualCursorPos[textboxId]:textboxBase[textboxId][4]], (255, 255, 255), (0, 0),
             textboxVisuals[textboxId][6], textSize=textboxVisuals[textboxId][5])
-        # (textboxBase[textboxId][0][0] + (0.015 * textboxBase[textboxId][0][2]), textboxBase[textboxId][0][1] + (textboxBase[textboxId][0][3] / 2))
-        cursorBase[textboxId] = [
-            pygame.Rect(textboxBase[textboxId][0][0] + 3 + textboxVisuals[textboxId][12] + totalText[1][2],
-                        textboxBase[textboxId][0][1] + (0.15 * textboxBase[textboxId][0][3]), 2,
-                        textboxVisuals[textboxId][5])]
-        # print(cursorBase[textboxId], textboxBase[textboxId][0][0] + textboxBase[textboxId][0][2], textboxId)
+
+        cursorBase[textboxId] = [pygame.Rect(
+                                            textboxBase[textboxId][0][0] + 3 + textboxVisuals[textboxId][12] + totalText[1][2],
+                                            textboxBase[textboxId][0][1] + (0.15 * textboxBase[textboxId][0][3]),
+                                            textboxVisuals[textboxId][13],
+                                            textboxVisuals[textboxId][5])]
 
     def update(event):
         global textboxBase, textboxVisuals, textboxHovered, textboxSelected, lettersText, cursorBase, visualCursorPos, mouseDown, keyDown
@@ -223,8 +239,7 @@ class Textbox:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if event.button == pygame.BUTTON_LEFT:
                             if textboxSelected == textboxId:
-                                if textboxVisuals[textboxSelected][3] == '' and textboxBase[textboxSelected][
-                                    1] == int and textboxBase[textboxSelected][3] != None:
+                                if textboxVisuals[textboxSelected][3] == '' and textboxBase[textboxSelected][1] == int and textboxBase[textboxSelected][3] != None:
                                     textboxVisuals[textboxSelected][3] = str(textboxBase[textboxSelected][3][0])
                                     Textbox.update_text_visuals(textboxSelected)
                                 textboxSelected = ''
@@ -239,18 +254,18 @@ class Textbox:
                     Textbox.update_cursor_pos(textboxId)
 
                 if event.type == pygame.KEYDOWN and not keyDown:
-                    # if event.key != pygame.K_LSHIFT:
-                    keyDown = True
+                    if event.key != pygame.K_LSHIFT:
+                        keyDown = True
 
                     if event.key == pygame.K_RETURN:
-                        textboxBase[textboxId][8]()
+                        if textboxBase[textboxId][8] != None:
+                            textboxBase[textboxId][8]()
+                        else:
+                            Textbox.default_submit_func(textboxId)
 
                     elif event.key == pygame.K_BACKSPACE:
                         if textboxBase[textboxId][4] != 0:
-                            textboxVisuals[textboxId][3] = textboxVisuals[textboxId][3][
-                                                           :textboxBase[textboxId][4] - 1] + textboxVisuals[textboxId][
-                                                                                                 3][
-                                                                                             textboxBase[textboxId][4]:]
+                            textboxVisuals[textboxId][3] = textboxVisuals[textboxId][3][:textboxBase[textboxId][4] - 1] + textboxVisuals[textboxId][3][textboxBase[textboxId][4]:]
                             textboxBase[textboxId][4] -= 1
                             textboxBase[textboxId][7]()
                             textboxTextChanged = True
@@ -283,22 +298,18 @@ class Textbox:
 
                     textboxBase[textboxId][7]()
 
-                    textboxVisuals[textboxId][3] = textboxVisuals[textboxId][3][
-                                                   :textboxBase[textboxId][4]] + event.text + textboxVisuals[textboxId][
-                                                                                                  3][
-                                                                                              textboxBase[textboxId][
-                                                                                                  4]:]
+                    textboxVisuals[textboxId][3] = textboxVisuals[textboxId][3][:textboxBase[textboxId][4]] + event.text + textboxVisuals[textboxId][3][textboxBase[textboxId][4]:]
                     textboxBase[textboxId][4] += 1
 
-                    limitType, limitLength, limitInt = textboxBase[textboxId][1], textboxBase[textboxId][2], \
+                    limitType, limitLength, limitNumbers = textboxBase[textboxId][1], textboxBase[textboxId][2], \
                                                        textboxBase[textboxId][3]
 
                     if limitType != None:
                         try:
                             limitType(textboxVisuals[textboxId][3])
-                            if limitType == int and limitInt != None:
-                                if float(textboxVisuals[textboxId][3]) < limitInt[0] or float(
-                                        textboxVisuals[textboxId][3]) > limitInt[1]:
+                            if limitType == int and limitNumbers != None:
+                                if float(textboxVisuals[textboxId][3]) < limitNumbers[0] or float(
+                                        textboxVisuals[textboxId][3]) > limitNumbers[1]:
                                     censured = True
                         except:
                             censured = True

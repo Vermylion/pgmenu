@@ -8,38 +8,98 @@ import image as imagefile
 import menu
 import text as textfile
 import textbox
+import theme
 
-widgetFgColor = ''
-widgetBgColor = ''
-widgetOutlineColor = ''
-widgetOutlineWidth = ''
-widgetTextFgColor = ''
-widgetTextBgColor = ''
+mainColor = (0, 0, 0)
+bgColor = (0, 0, 0)
+fgColor = (0, 0, 0)
+widgetFgColor = (0, 0, 0)
+widgetBgColor = (0, 0, 0)
 
+textFgColor = (0, 0, 0)
+textBgColor = (0, 0, 0)
 
-def theme(themeName):
-    print(themeName)
-    global widgetFgColor;
-    widgetFgColor = GlobalFunctions.Themes[themeName]['widgetFgColor']
-    global widgetBgColor;
-    widgetBgColor = GlobalFunctions.Themes[themeName]['widgetBgColor']
-    global widgetOutlineColor;
-    widgetOutlineColor = GlobalFunctions.Themes[themeName]['widgetOutlineColor']
-    global widgetOutlineWidth;
-    widgetOutlineWidth = GlobalFunctions.Themes[themeName]['widgetOutlineWidth']
-    global widgetTextFgColor;
-    widgetTextFgColor = GlobalFunctions.Themes[themeName]['widgetTextFgColor']
-    global widgetTextBgColor;
-    widgetTextBgColor = GlobalFunctions.Themes[themeName]['widgetTextBgColor']
+widgetOutlineColor = (0, 0, 0)
+widgetOutlineWidth = 0
+widgetBorderWidth = 0
+
+accentColor = (0, 0, 0)
 
 
-theme('BLUE')  # YELLOW&BLACK
+class Theme:
+    def __init(self) -> None:
+        pass
 
+    def mode(modeType):
+        """
+        Available mode types:
+        'Light'
+        'Dark'
+        'System'
+        """
 
-def createTheme(themeName, fgColor=widgetFgColor, bgColor=widgetBgColor, outlineColor=widgetOutlineColor,
-                outlineWidth=widgetOutlineWidth, textFgColor=widgetTextFgColor, textBgColor=widgetTextBgColor):
-    GlobalFunctions.createTheme(themeName, fgColor, bgColor, outlineColor, outlineWidth, textFgColor, textBgColor)
+        theme.Theme.mode(modeType)
 
+        global mainColor; mainColor = theme.mainColor
+        global bgColor; bgColor = theme.bgColor
+        global fgColor; fgColor = theme.fgColor
+        global widgetFgColor; widgetFgColor = theme.widgetFgColor
+        global widgetBgColor; widgetBgColor = theme.widgetBgColor
+
+        global textFgColor; textFgColor = theme.textFgColor
+        global textBgColor; textBgColor = theme.textBgColor
+
+    def set(themeName):
+        """
+        Available themes:
+        'BLUE'
+        'RED'
+        'GREEN'
+        'YELLOW'
+        'PURPLE'
+        'YELLOW&BLACK'
+        """
+
+        theme.Theme.set(themeName)
+
+        global mainColor; mainColor = theme.mainColor
+        global bgColor; bgColor = theme.bgColor
+        global fgColor; fgColor = theme.fgColor
+        global widgetFgColor; widgetFgColor = theme.widgetFgColor
+        global widgetBgColor; widgetBgColor = theme.widgetBgColor
+
+        global widgetOutlineColor; widgetOutlineColor = theme.widgetOutlineColor
+        global widgetOutlineWidth; widgetOutlineWidth = theme.widgetOutlineWidth
+        global widgetBorderWidth; widgetBorderWidth = theme.widgetBorderWidth
+
+        global textFgColor; textFgColor = theme.textFgColor
+        global textBgColor; textBgColor = theme.textBgColor
+
+        global accentColor; accentColor = theme.accentColor
+
+    def custom(themeName, **kwargs):
+        """
+        Optional Arguments:
+        accentColor: tuple
+        textFgColor: tuple
+        textBgColor: tuple
+        widgetOutlineColor: tuple
+        widgetOutlineWidth: int
+        widgetBorderWidth: int
+        ---Mode Arguments:
+        mainColor: tuple
+        bgColor: tuple
+        fgColor: tuple
+        widgetFgColor: tuple
+        widgetBgColor: tuple
+        """
+
+        theme.Theme.custom(themeName, **kwargs)
+
+        #theme.Theme.set(themeName)
+
+Theme.mode('System')
+Theme.set('BLUE')
 
 class Menu:
     def __init__(self) -> None:
@@ -80,34 +140,104 @@ class Text:
     def __init__(self) -> None:
         pass
 
-    def create(surface, string, color, coords=(10, 10), font='CeraRoundProBold.otf', textSize=30, centerX=False,
-               centerY=False):
+    def create(surface, string, coords = (10, 10), **kwargs):
+        """
+        Optional Arguments:
+        color: tuple
+        font: str
+        textSize: int
+        centerX: False/True
+        centerY: False/True
+        """
+
+        color = GlobalFunctions.kwargsSwitchCase('color', textBgColor, kwargs)
+        font = GlobalFunctions.kwargsSwitchCase('font', 'CeraRoundProBold.otf', kwargs)
+        textSize = GlobalFunctions.kwargsSwitchCase('textSize', 30, kwargs)
+        centerX = GlobalFunctions.kwargsSwitchCase('centerX', False, kwargs)
+        centerY = GlobalFunctions.kwargsSwitchCase('centerY', False, kwargs)
+
         return textfile.Text.create(surface, string, color, coords, font, textSize, centerX, centerY)
 
-    def modify(textId, surface, string, color, coords=(10, 10), font='CeraRoundProBold.otf', textSize=30, centerX=False,
-               centerY=False):
-        return textfile.Text.modify(textId, surface, string, color, coords, font, textSize, centerX, centerY)
+    def modify(textId, **kwargs):
+        """
+        Optional Arguments:
+        surface: pygame.Surface
+        string: str
+        coords: tuple
+        color: tuple
+        font: str
+        textSize: int
+        centerX: False/True
+        centerY: False/True
+        """
+
+        return textfile.Text.modify(textId, **kwargs)
 
     def draw(textId):
         textfile.Text.draw(textId)
 
-    def set(string, color, coords=(10, 10), font='CeraRoundProBold.otf', fontSize=30, centerX=True, centerY=True):
-        return textfile.Text.set(string, color, coords, font, fontSize, centerX, centerY)
+    def set(string, coords = (10, 10), **kwargs):
+        """
+        Optional Arguments:
+        color: tuple
+        font: str
+        textSize: int
+        centerX: True/False
+        centerY: True/False
+        """
 
-    def write(surface, string, color, coords=(10, 10), font='CeraRoundProBold.otf', fontSize=30, centerX=True,
-              centerY=True):
-        return textfile.Text.write(surface, string, color, coords, font, fontSize, centerX, centerY)
+        color = GlobalFunctions.kwargsSwitchCase('color', textBgColor, kwargs)
+        font = GlobalFunctions.kwargsSwitchCase('font', 'CeraRoundProBold.otf', kwargs)
+        textSize = GlobalFunctions.kwargsSwitchCase('textSize', 30, kwargs)
+        centerX = GlobalFunctions.kwargsSwitchCase('centerX', True, kwargs)
+        centerY = GlobalFunctions.kwargsSwitchCase('centerY', True, kwargs)
+
+        return textfile.Text.set(string, color, coords, font, textSize, centerX, centerY)
+
+    def write(surface, string, coords=(10, 10), **kwargs):
+        """
+        Optional Arguments:
+        color: tuple
+        font: str
+        textSize: int
+        centerX: True/False
+        centerY: True/False
+        """
+
+        color = GlobalFunctions.kwargsSwitchCase('color', textBgColor, kwargs)
+        font = GlobalFunctions.kwargsSwitchCase('font', 'CeraRoundProBold.otf', kwargs)
+        textSize = GlobalFunctions.kwargsSwitchCase('textSize', 30, kwargs)
+        centerX = GlobalFunctions.kwargsSwitchCase('centerX', True, kwargs)
+        centerY = GlobalFunctions.kwargsSwitchCase('centerY', True, kwargs)
+
+        return textfile.Text.write(surface, string, color, coords, font, textSize, centerX, centerY)
 
 
 class Image:
     def __init__(self) -> None:
         pass
 
-    def create(surface, imageName, coords=(10, 10), dimensions=(100, 100)):
-        return imagefile.Image.create(surface, imageName, coords, dimensions)
+    def create(surface, imageName, coords = (10, 10), dimensions = (200, 200), **kwargs):
+        """
+        Optional Arguments:
+        borderRadius: int
+        """
 
-    def modify(imageId, surface, imageName, coords=(10, 10), dimensions=(100, 100)):
-        return imagefile.Image.create(imageId, surface, imageName, coords, dimensions)
+        borderRadius = GlobalFunctions.kwargsSwitchCase('borderRadius', 15, kwargs)
+
+        return imagefile.Image.create(surface, imageName, coords, dimensions, borderRadius)
+
+    def modify(imageId, **kwargs):
+        """
+        Optional Arguments:
+        surface: pygame.Surface
+        imageName: str
+        coords: tuple
+        dimensions: tuple
+        borderRadius: int
+        """
+
+        return imagefile.Image.modify(imageId, **kwargs)
 
     def draw(imageId):
         imagefile.Image.draw(imageId)
@@ -115,21 +245,67 @@ class Image:
     def set(imageName):
         return imagefile.Image.set(imageName)
 
+    def size(imageName, **kwargs):
+        """
+        Optional Arguments:
+        resizeRatio: int
+        """
+
+        resizeRatio = GlobalFunctions.kwargsSwitchCase('resizeRatio', 1, kwargs)
+
+        return imagefile.Image.size(imageName, resizeRatio)
 
 class Frame:
     def __init__(self) -> None:
         pass
 
-    def create(coords=(10, 10), dimensions=(200, 200), state='enabled'):
+    def create(coords = (10, 10), dimensions = (200, 200), **kwargs):
+        """
+        Optional Arguments:
+        state: str
+        """
+
+        state = GlobalFunctions.kwargsSwitchCase('state', 'enabled', kwargs)
+
         return frame.Frame.create(coords, dimensions, state)
 
-    def modify(frameId, coords=(10, 10), dimensions=(200, 200), state='enabled'):
-        return frame.Frame.modify(frameId, coords, dimensions, state)
+    def modify(frameId, **kwargs):
+        """
+        Optional Arguments:
+        coords: tuple
+        dimensions: tuple
+        state: str
+        """
 
-    def visuals(surface, frameId, color=widgetBgColor, image=None, outlineWidth=widgetOutlineWidth,
-                outlineColor=widgetOutlineColor, borderWidth=0, borderRadius=10, border_top_left_radius=-1,
-                border_top_right_radius=-1, border_bottom_left_radius=-1, border_bottom_right_radius=-1):
-        frame.Frame.visuals(surface, frameId, color, image, outlineWidth, outlineColor, borderWidth, borderRadius,
+        return frame.Frame.modify(frameId, **kwargs)
+
+    def visuals(surface, frameId, **kwargs):
+        """
+        Optional Arguments:
+        color: tuple
+        imageName: None | str
+        outlineWidth: int
+        outlineColor: tuple
+        borderWidth: int
+        borderRadius: int
+        border_top_left_radius: int
+        border_top_right_radius: int
+        border_bottom_left_radius: int
+        border_bottom_right_radius: int
+        """
+
+        color = GlobalFunctions.kwargsSwitchCase('color', fgColor, kwargs)
+        imageName = GlobalFunctions.kwargsSwitchCase('imageName', None, kwargs)
+        outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
+        outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
+        borderWidth = GlobalFunctions.kwargsSwitchCase('borderWidth', widgetBorderWidth, kwargs)
+        borderRadius = GlobalFunctions.kwargsSwitchCase('borderRadius', 15, kwargs)
+        border_top_left_radius = GlobalFunctions.kwargsSwitchCase('border_top_left_radius', -1, kwargs)
+        border_top_right_radius = GlobalFunctions.kwargsSwitchCase('border_top_right_radius', -1, kwargs)
+        border_bottom_left_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_left_radius', -1, kwargs)
+        border_bottom_right_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_right_radius', -1, kwargs)
+
+        frame.Frame.visuals(surface, frameId, color, imageName, outlineWidth, outlineColor, borderWidth, borderRadius,
                             border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                             border_bottom_right_radius)
 
@@ -158,20 +334,71 @@ class Button:
     def default_hover_func():
         button.Button.default_hover_func()
 
-    def create(coords=(10, 10), dimensions=(100, 30), activatedFunction=default_action_func,
-               hoveredFunction=default_hover_func, state='enabled'):
+    def create(coords=(10, 10), dimensions=(100, 30), **kwargs):
+        """
+        Optional Arguments:
+        activatedFunction: function
+        hoveredFunction: function
+        state: str
+        """
+
+        activatedFunction = GlobalFunctions.kwargsSwitchCase('activatedFunction', Button.default_action_func, kwargs)
+        hoveredFunction = GlobalFunctions.kwargsSwitchCase('hoveredFunction', Button.default_hover_func, kwargs)
+        state = GlobalFunctions.kwargsSwitchCase('state', 'enabled', kwargs)
+
         return button.Button.create(coords, dimensions, activatedFunction, hoveredFunction, state)
 
-    def modify(buttonId, coords=(10, 10), dimensions=(100, 30), activatedFunction=default_action_func,
-               hoveredFunction=default_hover_func, state='enabled'):
-        return button.Button.modify(buttonId, coords, dimensions, activatedFunction, hoveredFunction, state)
+    def modify(buttonId, **kwargs):
+        """
+        Optional Arguments:
+        coords: tuple
+        dimensions: tuple
+        activatedFunction: function
+        hoveredFunction: function
+        state: str
+        """
 
-    def visuals(surface, buttonId, color=widgetFgColor, image=None, icon=None, text=None, textColor=widgetTextFgColor,
-                textSize=None, textFont='CeraRoundProBold.otf', outlineWidth=widgetOutlineWidth,
-                outlineColor=widgetOutlineColor, borderWidth=0, borderRadius=5, inflateActive=7,
-                border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1,
-                border_bottom_right_radius=-1):
-        button.Button.visuals(surface, buttonId, color, image, icon, text, textColor, textSize, textFont, outlineWidth,
+        return button.Button.modify(buttonId, **kwargs)
+
+    def visuals(surface, buttonId, **kwargs):
+        """
+        Optional Arguments:
+        color: tuple
+        imageName: None | str
+        icon: None | str
+        text: None | str
+        textColor: tuple
+        textSize: None | int
+        textFont: str
+        outlineWidth: int
+        outlineColor: tuple
+        borderWidth: int
+        borderRadius: int
+        inflateActive: int
+        border_top_left_radius: int
+        border_top_right_radius: int
+        border_bottom_left_radius: int
+        border_bottom_right_radius: int
+        """
+
+        color = GlobalFunctions.kwargsSwitchCase('color', accentColor, kwargs)
+        imageName = GlobalFunctions.kwargsSwitchCase('imageName', None, kwargs)
+        icon = GlobalFunctions.kwargsSwitchCase('icon', None, kwargs)
+        text = GlobalFunctions.kwargsSwitchCase('text', 'Button', kwargs)
+        textColor = GlobalFunctions.kwargsSwitchCase('textColor', textFgColor, kwargs)
+        textSize = GlobalFunctions.kwargsSwitchCase('textSize', None, kwargs)
+        textFont = GlobalFunctions.kwargsSwitchCase('textFont', 'CeraRoundProBold.otf', kwargs)
+        outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
+        outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
+        borderWidth = GlobalFunctions.kwargsSwitchCase('borderWidth', widgetBorderWidth, kwargs)
+        borderRadius = GlobalFunctions.kwargsSwitchCase('borderRadius', 7, kwargs)
+        inflateActive = GlobalFunctions.kwargsSwitchCase('inflateActive', 7, kwargs)
+        border_top_left_radius = GlobalFunctions.kwargsSwitchCase('border_top_left_radius', -1, kwargs)
+        border_top_right_radius = GlobalFunctions.kwargsSwitchCase('border_top_right_radius', -1, kwargs)
+        border_bottom_left_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_left_radius', -1, kwargs)
+        border_bottom_right_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_right_radius', -1, kwargs)
+
+        button.Button.visuals(surface, buttonId, color, imageName, icon, text, textColor, textSize, textFont, outlineWidth,
                               outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius,
                               border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius)
 
@@ -195,19 +422,75 @@ class Checkbox:
     def default_hover_func():
         checkbox.Checkbox.default_hover_func()
 
-    def create(coords=(10, 10), size=30, activatedFunction=default_action_func, hoveredFunction=default_hover_func,
-               status=False, state='enabled'):
+    def create(coords=(10, 10), size=30, **kwargs):
+        """
+        Optional Arguments:
+        activatedFunction: function
+        hoveredFunction: function
+        status: False/True
+        state: str
+        """
+
+        activatedFunction = GlobalFunctions.kwargsSwitchCase('activatedFunction', Checkbox.default_action_func, kwargs)
+        hoveredFunction = GlobalFunctions.kwargsSwitchCase('hoveredFunction', Checkbox.default_hover_func, kwargs)
+        status = GlobalFunctions.kwargsSwitchCase('status', False, kwargs)
+        state = GlobalFunctions.kwargsSwitchCase('state', 'enabled', kwargs)
+        
         return checkbox.Checkbox.create(coords, size, activatedFunction, hoveredFunction, status, state)
 
-    def modify(checkboxId, coords=(10, 10), size=30, activatedFunction=default_action_func,
-               hoveredFunction=default_hover_func, status=False, state='enabled'):
-        return checkbox.Checkbox.modify(checkboxId, coords, size, activatedFunction, hoveredFunction, status, state)
+    def modify(checkboxId, **kwargs):
+        """
+        Optional Arguments:
+        coords: tuple
+        size: int
+        activatedFunction: function
+        hoveredFunction: function
+        status: False/True
+        state: str
+        """
+        
+        return checkbox.Checkbox.modify(checkboxId, **kwargs)
 
-    def visuals(surface, checkboxId, fgColor=widgetFgColor, bgColor=widgetBgColor, fgImage=None, bgImage=None,
-                text=None, textColor=widgetTextFgColor, textSize=None, textFont='CeraRoundProBold.otf',
-                outlineWidth=widgetOutlineWidth, outlineColor=widgetOutlineColor, borderWidth=0, borderRadius=5,
-                inflateActive=10, border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1,
-                border_bottom_right_radius=-1):
+    def visuals(surface, checkboxId, **kwargs):
+        """
+        Optional Arguments:
+        fgColor: tuple
+        bgColor: tuple
+        fgImage: None | str
+        bgImage: None | str
+        text: None | str
+        textColor: tuple
+        textSize: None | int
+        textFont: str
+        outlineWidth: int
+        outlineColor: tuple
+        borderWidth: int
+        borderRadius: int
+        inflateActive: int
+        border_top_left_radius: int
+        border_top_right_radius: int
+        border_bottom_left_radius: int
+        border_bottom_right_radius: int
+        """
+
+        fgColor = GlobalFunctions.kwargsSwitchCase('fgColor', accentColor, kwargs)
+        bgColor = GlobalFunctions.kwargsSwitchCase('bgColor', widgetBgColor, kwargs)
+        fgImage = GlobalFunctions.kwargsSwitchCase('fgImage', None, kwargs)
+        bgImage = GlobalFunctions.kwargsSwitchCase('bgImage', None, kwargs)
+        text = GlobalFunctions.kwargsSwitchCase('text', 'Checkbox', kwargs)
+        textColor = GlobalFunctions.kwargsSwitchCase('textColor', textBgColor, kwargs)
+        textSize = GlobalFunctions.kwargsSwitchCase('textSize', None, kwargs)
+        textFont = GlobalFunctions.kwargsSwitchCase('textFont', 'CeraRoundProBold.otf', kwargs)
+        outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
+        outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
+        borderWidth = GlobalFunctions.kwargsSwitchCase('borderWidth', widgetBorderWidth, kwargs)
+        borderRadius = GlobalFunctions.kwargsSwitchCase('borderRadius', 7, kwargs)
+        inflateActive = GlobalFunctions.kwargsSwitchCase('inflateActive', 10, kwargs)
+        border_top_left_radius = GlobalFunctions.kwargsSwitchCase('border_top_left_radius', -1, kwargs)
+        border_top_right_radius = GlobalFunctions.kwargsSwitchCase('border_top_right_radius', -1, kwargs)
+        border_bottom_left_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_left_radius', -1, kwargs)
+        border_bottom_right_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_right_radius', -1, kwargs)
+
         checkbox.Checkbox.visuals(surface, checkboxId, fgColor, bgColor, fgImage, bgImage, text, textColor, textSize,
                                   textFont, outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive,
                                   border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
@@ -242,42 +525,133 @@ class Textbox:
     def __init__(self) -> None:
         pass
 
+    def default_typed_func():
+        textbox.Textbox.default_typed_func()
+
     def default_action_func():
         textbox.Textbox.default_action_func()
 
     def default_hover_func():
         textbox.Textbox.default_hover_func()
 
-    def create(coords=(10, 10), dimensions=(100, 30), limitType=None, limitLength=None, limitInt=None,
-               activatedFunction=default_action_func, hoveredFunction=default_hover_func,
-               typedFunction=default_action_func, submitFunction=default_action_func, state='enabled'):
-        return textbox.Textbox.create(coords, dimensions, limitType, limitLength, limitInt, activatedFunction,
+    def create(coords=(10, 10), dimensions=(100, 30), **kwargs):
+        """
+        Optional Arguments:
+        limitType: None | Any type
+        limitLength: None | int
+        limitNumbers: None | tuple
+        activatedFunction: function
+        hoveredFunction: function
+        typedFunction: function
+        submitFunction: function
+        state: str
+        """
+
+        limitType = GlobalFunctions.kwargsSwitchCase('limitType', None, kwargs)
+        limitLength = GlobalFunctions.kwargsSwitchCase('limitLength', None, kwargs)
+        limitNumbers = GlobalFunctions.kwargsSwitchCase('limitNumbers', None, kwargs)
+        activatedFunction = GlobalFunctions.kwargsSwitchCase('activatedFunction', Textbox.default_action_func, kwargs)
+        hoveredFunction = GlobalFunctions.kwargsSwitchCase('hoveredFunction', Textbox.default_hover_func, kwargs)
+        typedFunction = GlobalFunctions.kwargsSwitchCase('typedFunction', Textbox.default_typed_func, kwargs)
+        submitFunction = GlobalFunctions.kwargsSwitchCase('submitFunction', None, kwargs)
+        state = GlobalFunctions.kwargsSwitchCase('state', 'enabled', kwargs)
+
+        return textbox.Textbox.create(coords, dimensions, limitType, limitLength, limitNumbers, activatedFunction,
                                       hoveredFunction, typedFunction, submitFunction, state)
 
-    def modify(textboxId, coords=(10, 10), dimensions=(100, 30), limitType=None, limitLength=None, limitInt=None,
-               activatedFunction=default_action_func, hoveredFunction=default_hover_func,
-               typedFunction=default_action_func, submitFunction=default_action_func, state='enabled'):
-        return textbox.Textbox.modify(textboxId, coords, dimensions, limitType, limitLength, limitInt,
-                                      activatedFunction, hoveredFunction, typedFunction, submitFunction, state)
+    def modify(textboxId, **kwargs):
+        """
+        Optional Arguments:
+        coords: tuple
+        dimensions: tuple
+        limitType: None | Any type
+        limitLength: None | int
+        limitNumbers: None | tuple
+        activatedFunction: function
+        hoveredFunction: function
+        typedFunction: function
+        submitFunction: function
+        state: str
+        """
 
-    def visuals(surface, textboxId, color=widgetBgColor, image=None, text='', textColor=widgetTextBgColor,
-                textFont='CeraRoundProBold.otf', textCoverUp=None, outlineWidth=widgetOutlineWidth,
-                outlineColor=widgetOutlineColor, borderWidth=0, borderRadius=5, borderedOverlay=3,
-                idleBorderedOverlayColor=widgetBgColor, activeBorderedOverlayColor=widgetFgColor, darkenActive=25,
-                border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1,
-                border_bottom_right_radius=-1):
-        textbox.Textbox.visuals(surface, textboxId, color, image, text, textColor, textFont, textCoverUp, outlineWidth,
-                                outlineColor, borderWidth, borderRadius, borderedOverlay, idleBorderedOverlayColor,
+        return textbox.Textbox.modify(textboxId, **kwargs)
+
+    def visuals(surface, textboxId, **kwargs):
+        """
+        Optional Arguments:
+        color: tuple
+        imageName: None | str
+        text: None | str
+        textColor: tuple
+        textFont: str
+        textCoverUp: None | str
+        outlineWidth: int
+        outlineColor: tuple
+        borderWidth: int
+        borderRadius: int
+        borderedOverlay: int
+        cursorWidth: int
+        cursorColor: tuple
+        cursorBorderRadius: int
+        idleBorderedOverlayColor: tuple
+        activeBorderedOverlayColor: tuple
+        darkenActive: int
+        border_top_left_radius: int
+        border_top_right_radius: int
+        border_bottom_left_radius: int
+        border_bottom_right_radius: int
+        """
+
+        color = GlobalFunctions.kwargsSwitchCase('color', widgetBgColor, kwargs)
+        imageName = GlobalFunctions.kwargsSwitchCase('imageName', None, kwargs)
+        text = GlobalFunctions.kwargsSwitchCase('text', '', kwargs)
+        textColor = GlobalFunctions.kwargsSwitchCase('textColor', textBgColor, kwargs)
+        textFont = GlobalFunctions.kwargsSwitchCase('textFont', 'CeraRoundProBold.otf', kwargs)
+        textCoverUp = GlobalFunctions.kwargsSwitchCase('textCoverUp', None, kwargs)
+        outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
+        outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
+        borderWidth = GlobalFunctions.kwargsSwitchCase('borderWidth', widgetBorderWidth, kwargs)
+        borderRadius = GlobalFunctions.kwargsSwitchCase('borderRadius', 7, kwargs)
+        borderedOverlay = GlobalFunctions.kwargsSwitchCase('borderedOverlay', 3, kwargs)
+        cursorWidth = GlobalFunctions.kwargsSwitchCase('cursorWidth', 2, kwargs)
+        cursorColor = GlobalFunctions.kwargsSwitchCase('cursorColor', accentColor, kwargs)
+        cursorBorderRadius = GlobalFunctions.kwargsSwitchCase('cursorBorderRadius', 2, kwargs)
+        idleBorderedOverlayColor = GlobalFunctions.kwargsSwitchCase('idleBorderedOverlayColor', widgetFgColor, kwargs)
+        activeBorderedOverlayColor = GlobalFunctions.kwargsSwitchCase('activeBorderedOverlayColor', accentColor, kwargs)
+        darkenActive = GlobalFunctions.kwargsSwitchCase('darkenActive', 25, kwargs)
+        border_top_left_radius = GlobalFunctions.kwargsSwitchCase('border_top_left_radius', -1, kwargs)
+        border_top_right_radius = GlobalFunctions.kwargsSwitchCase('border_top_right_radius', -1, kwargs)
+        border_bottom_left_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_left_radius', -1, kwargs)
+        border_bottom_right_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_right_radius', -1, kwargs)
+
+        textbox.Textbox.visuals(surface, textboxId, color, imageName, text, textColor, textFont, textCoverUp, outlineWidth,
+                                outlineColor, borderWidth, borderRadius, borderedOverlay, cursorWidth, cursorColor, cursorBorderRadius, idleBorderedOverlayColor,
                                 activeBorderedOverlayColor, darkenActive, border_top_left_radius,
                                 border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius)
 
     def draw(textboxId):
         textbox.Textbox.draw(textboxId)
 
-    def delete(textboxId, start=0, end=None):
+    def delete(textboxId, **kwargs):
+        """
+        Optional Arguments:
+        start: int
+        end: None | int
+        """
+
+        start = GlobalFunctions.kwargsSwitchCase('start', 0, kwargs)
+        end = GlobalFunctions.kwargsSwitchCase('end', None, kwargs)
+
         return textbox.Textbox.delete(textboxId, start, end)
 
-    def insert(textboxId, string, place=0):
+    def insert(textboxId, string, **kwargs):
+        """
+        Optional Arguments:
+        place: int
+        """
+
+        place = GlobalFunctions.kwargsSwitchCase('place', 0, kwargs)
+
         return textbox.Textbox.insert(textboxId, string, place)
 
     def enable(textboxId):
@@ -295,15 +669,40 @@ def update(event):
     checkbox.Checkbox.update(event)
     textbox.Textbox.update(event)
 
-    frame.Frame.update(event)
+    frame.Frame.update()
 
     pygame.mouse.set_cursor(GlobalFunctions.cursorRequested)
     GlobalFunctions.cursorRequested = pygame.SYSTEM_CURSOR_ARROW
 
+def draw(surface, drawRect, **kwargs):
+    """
+    Optional Arguments:
+    color: tuple
+    imageName: None | str
+    outlineWidth: int
+    outlineColor: tuple
+    borderWidth: int
+    borderRadius: int
+    border_top_left_radius: int
+    border_top_right_radius: int
+    border_bottom_left_radius: int
+    border_bottom_right_radius: int
+    """
 
-def draw(surface, drawRect, color=widgetFgColor, image=None, outlineWidth=0, outlineColor=widgetOutlineColor,
-         borderWidth=0, borderRadius=10, border_top_left_radius=-1, border_top_right_radius=-1,
-         border_bottom_left_radius=-1, border_bottom_right_radius=-1):
-    return GlobalFunctions.draw(surface, drawRect, color, image, outlineWidth, outlineColor, borderWidth, borderRadius,
+    color = GlobalFunctions.kwargsSwitchCase('color', fgColor, kwargs)
+    imageName = GlobalFunctions.kwargsSwitchCase('imageName', None, kwargs)
+    outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
+    outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
+    borderWidth = GlobalFunctions.kwargsSwitchCase('borderWidth', widgetBorderWidth, kwargs)
+    borderRadius = GlobalFunctions.kwargsSwitchCase('borderRadius', 10, kwargs)
+    border_top_left_radius = GlobalFunctions.kwargsSwitchCase('border_top_left_radius', -1, kwargs)
+    border_top_right_radius = GlobalFunctions.kwargsSwitchCase('border_top_right_radius', -1, kwargs)
+    border_bottom_left_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_left_radius', -1, kwargs)
+    border_bottom_right_radius = GlobalFunctions.kwargsSwitchCase('border_bottom_right_radius', -1, kwargs)
+
+    return GlobalFunctions.draw(surface, drawRect, color, imageName, outlineWidth, outlineColor, borderWidth, borderRadius,
                                 border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                                 border_bottom_right_radius)
+
+def requestCursor(cursorType = pygame.SYSTEM_CURSOR_ARROW):
+    GlobalFunctions.cursorRequested = cursorType

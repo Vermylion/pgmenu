@@ -1,9 +1,7 @@
 from itertools import chain
-
 import pygame
 
 import GlobalFunctions
-import frame
 import text as textfile
 
 checkboxBase = dict({})
@@ -19,7 +17,7 @@ class Checkbox:
         pass
 
     def default_action_func():
-        print('Checkbox Action')
+        print('Checkbox Activated')
 
     def default_hover_func():
         pass
@@ -34,56 +32,52 @@ class Checkbox:
 
         return checkboxId
 
-    def modify(checkboxId, coords, size, activatedFunction, hoveredFunction, status, state):
+    def modify(checkboxId, **kwargs):
         global checkboxBase
+
+        coords = GlobalFunctions.kwargsSwitchCase('coords', (checkboxBase[checkboxId][0][0], checkboxBase[checkboxId][0][1]), kwargs)
+        size = GlobalFunctions.kwargsSwitchCase('size', checkboxBase[checkboxId][0][2], kwargs)
+        activatedFunction = GlobalFunctions.kwargsSwitchCase('activatedFunction', checkboxBase[checkboxId][1], kwargs)
+        hoveredFunction = GlobalFunctions.kwargsSwitchCase('hoveredFunction', checkboxBase[checkboxId][2], kwargs)
+        status = GlobalFunctions.kwargsSwitchCase('status', checkboxBase[checkboxId][3], kwargs)
+        state = GlobalFunctions.kwargsSwitchCase('state', checkboxBase[checkboxId][4], kwargs)
 
         checkboxRect = pygame.Rect(coords[0], coords[1], size, size)
         checkboxBase[checkboxId] = [checkboxRect, activatedFunction, hoveredFunction, status, state]
 
+        if checkboxId in checkboxVisuals:
+            surface, fgColor, bgColor, fgImageName, bgImageName, text, textColor, textSize, textFont, outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = checkboxVisuals[checkboxId]
+            Checkbox.visuals(surface, checkboxId, fgColor, bgColor, fgImageName, bgImageName, text, textColor, textSize, textFont,
+                outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius,
+                border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius)
+
         return checkboxId
 
-    def visuals(surface, checkboxId, fgColor, bgColor, fgImage, bgImage, text, textColor, textSize, textFont,
+    def visuals(surface, checkboxId, fgColor, bgColor, fgImageName, bgImageName, text, textColor, textSize, textFont,
                 outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius,
                 border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius):
         global checkboxVisuals
-
-        if str(surface).split()[0] == 'Frame':
-            if frame.frameBase[surface][2] == 'enabled':
-                surface = frame.frameBase[surface][1]
-            else:
-                surface = frame.frameVisuals[surface][0]
 
         if text != None:
             if textSize == None:
                 textSize = checkboxBase[checkboxId][0][3]
 
-            textfile.Text.create_text_for_widgets(checkboxId, text, textColor, ((checkboxBase[checkboxId][0][0] +
-                                                                                 checkboxBase[checkboxId][0][2] + ((
-                                                                                                                               0.15 *
-                                                                                                                               checkboxBase[
-                                                                                                                                   checkboxId][
-                                                                                                                                   0][
-                                                                                                                                   2]) * 2)),
-                                                                                checkboxBase[checkboxId][0][1] + (
-                                                                                            checkboxBase[checkboxId][0][
-                                                                                                3] / 2)), textFont,
-                                                  textSize, centerX=False, centerY=True)
+            textfile.Text.create_text_for_widgets(checkboxId, text, textColor, ((checkboxBase[checkboxId][0][0] + checkboxBase[checkboxId][0][2] +((0.15 * checkboxBase[checkboxId][0][2]) * 2)), checkboxBase[checkboxId][0][1] + (checkboxBase[checkboxId][0][3] / 2)), textFont, textSize, centerX=False, centerY=True)
 
-        checkboxVisuals[checkboxId] = [surface, fgColor, bgColor, fgImage, bgImage, text, textColor, textSize, textFont,
+        checkboxVisuals[checkboxId] = [surface, fgColor, bgColor, fgImageName, bgImageName, text, textColor, textSize, textFont,
                                        outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive,
                                        border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                                        border_bottom_right_radius]
 
     def draw(checkboxId):
-        surface, fgColor, bgColor, fgImage, bgImage, text, textColor, textSize, textFont, outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = \
-        checkboxVisuals[checkboxId]
+        surface, fgColor, bgColor, fgImageName, bgImageName, text, textColor, textSize, textFont, outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = checkboxVisuals[checkboxId]
 
         drawRect = checkboxBase[checkboxId][0]
         if checkboxHovered == checkboxId:
             if type(inflateActive) == float or type(inflateActive) == int:
                 drawRect = drawRect.inflate(drawRect[2] * (inflateActive / 100), drawRect[3] * (inflateActive / 100))
 
-        GlobalFunctions.draw(surface, drawRect, bgColor, bgImage, outlineWidth, outlineColor, borderWidth, borderRadius,
+        GlobalFunctions.draw(surface, drawRect, bgColor, bgImageName, outlineWidth, outlineColor, borderWidth, borderRadius,
                              border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                              border_bottom_right_radius)
 
@@ -92,7 +86,7 @@ class Checkbox:
                                       drawRect[2] - ((0.15 * drawRect[2]) * 2),
                                       drawRect[3] - ((0.15 * drawRect[3]) * 2))
 
-            GlobalFunctions.draw(surface, checkedRect, fgColor, fgImage, 0, outlineColor, borderWidth, borderRadius,
+            GlobalFunctions.draw(surface, checkedRect, fgColor, fgImageName, 0, outlineColor, borderWidth, borderRadius,
                                  border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                                  border_bottom_right_radius)
 

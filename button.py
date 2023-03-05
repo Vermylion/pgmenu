@@ -15,7 +15,7 @@ class Button:
         pass
 
     def default_action_func():
-        print('Button Action')
+        print('Button Activated')
 
     def default_hover_func():
         pass
@@ -30,15 +30,27 @@ class Button:
 
         return buttonId
 
-    def modify(buttonId, coords, dimensions, activatedFunction, hoveredFunction, state):
-        global buttonBase
+    def modify(buttonId, **kwargs):
+        global buttonBase, buttonVisuals
+
+        coords = GlobalFunctions.kwargsSwitchCase('coords', (buttonBase[buttonId][0][0], buttonBase[buttonId][0][1]), kwargs)
+        dimensions = GlobalFunctions.kwargsSwitchCase('dimensions', (buttonBase[buttonId][0][2], buttonBase[buttonId][0][3]), kwargs)
+        activatedFunction = GlobalFunctions.kwargsSwitchCase('activatedFunction', buttonBase[buttonId][1], kwargs)
+        hoveredFunction = GlobalFunctions.kwargsSwitchCase('hoveredFunction', buttonBase[buttonId][2], kwargs)
+        state = GlobalFunctions.kwargsSwitchCase('state', buttonBase[buttonId][3], kwargs)
 
         buttonRect = pygame.Rect(coords[0], coords[1], dimensions[0], dimensions[1])
         buttonBase[buttonId] = [buttonRect, activatedFunction, hoveredFunction, state]
 
+        if buttonId in buttonVisuals:
+            surface, color, imageName, icon, text, textColor, textSize, textFont, outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = buttonVisuals[buttonId]
+            Button.visuals(surface, buttonId, color, imageName, icon, text, textColor, textSize, textFont, outlineWidth, outlineColor,
+                borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius,
+                border_bottom_left_radius, border_bottom_right_radius)
+
         return buttonId
 
-    def visuals(surface, buttonId, color, image, icon, text, textColor, textSize, textFont, outlineWidth, outlineColor,
+    def visuals(surface, buttonId, color, imageName, icon, text, textColor, textSize, textFont, outlineWidth, outlineColor,
                 borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius,
                 border_bottom_left_radius, border_bottom_right_radius):
         global buttonBase, buttonVisuals
@@ -63,20 +75,19 @@ class Button:
                     buttonBase[buttonId][0][1] + (buttonBase[buttonId][0][3] / 2)), textFont, textSize, centerX=True,
                                                           centerY=True)
 
-        buttonVisuals[buttonId] = [surface, color, image, icon, text, textColor, textSize, textFont, outlineWidth,
+        buttonVisuals[buttonId] = [surface, color, imageName, icon, text, textColor, textSize, textFont, outlineWidth,
                                    outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius,
                                    border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius]
 
     def draw(buttonId):
-        surface, color, image, icon, text, textColor, textSize, textFont, outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = \
-        buttonVisuals[buttonId]
+        surface, color, imageName, icon, text, textColor, textSize, textFont, outlineWidth, outlineColor, borderWidth, borderRadius, inflateActive, border_top_left_radius, border_top_right_radius, border_bottom_left_radius, border_bottom_right_radius = buttonVisuals[buttonId]
 
         drawRect = buttonBase[buttonId][0]
         if buttonHovered == buttonId:
             if type(inflateActive) == float or type(inflateActive) == int:
                 drawRect = drawRect.inflate(drawRect[2] * (inflateActive / 100), drawRect[3] * (inflateActive / 100))
 
-        GlobalFunctions.draw(surface, drawRect, color, image, outlineWidth, outlineColor, borderWidth, borderRadius,
+        GlobalFunctions.draw(surface, drawRect, color, imageName, outlineWidth, outlineColor, borderWidth, borderRadius,
                              border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                              border_bottom_right_radius)
 
@@ -96,7 +107,7 @@ class Button:
             sideSize = min(drawRect[2], drawRect[3]) - (0.15 * min(drawRect[2], drawRect[3]))
             iconRect = pygame.Rect(drawRect[0] + (drawRect[2] / 2) - (sideSize / 2),
                                    drawRect[1] + ((0.15 * sideSize) / 2), sideSize, sideSize)
-            GlobalFunctions.draw(surface, iconRect, image=icon)
+            GlobalFunctions.draw(surface, iconRect, imageName=icon, borderRadius=0)
 
     def enable(buttonId):
         global buttonBase

@@ -3,6 +3,7 @@ import checkbox
 import text as textfile
 import textbox
 import image as imagefile
+import frame
 
 menus = dict({})
 activeMenu = ''
@@ -50,6 +51,7 @@ class Menu:
             menuName = activeMenu
 
         for widgetId in menus[menuName]:
+            # widget check
             if widgetId.split()[0] == 'Button':
                 button.Button.draw(widgetId)
             if widgetId.split()[0] == 'Checkbox':
@@ -60,9 +62,12 @@ class Menu:
                 textfile.Text.draw(widgetId)
             if widgetId.split()[0] == 'Image':
                 imagefile.Image.draw(widgetId)
+            if widgetId.split()[0] == 'Frame':
+                frame.Frame.draw(widgetId)
 
     def enable(menuName):
         for widgetId in menus[menuName]:
+            # widget check
             if widgetId.split()[0] == 'Button':
                 button.Button.enable(widgetId)
             elif widgetId.split()[0] == 'Checkbox':
@@ -72,6 +77,7 @@ class Menu:
 
     def disable(menuName):
         for widgetId in menus[menuName]:
+            # widget check
             if widgetId.split()[0] == 'Button':
                 button.Button.disable(widgetId)
             elif widgetId.split()[0] == 'Checkbox':

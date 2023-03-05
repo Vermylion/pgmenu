@@ -1,6 +1,6 @@
 import pygame
 
-import frame
+import GlobalFunctions
 
 widgetText = dict({})
 textSurface = dict({})
@@ -14,35 +14,32 @@ class Text:
     def create(surface, string, color, coords, font, textSize, centerX, centerY):
         global textSurface, textCount
 
-        if str(surface).split()[0] == 'Frame':
-            if frame.frameBase[surface][2] == 'enabled':
-                surface = frame.frameBase[surface][1]
-            else:
-                surface = frame.frameVisuals[surface][0]
-
         textCount += 1
         textId = f'Text {textCount}'
         totalText = Text.set(string, color, coords, font, textSize, centerX, centerY)
-        textSurface[textId] = [surface, totalText[0], totalText[1]]
+        textSurface[textId] = [totalText[1], surface, totalText[0], string, color, font, textSize, centerX, centerY]
 
         return textId
 
-    def modify(textId, surface, string, color, coords, font, textSize, centerX, centerY):
+    def modify(textId, **kwargs):
         global textSurface
 
-        if str(surface).split()[0] == 'Frame':
-            if frame.frameBase[surface][2] == 'enabled':
-                surface = frame.frameBase[surface][1]
-            else:
-                surface = frame.frameVisuals[surface][0]
+        string = GlobalFunctions.kwargsSwitchCase('string', textSurface[textId][3], kwargs)
+        surface = GlobalFunctions.kwargsSwitchCase('surface', textSurface[textId][2], kwargs)
+        coords = GlobalFunctions.kwargsSwitchCase('coords', (textSurface[textId][0][0], textSurface[textId][0][1]), kwargs)
+        color = GlobalFunctions.kwargsSwitchCase('color', textSurface[textId][4], kwargs)
+        font = GlobalFunctions.kwargsSwitchCase('font', textSurface[textId][5], kwargs)
+        textSize = GlobalFunctions.kwargsSwitchCase('textSize', textSurface[textId][6], kwargs)
+        centerX = GlobalFunctions.kwargsSwitchCase('centerX', textSurface[textId][7], kwargs)
+        centerY = GlobalFunctions.kwargsSwitchCase('centerY', textSurface[textId][8], kwargs)
 
         totalText = Text.set(string, color, coords, font, textSize, centerX, centerY)
-        textSurface[textId] = [surface, totalText[0], totalText[1]]
+        textSurface[textId] = [totalText[1], surface, totalText[0], string, color, font, textSize, centerX, centerY]
 
         return textId
 
     def draw(textId):
-        surface, textSurf, textPos = textSurface[textId]
+        textPos, surface, textSurf, *_ = textSurface[textId]
         surface.blit(textSurf, textPos)
 
     def set(string, color, coords, font='freesansbold.ttf', textSize=30, centerX=True, centerY=True):
@@ -59,11 +56,6 @@ class Text:
         return (text, textRect)
 
     def write(surface, string, color, coords, font='freesansbold.ttf', textSize=30, centerX=True, centerY=True):
-        if str(surface).split()[0] == 'Frame':
-            if frame.frameBase[surface][2] == 'enabled':
-                surface = frame.frameBase[surface][1]
-            else:
-                surface = frame.frameVisuals[surface][0]
 
         totalText = Text.set(string, color, coords, font, textSize, centerX, centerY)
         surface.blit(totalText[0], totalText[1])
