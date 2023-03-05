@@ -22,7 +22,7 @@ This library can be installed using [PyPI](https://pypi.org/):
 
 Or manually via [GitHub](https://github.com/Vermylion/pgmenu) or [GitLab](https://gitlab.com/Vermylion/pgmenu).
 
-This library uses mainly **pygame**. On one rare occasion,  **Pillow** and **itertools** are used.
+This library uses mainly **pygame**. On one rare occasion, **Pillow**, **itertools** and **darkdetect** are used.
 
 ## Usage
 
