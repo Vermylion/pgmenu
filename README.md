@@ -8,7 +8,7 @@ It's optimized to not hinder performance, maintaining above 200 FPS on average a
 
 This library is made for your project, not the project made around the library.
 
-If you have any **features** or **changes** to add, or **bugs** to fix, please contact me at [vermylioncode@gmail.com](mailto:vermylioncode@gmail.com). Thanks in advance!
+If you have any **features** or **changes** to add, or **bugs** to fix, please contact me at [vermylioncode@gmail.com](https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSHxjhbRbxvSxFbZrdnptpzHLqnplHLDKdjrbbDXcqXZJBvCFqscPNMPTGlBrWqKmxQVPXnB). Thanks in advance!
 
 # Quick Guide
 
