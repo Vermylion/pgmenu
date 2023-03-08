@@ -1,6 +1,6 @@
 # pgmenu
 
-![](https://github.com/Vermylion/pgmenu/raw/master/Examples/Assets/pgmenu_logo.png)
+![](https://github.com/Vermylion/pgmenu/raw/master/examples/assets/pgmenu_logo.png)
 
 pgmenu is a basic library for an easy creation of menus in pygame, supporting multiple widget types and designed with the user's experience at heart.
 
@@ -135,7 +135,7 @@ Documentation is in the works, and will be available in the next release (**pgme
 
 ## Releases
 
-### Next Release
+### Next Release (1.6)
 
 + **DOCUMENTATION**
 + **pgmenu.Surface or pgmenu.Canvas**
