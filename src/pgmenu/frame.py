@@ -1,11 +1,11 @@
 import pygame
 
-import GlobalFunctions
-import button
-import checkbox
-import textbox
-import text as textfile
-import image as imagefile
+import pgmenu.GlobalFunctions as GlobalFunctions
+import pgmenu.button as button
+import pgmenu.checkbox as checkbox
+import pgmenu.image as imagefile
+import pgmenu.text as textfile
+import pgmenu.textbox as textbox
 
 frameBase = dict({})
 frameVisuals = dict({})
@@ -15,7 +15,9 @@ frameCount = 0
 
 def findWidgetSettings(frameId, widgetId):
     widgetBase = correctWidgetBase(widgetId)
-    return [widgetBase[widgetId][0][0], widgetBase[widgetId][0][1], frameBase[frameId][2]]
+    return {'widgetSettings': [widgetBase[widgetId][0][0], widgetBase[widgetId][0][1]],
+            'frameSettings': [frameBase[frameId][0][0], frameBase[frameId][0][1]],
+            'frameState': [frameBase[frameId][2]]}
 
 def correctWidgetBase(widgetId):
     # widget check
@@ -87,7 +89,9 @@ class Frame:
         global frameWidgets
 
         for widgetId in widgetIds:
-            frameWidgets[frameId][widgetId] = ['', '', '']
+            frameWidgets[frameId][widgetId] = {'widgetSettings': [0, 0],
+                                               'frameSettings': [0, 0],
+                                               'frameState': ['']}
 
         Frame.update()
 
@@ -115,36 +119,47 @@ class Frame:
             for widgetId in frameWidgets[frameId]:
                 # Check if widget settings are the same as the modified saved ones
                 widgetSettings = findWidgetSettings(frameId, widgetId)
+    
                 if widgetSettings != frameWidgets[frameId][widgetId]:
-                    # Get widget type and correct variable
                     widgetBase = correctWidgetBase(widgetId)
-
-                    # Modify accordingly the widget settings
-                    if frameBase[frameId][2] == 'enabled':
-                        newWidgetX = widgetBase[widgetId][0][0] + frameBase[frameId][0][0]
-                        newWidgetY = widgetBase[widgetId][0][1] + frameBase[frameId][0][1]
-                    elif widgetSettings[2] == 'disabled' and frameWidgets[frameId][widgetId][2] == 'enabled':
-                        newWidgetX = widgetBase[widgetId][0][0] - frameBase[frameId][0][0]
-                        newWidgetY = widgetBase[widgetId][0][1] - frameBase[frameId][0][1]
-                    else:
-                        newWidgetX = widgetBase[widgetId][0][0]
-                        newWidgetY = widgetBase[widgetId][0][1]
+                    
+                    newWidgetX = widgetBase[widgetId][0][0]
+                    newWidgetY = widgetBase[widgetId][0][1]
+                    
+                    if widgetSettings['widgetSettings'] != frameWidgets[frameId][widgetId]['widgetSettings']:
+                        if frameBase[frameId][2] == 'enabled':
+                            newWidgetX = widgetBase[widgetId][0][0] + frameBase[frameId][0][0]
+                            newWidgetY = widgetBase[widgetId][0][1] + frameBase[frameId][0][1]
+                            
+                    if widgetSettings['frameSettings'] != frameWidgets[frameId][widgetId]['frameSettings']:
+                        if frameBase[frameId][2] == 'enabled':
+                            newWidgetX = widgetBase[widgetId][0][0] + (frameBase[frameId][0][0] - frameWidgets[frameId][widgetId]['frameSettings'][0])
+                            newWidgetY = widgetBase[widgetId][0][1] + (frameBase[frameId][0][1] - frameWidgets[frameId][widgetId]['frameSettings'][1])
+                    
+                    if widgetSettings['frameState'] != frameWidgets[frameId][widgetId]['frameState']:
+                        if frameBase[frameId][2] == 'enabled':
+                            newWidgetX = widgetBase[widgetId][0][0] + frameBase[frameId][0][0]
+                            newWidgetY = widgetBase[widgetId][0][1] + frameBase[frameId][0][1]
+                        if frameBase[frameId][2] == 'disabled':
+                            newWidgetX = widgetBase[widgetId][0][0] - frameBase[frameId][0][0]
+                            newWidgetY = widgetBase[widgetId][0][1] - frameBase[frameId][0][1]
 
                     # Modify the widget using .modify
                     # widget check
                     if widgetId.split()[0] == 'Button':
-                        button.Button.modify(widgetId, coords = (newWidgetX, newWidgetY))#, (widgetBase[widgetId][0][2], widgetBase[widgetId][0][3]), widgetBase[widgetId][1], widgetBase[widgetId][2], widgetBase[widgetId][3])
+                        button.Button.modify(widgetId, coords = (newWidgetX, newWidgetY))
                     elif widgetId.split()[0] == 'Checkbox':
-                        checkbox.Checkbox.modify(widgetId, coords = (newWidgetX, newWidgetY))#, widgetBase[widgetId][0][2], widgetBase[widgetId][1], widgetBase[widgetId][2], widgetBase[widgetId][3], widgetBase[widgetId][4])
+                        checkbox.Checkbox.modify(widgetId, coords = (newWidgetX, newWidgetY))
                     elif widgetId.split()[0] == 'Textbox':
-                        textbox.Textbox.modify(widgetId, coords = (newWidgetX, newWidgetY))#, (widgetBase[widgetId][0][2], widgetBase[widgetId][0][3]), widgetBase[widgetId][1], widgetBase[widgetId][2], widgetBase[widgetId][3], widgetBase[widgetId][5], widgetBase[widgetId][6], widgetBase[widgetId][7], widgetBase[widgetId][8], widgetBase[widgetId][9])
+                        textbox.Textbox.modify(widgetId, coords = (newWidgetX, newWidgetY))
                     elif widgetId.split()[0] == 'Text':
                         textfile.textSurface[widgetId][0] = pygame.Rect(newWidgetX, newWidgetY, textfile.textSurface[widgetId][0][2], textfile.textSurface[widgetId][0][3])
-                        #textfile.Text.modify(widgetId, widgetBase[widgetId][1], widgetBase[widgetId][3], widgetBase[widgetId][4], (newWidgetX, newWidgetY), widgetBase[widgetId][5], widgetBase[widgetId][6], widgetBase[widgetId][7], widgetBase[widgetId][8])
                     elif widgetId.split()[0] == 'Image':
-                        imagefile.Image.modify(widgetId, coords = (newWidgetX, newWidgetY))#widgetBase[widgetId][1], widgetBase[widgetId][2], (newWidgetX, newWidgetY), (widgetBase[widgetId][0][2], widgetBase[widgetId][0][3]), widgetBase[widgetId][3])
+                        imagefile.Image.modify(widgetId, coords = (newWidgetX, newWidgetY))
                     elif widgetId.split()[0] == 'Frame':
-                        Frame.modify(widgetId, coords = (newWidgetX, newWidgetY))#, (widgetBase[widgetId][0][2], widgetBase[widgetId][0][3]), widgetBase[widgetId][2])
+                        Frame.modify(widgetId, coords = (newWidgetX, newWidgetY))
 
                     # save now modified settings as our own
-                    frameWidgets[frameId][widgetId] = [newWidgetX, newWidgetY, frameBase[frameId][2]]
+                    frameWidgets[frameId][widgetId] = {'widgetSettings': [newWidgetX, newWidgetY],
+                                                       'frameSettings': [frameBase[frameId][0][0], frameBase[frameId][0][1]],
+                                                       'frameState': [frameBase[frameId][2]]}

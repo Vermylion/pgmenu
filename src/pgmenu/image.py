@@ -1,6 +1,6 @@
 import pygame
 
-import GlobalFunctions
+import pgmenu.GlobalFunctions as GlobalFunctions
 
 imageBase = dict({})
 imageCount = 0

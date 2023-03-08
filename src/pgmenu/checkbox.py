@@ -1,8 +1,8 @@
 from itertools import chain
 import pygame
 
-import GlobalFunctions
-import text as textfile
+import pgmenu.GlobalFunctions as GlobalFunctions
+import pgmenu.text as textfile
 
 checkboxBase = dict({})
 checkboxVisuals = dict({})

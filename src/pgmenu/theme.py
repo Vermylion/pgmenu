@@ -1,8 +1,6 @@
 import pygame
 import darkdetect
 
-import GlobalFunctions
-
 mainColor = (0, 0, 0)
 bgColor = (0, 0, 0)
 fgColor = (0, 0, 0)
@@ -88,7 +86,7 @@ class Theme:
     def mode(modeType):
         global mainColor, bgColor, fgColor, widgetBgColor, widgetFgColor, textFgColor, textBgColor
 
-        if modeType.lower() == 'system':
+        if modeType.lower() == 'system' or (modeType.lower() != 'light' and modeType.lower() != 'dark'):
             modeType = darkdetect.theme()
 
         if modeType.lower() == 'light':

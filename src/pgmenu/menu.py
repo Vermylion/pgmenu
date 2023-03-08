@@ -1,9 +1,9 @@
-import button
-import checkbox
-import text as textfile
-import textbox
-import image as imagefile
-import frame
+import pgmenu.button as button
+import pgmenu.checkbox as checkbox
+import pgmenu.frame as frame
+import pgmenu.image as imagefile
+import pgmenu.text as textfile
+import pgmenu.textbox as textbox
 
 menus = dict({})
 activeMenu = ''

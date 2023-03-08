@@ -1,14 +1,17 @@
 import pygame
+import os
 
-import GlobalFunctions
-import button
-import checkbox
-import frame
-import image as imagefile
-import menu
-import text as textfile
-import textbox
-import theme
+import pgmenu.GlobalFunctions as GlobalFunctions
+import pgmenu.button as button
+import pgmenu.checkbox as checkbox
+import pgmenu.frame as frame
+import pgmenu.image as imagefile
+import pgmenu.menu as menu
+import pgmenu.text as textfile
+import pgmenu.textbox as textbox
+import pgmenu.theme as theme
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 mainColor = (0, 0, 0)
 bgColor = (0, 0, 0)
@@ -27,7 +30,7 @@ accentColor = (0, 0, 0)
 
 
 class Theme:
-    def __init(self) -> None:
+    def __init__(self) -> None:
         pass
 
     def mode(modeType):
@@ -151,7 +154,7 @@ class Text:
         """
 
         color = GlobalFunctions.kwargsSwitchCase('color', textBgColor, kwargs)
-        font = GlobalFunctions.kwargsSwitchCase('font', 'CeraRoundProBold.otf', kwargs)
+        font = GlobalFunctions.kwargsSwitchCase('font', f"{dir_path}\\VarelaRound.ttf", kwargs)
         textSize = GlobalFunctions.kwargsSwitchCase('textSize', 30, kwargs)
         centerX = GlobalFunctions.kwargsSwitchCase('centerX', False, kwargs)
         centerY = GlobalFunctions.kwargsSwitchCase('centerY', False, kwargs)
@@ -187,7 +190,7 @@ class Text:
         """
 
         color = GlobalFunctions.kwargsSwitchCase('color', textBgColor, kwargs)
-        font = GlobalFunctions.kwargsSwitchCase('font', 'CeraRoundProBold.otf', kwargs)
+        font = GlobalFunctions.kwargsSwitchCase('font', f"{dir_path}\\VarelaRound.ttf", kwargs)
         textSize = GlobalFunctions.kwargsSwitchCase('textSize', 30, kwargs)
         centerX = GlobalFunctions.kwargsSwitchCase('centerX', True, kwargs)
         centerY = GlobalFunctions.kwargsSwitchCase('centerY', True, kwargs)
@@ -205,7 +208,7 @@ class Text:
         """
 
         color = GlobalFunctions.kwargsSwitchCase('color', textBgColor, kwargs)
-        font = GlobalFunctions.kwargsSwitchCase('font', 'CeraRoundProBold.otf', kwargs)
+        font = GlobalFunctions.kwargsSwitchCase('font', f"{dir_path}\\VarelaRound.ttf", kwargs)
         textSize = GlobalFunctions.kwargsSwitchCase('textSize', 30, kwargs)
         centerX = GlobalFunctions.kwargsSwitchCase('centerX', True, kwargs)
         centerY = GlobalFunctions.kwargsSwitchCase('centerY', True, kwargs)
@@ -387,7 +390,7 @@ class Button:
         text = GlobalFunctions.kwargsSwitchCase('text', 'Button', kwargs)
         textColor = GlobalFunctions.kwargsSwitchCase('textColor', textFgColor, kwargs)
         textSize = GlobalFunctions.kwargsSwitchCase('textSize', None, kwargs)
-        textFont = GlobalFunctions.kwargsSwitchCase('textFont', 'CeraRoundProBold.otf', kwargs)
+        textFont = GlobalFunctions.kwargsSwitchCase('textFont', f"{dir_path}\\VarelaRound.ttf", kwargs)
         outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
         outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
         borderWidth = GlobalFunctions.kwargsSwitchCase('borderWidth', widgetBorderWidth, kwargs)
@@ -480,7 +483,7 @@ class Checkbox:
         text = GlobalFunctions.kwargsSwitchCase('text', 'Checkbox', kwargs)
         textColor = GlobalFunctions.kwargsSwitchCase('textColor', textBgColor, kwargs)
         textSize = GlobalFunctions.kwargsSwitchCase('textSize', None, kwargs)
-        textFont = GlobalFunctions.kwargsSwitchCase('textFont', 'CeraRoundProBold.otf', kwargs)
+        textFont = GlobalFunctions.kwargsSwitchCase('textFont', f"{dir_path}\\VarelaRound.ttf", kwargs)
         outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
         outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
         borderWidth = GlobalFunctions.kwargsSwitchCase('borderWidth', widgetBorderWidth, kwargs)
@@ -606,7 +609,7 @@ class Textbox:
         imageName = GlobalFunctions.kwargsSwitchCase('imageName', None, kwargs)
         text = GlobalFunctions.kwargsSwitchCase('text', '', kwargs)
         textColor = GlobalFunctions.kwargsSwitchCase('textColor', textBgColor, kwargs)
-        textFont = GlobalFunctions.kwargsSwitchCase('textFont', 'CeraRoundProBold.otf', kwargs)
+        textFont = GlobalFunctions.kwargsSwitchCase('textFont', f"{dir_path}\\VarelaRound.ttf", kwargs)
         textCoverUp = GlobalFunctions.kwargsSwitchCase('textCoverUp', None, kwargs)
         outlineWidth = GlobalFunctions.kwargsSwitchCase('outlineWidth', widgetOutlineWidth, kwargs)
         outlineColor = GlobalFunctions.kwargsSwitchCase('outlineColor', widgetOutlineColor, kwargs)
@@ -703,6 +706,23 @@ def draw(surface, drawRect, **kwargs):
     return GlobalFunctions.draw(surface, drawRect, color, imageName, outlineWidth, outlineColor, borderWidth, borderRadius,
                                 border_top_left_radius, border_top_right_radius, border_bottom_left_radius,
                                 border_bottom_right_radius)
+
+def getVar(varName):
+    """
+    Possible variables:
+    accentColor
+    bgColor
+    fgColor
+    widgetFgColor
+    widgetBgColor
+    textFgColor
+    textBgColor
+    widgetOutlineColor
+    widgetOutlineWidth
+    widgetBorderWidth
+    """
+    
+    return globals()[varName]
 
 def requestCursor(cursorType = pygame.SYSTEM_CURSOR_ARROW):
     GlobalFunctions.cursorRequested = cursorType

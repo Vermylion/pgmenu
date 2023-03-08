@@ -1,7 +1,7 @@
 import pygame
 
-import GlobalFunctions
-import text as textfile
+import pgmenu.GlobalFunctions as GlobalFunctions
+import pgmenu.text as textfile
 
 textboxBase = dict({})
 textboxVisuals = dict({})

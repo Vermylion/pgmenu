@@ -1,6 +1,6 @@
 import pygame
 
-import GlobalFunctions
+import pgmenu.GlobalFunctions as GlobalFunctions
 
 widgetText = dict({})
 textSurface = dict({})
@@ -25,17 +25,17 @@ class Text:
         global textSurface
 
         string = GlobalFunctions.kwargsSwitchCase('string', textSurface[textId][3], kwargs)
-        surface = GlobalFunctions.kwargsSwitchCase('surface', textSurface[textId][2], kwargs)
+        surface = GlobalFunctions.kwargsSwitchCase('surface', textSurface[textId][1], kwargs)
         coords = GlobalFunctions.kwargsSwitchCase('coords', (textSurface[textId][0][0], textSurface[textId][0][1]), kwargs)
         color = GlobalFunctions.kwargsSwitchCase('color', textSurface[textId][4], kwargs)
         font = GlobalFunctions.kwargsSwitchCase('font', textSurface[textId][5], kwargs)
         textSize = GlobalFunctions.kwargsSwitchCase('textSize', textSurface[textId][6], kwargs)
         centerX = GlobalFunctions.kwargsSwitchCase('centerX', textSurface[textId][7], kwargs)
         centerY = GlobalFunctions.kwargsSwitchCase('centerY', textSurface[textId][8], kwargs)
-
+        
         totalText = Text.set(string, color, coords, font, textSize, centerX, centerY)
         textSurface[textId] = [totalText[1], surface, totalText[0], string, color, font, textSize, centerX, centerY]
-
+        
         return textId
 
     def draw(textId):

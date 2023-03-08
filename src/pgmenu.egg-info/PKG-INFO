@@ -9,12 +9,12 @@ Project-URL: Bug Tracker, https://github.com/Vermylion/pgmenu
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
-Requires-Python: >=3.10
+Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 
 # pgmenu
 
-![](https://github.com/Vermylion/pgmenu/blob/master/pgmenu_logo.png)
+![](https://github.com/Vermylion/pgmenu/raw/master/Examples/Assets/pgmenu_logo.png)
 
 pgmenu is a basic library for an easy creation of menus in pygame, supporting multiple widget types and designed with the user's experience at heart.
 
@@ -22,7 +22,7 @@ It's optimized to not hinder performance, maintaining above 200 FPS on average a
 
 This library is made for your project, not the project made around the library.
 
-If you have any **features** or **changes** to add, or **bugs** to fix, please contact me at [vermylioncode@gmail.com](mailto:vermylioncode@gmail.com). Thanks in advance!
+If you have any **features** or **changes** to add, or **bugs** to fix, please contact me at [vermylioncode@gmail.com](https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSHxjhbRbxvSxFbZrdnptpzHLqnplHLDKdjrbbDXcqXZJBvCFqscPNMPTGlBrWqKmxQVPXnB). Thanks in advance!
 
 # Quick Guide
 
@@ -36,7 +36,7 @@ This library can be installed using [PyPI](https://pypi.org/):
 
 Or manually via [GitHub](https://github.com/Vermylion/pgmenu) or [GitLab](https://gitlab.com/Vermylion/pgmenu).
 
-This library uses mainly **pygame**. On one rare occasion,  **Pillow** and **itertools** are used.
+This library uses mainly **pygame**. On one rare occasion, **Pillow**, **itertools** and **darkdetect** are used.
 
 ## Usage
 
@@ -55,6 +55,7 @@ Other main functions:
 + **pgmenu.Theme**
 + **pgmenu.draw()**
 + **pgmenu.update()**
++ **pgmenu.getVar()**
 + **pgmenu.requestCursor()**
 
 ## Example
@@ -73,7 +74,7 @@ pygame.init()
 pygame.display.set_caption('Login Demo')
 screen = pygame.display.set_mode((700, 700))
 # Filling screen using theme-given background color
-screen.fill(pgmenu.bgColor)
+screen.fill(pgmenu.getVar('bgColor'))
 clock = pygame.time.Clock()
 
 def submit():
@@ -119,6 +120,7 @@ pgmenu.Frame.add(loginFrame, loginText, usernameText, usernameTextbox, passwordT
 # Adding them to a menu for easier global manipulation
 pgmenu.Menu.add('login', loginFrame, loginText, usernameText, usernameTextbox, passwordText,
                 passwordTextbox, agreementCheckbox, submitButton)
+pgmenu.Menu.show('login')
 
 running = True
 while running:
@@ -128,10 +130,11 @@ while running:
             running = False
 
     # Refresh screen every frame
-    screen.fill(pgmenu.bgColor)
+    screen.fill(pgmenu.getVar('bgColor'))
 
     # Draw the widgets (this time not individually, because pgmenu.Menu takes care of it for us)
-    pgmenu.Menu.draw('login')
+    # By default, pgmenu.Menu.draw() shows the current shown Menu
+    pgmenu.Menu.draw()
 
     pygame.display.flip()
     # Update the widgets
@@ -153,6 +156,7 @@ Documentation is in the works, and will be available in the next release (**pgme
 + **pgmenu.Progressbar**
 + **Argument: imageSurface**
 + **Potentially: pgmenu.Slider and pgmenu.Freeslider**
++ **Potentially: pgmenu.Display**
 
 ### Release 1.5
 
@@ -166,6 +170,7 @@ Documentation is in the works, and will be available in the next release (**pgme
 + **pgmenu.Theme**
 + **pgmenu.draw()**
 + **pgmenu.update()**
++ **pgmenu.getVar()**
 + **pgmenu.requestCursor()**
 
 ---
