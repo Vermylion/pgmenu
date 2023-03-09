@@ -31,7 +31,7 @@ pgmenu.Theme.custom('WHITE',
 pgmenu.Theme.set('WHITE')
 
 # Creating the widgets
-bgImage = pgmenu.Image.create(screen, 'background.jpg', (0, 0), (1280, 720), borderRadius = 0)
+bgImage = pgmenu.Image.create(screen, 'assets/pinksky.jpg', (0, 0), (1280, 720), borderRadius = 0)
 
 loginFrame = pgmenu.Frame.create((390, 110), (500, 500))
 
