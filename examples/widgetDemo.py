@@ -29,8 +29,8 @@ textbox = pgmenu.Textbox.create((20, 300))
 frame = pgmenu.Frame.create((20, 400))
 text = pgmenu.Text.create(screen, 'pgmenu', (20, 20))
 
-imageSize = pgmenu.Image.size('Assets/tiger.png', resizeRatio = 7)
-image = pgmenu.Image.create(screen, 'Assets/tiger.png', (20, 650), dimensions = imageSize)
+imageSize = pgmenu.Image.size('assets/tiger.png', resizeRatio = 7)
+image = pgmenu.Image.create(screen, 'assets/tiger.png', (20, 650), dimensions = imageSize)
 
 pgmenu.Frame.add(frame, text)
 
