@@ -4,7 +4,7 @@
 
 pgmenu is a basic library for an easy creation of menus in pygame, supporting multiple widget types and designed with the user's experience at heart.
 
-It's optimized to not hinder performance, maintaining above 200 FPS on average and above 100 FPS for big projects. It's also the most customizable possible, allowing for any visuals to be modified to the user's liking. On top of all that, it stays true to the normal pygame experience, using simple and almost identical syntaxes to pygame's, making it easy to just add at any moment into your project.
+It's optimized to not hinder performance, and to be extremely customizable, allowing for any visuals to be modified to the user's liking. On top of all that, it stays true to the normal pygame experience, using simple and almost identical syntaxes to pygame's, making it easy to just add at any moment into your project.
 
 This library is made for your project, not the project made around the library.
 
@@ -20,7 +20,7 @@ This library can be installed using [PyPI](https://pypi.org/):
 
     pip install pgmenu
 
-Or manually via [GitHub](https://github.com/Vermylion/pgmenu) or [GitLab](https://gitlab.com/Vermylion/pgmenu).
+Or manually via [GitHub](https://github.com/Vermylion/pgmenu).
 
 This library uses mainly **pygame**. On one rare occasion, **Pillow**, **itertools** and **darkdetect** are used.
 
@@ -135,14 +135,18 @@ Documentation is in the works, and will be available in the next release (**pgme
 
 ## Releases
 
-### Next Release (1.6)
+### Next Release 2.0
 
-+ **DOCUMENTATION**
-+ **pgmenu.Surface or pgmenu.Canvas**
-+ **pgmenu.Progressbar**
-+ **Argument: imageSurface**
-+ **Potentially: pgmenu.Slider and pgmenu.Freeslider**
-+ **Potentially: pgmenu.Display**
+**Complete pgmenu rework from A to Z!** Here are some features to be expecting:
+
++ **Custom rect Antialiasing**
++ **Animations**
++ **Dynamic Themes**
++ **Dynamic Resize**
++ **Tons of new widgets**
++ **Better syntax**
++ **Documentation**
++ **And so much more!**
 
 ### Release 1.5
 
