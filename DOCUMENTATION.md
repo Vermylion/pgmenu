@@ -215,4 +215,4 @@
 
 MIT License
 
-3.10.9 Python
+3.12.0 Python
