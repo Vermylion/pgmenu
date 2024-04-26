@@ -64,6 +64,7 @@ Documentation will arrive for 2.0 (*phew! finally!*).
 + **Dynamic Resize**
 + **Tons of new widgets**
 + **Better syntax**
++ **Documentation**
 + **And so much more!**
 
 ### Release 1.5
