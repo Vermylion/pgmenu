@@ -60,4 +60,3 @@ class Theme:
                     value = tuple(value)
 
                 setattr(self, attribute, value)
-                print(attribute, value)
