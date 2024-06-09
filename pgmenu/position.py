@@ -1,10 +1,15 @@
 import pygame
+import pgmenu
+from pgmenu.constants import THEME
 
 
 def center_coords(size: list[int, int] | tuple[int, int],
                   rect: list[int, int, int, int] | tuple[int, int, int, int],
-                  center_x: bool = True,
-                  center_y: bool = True):
+                  center_x: bool = THEME,
+                  center_y: bool = THEME):
+
+    center_x = center_x if center_x != THEME else pgmenu.Theme.pos_center_x
+    center_y = center_y if center_y != THEME else pgmenu.Theme.pos_center_y
 
     rect_x, rect_y, rect_width, rect_height = rect
     # Find center of rect

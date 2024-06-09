@@ -1,3 +1,6 @@
+# FIXME -> Has to be a better way to maintain structure without having to use 'as draw' -> Doesn't work properly when using 'from pgmenu import *'
+
+
 import pgmenu.text as text
 
 import pgmenu.draw as draw
@@ -12,15 +15,19 @@ import pgmenu.theme as theme
 
 import pgmenu.position as position
 
+import pgmenu.surface as surface
+
 from pgmenu.lib import *
 
 from pgmenu.constants import *
 
 import pgmenu.vars as vars
 
-from pgmenu.vars import Theme # FIXME -> Rework theme
-from pgmenu.vars import widget_draw_priority
+from pgmenu.vars import Theme
 
+import pgmenu.system as system
+
+import pgmenu.projects as projects
 
 # Initialize library
 lib.init()

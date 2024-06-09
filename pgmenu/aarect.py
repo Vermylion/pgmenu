@@ -90,7 +90,7 @@ class AARect:
         self.inside_antialiasing = kwargs['inside_antialiasing'] if 'inside_antialiasing' in kwargs else self.antialiasing
 
         # Additional parameters
-        self.debug = kwargs['debug'] if 'debug' in kwargs else True
+        self.debug = kwargs['debug'] if 'debug' in kwargs else False
         self.force_only_overlay = kwargs['force_only_overlay'] if 'force_only_overlay' in kwargs else False
         if self.inside_transparency == 255 and self.inside_fill is not None: self.force_only_overlay = True
 
@@ -182,18 +182,18 @@ class AARect:
         self.width = round(min(self.width, (min(self.rect[2], self.rect[3]) / 2)))
 
         # Limit radius
-        self.border_radius = round(min(self.border_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_top_left_radius = round(min(self.border_top_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_top_right_radius = round(min(self.border_top_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_bottom_left_radius = round(min(self.border_bottom_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_bottom_right_radius = round(min(self.border_bottom_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.border_radius = math.floor(min(self.border_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.border_top_left_radius = math.floor(min(self.border_top_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.border_top_right_radius = math.floor(min(self.border_top_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.border_bottom_left_radius = math.floor(min(self.border_bottom_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.border_bottom_right_radius = math.floor(min(self.border_bottom_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
 
         # Limit inside radius
-        self.inside_border_radius = round(min(self.inside_border_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.inside_border_top_left_radius = round(min(self.inside_border_top_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.inside_border_top_right_radius = round(min(self.inside_border_top_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.inside_border_bottom_left_radius = round(min(self.inside_border_bottom_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.inside_border_bottom_right_radius = round(min(self.inside_border_bottom_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.inside_border_radius = math.floor(min(self.inside_border_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.inside_border_top_left_radius = math.floor(min(self.inside_border_top_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.inside_border_top_right_radius = math.floor(min(self.inside_border_top_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.inside_border_bottom_left_radius = math.floor(min(self.inside_border_bottom_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        self.inside_border_bottom_right_radius = math.floor(min(self.inside_border_bottom_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
 
         # Limit antialiasing width to border_radius, starts overlapping otherwise
         self.aa_strength = min(self.aa_strength, self.border_radius)

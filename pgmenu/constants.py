@@ -1,5 +1,5 @@
 # Constants for state
-NORMAL = "enabled"
+NORMAL = "normal"
 DISABLED = "disabled"
 HOVERED = "hovered"
 ACTIVE = "active"
@@ -9,3 +9,13 @@ BACKWARD = "backward"
 IN = "in"
 OUT = "out"
 IN_OUT = "in_out"
+# AnimationFill type constants
+NONE = "none"
+SURFACE = "surface"
+COLOR = "color"
+# Widget types constants
+BUTTON = "button"
+CHECKBOX = "checkbox"
+RADIOBOX = "radiobox"
+# Constant to know when to use theme
+THEME = "theme"

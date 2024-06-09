@@ -1,3 +1,8 @@
-import pgmenu
+from pgmenu import * # Should import everything regardless of file or stuff
 
-print(pgmenu.animation.bounce(0.5, pgmenu.IN_OUT))
+widget = globals()["pgmenu.widget.Widget"]()
+print(widget)
+
+window = projects.PgmenuWindow() # Would like it to be: window = PgmenuWindow()
+
+window.loop()

@@ -1,116 +1,20 @@
 import pygame
 import pgmenu
 
-from pgmenu.animation import Animate, AnimateColor, AnimateTuple, AnimateMultiple
+from pgmenu.animation import *
+from pgmenu.constants import THEME
+
+
+# TODO -> Class RectWidget: inside_radii are probably not getting updated when inside_border_radius is
+
+# TODO -> Can't assign border_radii in theme because of the current system
 
 
 class Widget:
 
-    def __init__(self,
-                 border_radius,
-                 **kwargs):
-        # kwargs aarect arguments
-        self.border_radius = border_radius if border_radius is not None else round(min(self.size.tuple) / 3)  # if border_radius is not None else pgmenu.vars.Theme.border_radius TODO -> Change with theme
-        self.border_top_left_radius = kwargs['border_top_left_radius'] if 'border_top_left_radius' in kwargs else self.border_radius.int
-        self.border_top_right_radius = kwargs['border_top_right_radius'] if 'border_top_right_radius' in kwargs else self.border_radius.int
-        self.border_bottom_left_radius = kwargs['border_bottom_left_radius'] if 'border_bottom_left_radius' in kwargs else self.border_radius.int
-        self.border_bottom_right_radius = kwargs['border_bottom_right_radius'] if 'border_bottom_right_radius' in kwargs else self.border_radius.int
-        self.antialiasing = kwargs['antialiasing'] if 'antialiasing' in kwargs else True
-        self.transparency = kwargs['transparency'] if 'transparency' in kwargs else 255
-        self.aa_strength = kwargs['aas_strength'] if 'aa_strength' in kwargs else 1
-        # Additional parameters for modifying inside rect
-        self.inside_fill = kwargs['inside_fill'] if 'inside_fill' in kwargs else self.fill.color
-        self.inside_transparency = kwargs['inside_transparency'] if 'inside_transparency' in kwargs else self.transparency
-        self.inside_border_radius = kwargs['inside_border_radius'] if 'inside_border_radius' in kwargs else self.border_radius.int
-        self.inside_border_top_left_radius = kwargs['inside_border_top_left_radius'] if 'inside_border_top_left_radius' in kwargs else self.inside_border_radius
-        self.inside_border_top_right_radius = kwargs['inside_border_top_right_radius'] if 'inside_border_top_right_radius' in kwargs else self.inside_border_radius
-        self.inside_border_bottom_left_radius = kwargs['inside_border_bottom_left_radius'] if 'inside_border_bottom_left_radius' in kwargs else self.inside_border_radius
-        self.inside_border_bottom_right_radius = kwargs['inside_border_bottom_right_radius'] if 'inside_border_bottom_right_radius' in kwargs else self.inside_border_radius
-        self.inside_aa_strength = kwargs['inside_aa_strength'] if 'inside_aa_strength' in kwargs else self.aa_strength
-        self.inside_antialiasing = kwargs['inside_antialiasing'] if 'inside_antialiasing' in kwargs else self.antialiasing
-        # Additional parameters
-        self.debug = kwargs['debug'] if 'debug' in kwargs else True
-        self.force_only_overlay = kwargs['force_only_overlay'] if 'force_only_overlay' in kwargs else False
-        # kwargs text arguments
-        self.text_background = kwargs['text_background'] if 'text_background' in kwargs else None
-        self.text_antialias = kwargs['text_antialias'] if 'text_antialias' in kwargs else True
-        self.text_italic = kwargs['text_italic'] if 'text_italic' in kwargs else False
-        self.text_bold = kwargs['text_bold'] if 'text_bold' in kwargs else False
-        self.text_strikethrough = kwargs['text_strikethrough'] if 'text_strikethrough' in kwargs else False
-        self.text_underline = kwargs['text_underline'] if 'text_underline' in kwargs else False
-        # kwargs animation arguments
-        self.no_animation = kwargs['no_animation'] if 'no_animation' in kwargs else False
-        # kwargs update event animation arguments
-        self.animation_on_standby = kwargs['animation_on_standby'] if 'animation_on_standby' in kwargs else self.m_animation_on_standby
-        self.animation_on_hover = kwargs['animation_on_hover'] if 'animation_on_hover' in kwargs else self.m_animation_on_hover
-        self.animation_on_press = kwargs['animation_on_press'] if 'animation_on_press' in kwargs else self.m_animation_on_press
-        self.animation_on_release = kwargs['animation_on_release'] if 'animation_on_release' in kwargs else self.m_animation_on_release
-        self.animation_on_key_press = kwargs['animation_on_key_press'] if 'animation_on_key_press' in kwargs else self.m_animation_on_key_press
-        self.animation_on_key_release = kwargs['animation_on_key_release'] if 'animation_on_key_release' in kwargs else self.m_animation_on_key_release
-        # kwargs update event arguments
-        self.on_key_press = kwargs['on_key_press'] if 'on_key_press' in kwargs else self.m_on_key_press
-        self.on_key_release = kwargs['on_key_release'] if 'on_key_release' in kwargs else self.m_on_key_release
-        # kwargs core arguments
-        self.state = kwargs['state'] if 'state' in kwargs else pgmenu.NORMAL
-        # Core widget arguments
-        self.rect = pygame.Rect
-        # Random number to calibrate text_size correctly in calculate_text
-        self.text_size = 10
-
-        # Link together border_radii
-        self.border_radii = AnimateMultiple(self.border_radius, self.border_top_left_radius, self.border_top_right_radius,
-                                            self.border_bottom_left_radius, self.border_bottom_right_radius, self.inside_border_radius,
-                                            self.inside_border_top_left_radius, self.inside_border_top_right_radius,
-                                            self.inside_border_bottom_left_radius, self.inside_border_bottom_right_radius)
-
-    def __setattr__(self, key, value):
-        # Return if called with same value
-        if hasattr(self, key) and getattr(self, key) == value:
-            return False
-
-        # Save current key's value to use for comparison later
-        if hasattr(self, key): old_value = getattr(self, key)
-
-        # Call the original __setattr__ method to set the attribute
-        super().__setattr__(key, value)
-
-        if key == "border_top_left_radius": print(value)
-
-        # Animation Arguments
-        if not isinstance(getattr(self, key), Animate) and not isinstance(getattr(self, key), AnimateTuple) and not isinstance(getattr(self, key), AnimateColor) and getattr(self, key) is not None:
-            if key == "border_radius":
-                self.border_radius = Animate(self.border_radius, self.border_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-
-                if hasattr(self, "border_top_left_radius") and self.border_top_left_radius == old_value: self.border_top_left_radius = Animate(self.border_top_left_radius, self.border_top_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-                if hasattr(self, "border_top_right_radius") and self.border_top_right_radius == old_value: self.border_top_right_radius = Animate(self.border_top_right_radius, self.border_top_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-                if hasattr(self, "border_bottom_left_radius") and self.border_bottom_left_radius == old_value: self.border_bottom_left_radius = Animate(self.border_bottom_left_radius, self.border_bottom_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-                if hasattr(self, "border_bottom_right_radius") and self.border_bottom_right_radius == old_value: self.border_bottom_right_radius = Animate(self.border_bottom_right_radius, self.border_bottom_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-
-                if hasattr(self, "inside_border_radius") and self.inside_border_radius == old_value: self.inside_border_radius = Animate(self.inside_border_radius, self.inside_border_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-                if hasattr(self, "inside_border_top_left_radius") and self.inside_border_top_left_radius == old_value: self.inside_border_top_left_radius = Animate(self.inside_border_top_left_radius, self.inside_border_top_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-                if hasattr(self, "inside_border_top_right_radius") and self.inside_border_top_right_radius == old_value: self.inside_border_top_right_radius = Animate(self.inside_border_top_right_radius, self.inside_border_top_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-                if hasattr(self, "inside_border_bottom_left_radius") and self.inside_border_bottom_left_radius == old_value: self.inside_border_bottom_left_radius = Animate(self.inside_border_bottom_left_radius, self.inside_border_bottom_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-                if hasattr(self, "inside_border_bottom_right_radius") and self.inside_border_bottom_right_radius == old_value: self.border_bottom_right_radius = Animate(self.inside_border_bottom_right_radius, self.inside_border_bottom_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-
-            if key == "border_top_left_radius": self.border_top_left_radius = Animate(self.border_top_left_radius, self.border_top_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "border_top_right_radius": self.border_top_right_radius = Animate(self.border_top_right_radius, self.border_top_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "border_bottom_left_radius": self.border_bottom_left_radius = Animate(self.border_bottom_left_radius, self.border_bottom_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "border_bottom_right_radius": self.border_bottom_right_radius = Animate(self.border_bottom_right_radius, self.border_bottom_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-
-            if key == "inside_border_radius": self.inside_border_radius = Animate(self.inside_border_radius, self.inside_border_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "inside_border_top_left_radius": self.inside_border_top_left_radius = Animate(self.inside_border_top_left_radius, self.inside_border_top_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "inside_border_top_right_radius": self.inside_border_top_right_radius = Animate(self.inside_border_top_right_radius, self.inside_border_top_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "inside_border_bottom_left_radius": self.inside_border_bottom_left_radius = Animate(self.inside_border_bottom_left_radius, self.inside_border_bottom_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "inside_border_bottom_right_radius": self.border_bottom_right_radius = Animate(self.inside_border_bottom_right_radius, self.inside_border_bottom_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
-
-            if hasattr(self, "border_radii") and (key == "border_radius" or key == "border_top_left_radius" or key == "border_top_right_radius" or key == "border_bottom_left_radius" or key == "border_bottom_right_radius" or key == "inside_border_radius" or key == "inside_border_top_left_radius" or key == "inside_border_top_right_radius" or key == "inside_border_bottom_left_radius" or key == "inside_border_bottom_right_radius"):
-                self.border_radii.modify(getattr(self, key))
-
-            if key == "transparency": self.transparency = Animate(self.transparency, self.transparency * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "aa_strength": self.aa_strength = Animate(self.aa_strength, self.aa_strength * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "inside_fill": self.inside_fill = AnimateColor(self.inside_fill, (min(255, self.inside_fill[0] * self.animation_scale), min(255, self.inside_fill[1] * self.animation_scale), min(255, self.inside_fill[2] * self.animation_scale)), self.animation_duration, self.animation_curve)
-            if key == "inside_transparency": self.inside_transparency = Animate(self.inside_transparency, self.inside_transparency * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "inside_aa_strength": self.inside_aa_strength = Animate(self.inside_aa_strength, self.inside_aa_strength * self.animation_scale, self.animation_duration, self.animation_curve)
+    def __init(self,
+               **kwargs):
+        ...
 
     def modify(self,
                **kwargs):
@@ -118,6 +22,9 @@ class Widget:
             setattr(self, args, kwargs[args])
 
     def draw(self):
+        ...
+
+    def update(self, event):
         ...
 
     def m_animation_on_standby(self):
@@ -155,3 +62,132 @@ class Widget:
 
     def m_on_key_release(self, key):
         ...
+
+
+class RectWidget(Widget):
+
+    def __init__(self,
+                 border_radius,
+                 **kwargs):
+        # kwargs aarect arguments
+        self.border_radius = border_radius if border_radius != THEME else pgmenu.Theme.border_radius # round(min(self.size.tuple) / 3)  # if border_radius is not None else pgmenu.vars.Theme.border_radius
+        self.border_top_left_radius = kwargs['border_top_left_radius'] if 'border_top_left_radius' in kwargs else self.border_radius.int # pgmenu.Theme.border_top_left_radius
+        self.border_top_right_radius = kwargs['border_top_right_radius'] if 'border_top_right_radius' in kwargs else self.border_radius.int # pgmenu.Theme.border_top_right_radius
+        self.border_bottom_left_radius = kwargs['border_bottom_left_radius'] if 'border_bottom_left_radius' in kwargs else self.border_radius.int # pgmenu.Theme.border_bottom_left_radius
+        self.border_bottom_right_radius = kwargs['border_bottom_right_radius'] if 'border_bottom_right_radius' in kwargs else self.border_radius.int # pgmenu.Theme.border_bottom_right_radius
+        self.antialiasing = kwargs['antialiasing'] if 'antialiasing' in kwargs else pgmenu.Theme.antialiasing
+        self.transparency = kwargs['transparency'] if 'transparency' in kwargs else pgmenu.Theme.transparency
+        self.aa_strength = kwargs['aa_strength'] if 'aa_strength' in kwargs else pgmenu.Theme.aa_strength
+        # Additional parameters for modifying inside rect
+        self.inside_fill = kwargs['inside_fill'] if 'inside_fill' in kwargs else self.fill.color # pgmenu.Theme.inside_fill
+        self.inside_transparency = kwargs['inside_transparency'] if 'inside_transparency' in kwargs else self.transparency.int # pgmenu.Theme.inside_transparency
+        self.inside_border_radius = kwargs['inside_border_radius'] if 'inside_border_radius' in kwargs else self.border_radius.int # pgmenu.Theme.inside_border_radius
+        self.inside_border_top_left_radius = kwargs['inside_border_top_left_radius'] if 'inside_border_top_left_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_top_left_radius
+        self.inside_border_top_right_radius = kwargs['inside_border_top_right_radius'] if 'inside_border_top_right_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_top_right_radius
+        self.inside_border_bottom_left_radius = kwargs['inside_border_bottom_left_radius'] if 'inside_border_bottom_left_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_bottom_left_radius
+        self.inside_border_bottom_right_radius = kwargs['inside_border_bottom_right_radius'] if 'inside_border_bottom_right_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_bottom_right_radius
+        self.inside_aa_strength = kwargs['inside_aa_strength'] if 'inside_aa_strength' in kwargs else self.aa_strength.int # pgmenu.Theme.inside_aa_strength
+        self.inside_antialiasing = kwargs['inside_antialiasing'] if 'inside_antialiasing' in kwargs else self.antialiasing # pgmenu.Theme.inside_antialiasing
+        # Additional parameters
+        self.debug = kwargs['debug'] if 'debug' in kwargs else pgmenu.Theme.debug
+        self.force_only_overlay = kwargs['force_only_overlay'] if 'force_only_overlay' in kwargs else pgmenu.Theme.force_only_overlay
+        # kwargs text arguments
+        self.text_background = kwargs['text_background'] if 'text_background' in kwargs else pgmenu.Theme.text_background
+        self.text_antialias = kwargs['text_antialias'] if 'text_antialias' in kwargs else pgmenu.Theme.text_antialias
+        self.text_italic = kwargs['text_italic'] if 'text_italic' in kwargs else pgmenu.Theme.text_italic
+        self.text_bold = kwargs['text_bold'] if 'text_bold' in kwargs else pgmenu.Theme.text_bold
+        self.text_strikethrough = kwargs['text_strikethrough'] if 'text_strikethrough' in kwargs else pgmenu.Theme.text_strikethrough
+        self.text_underline = kwargs['text_underline'] if 'text_underline' in kwargs else pgmenu.Theme.text_underline
+        self.text_transparency = kwargs['text_transparency'] if 'text_transparency' in kwargs else self.transparency.int # pgmenu.Theme.widget_text_transparency
+        # kwargs animation arguments
+        self.no_animation = kwargs['no_animation'] if 'no_animation' in kwargs else pgmenu.Theme.no_animation
+        # kwargs update event animation arguments
+        self.animation_on_standby = kwargs['animation_on_standby'] if 'animation_on_standby' in kwargs else self.m_animation_on_standby # pgmenu.Theme.animation_on_standby
+        self.animation_on_hover = kwargs['animation_on_hover'] if 'animation_on_hover' in kwargs else self.m_animation_on_hover # pgmenu.Theme.animation_on_hover
+        self.animation_on_press = kwargs['animation_on_press'] if 'animation_on_press' in kwargs else self.m_animation_on_press # pgmenu.Theme.animation_on_press
+        self.animation_on_release = kwargs['animation_on_release'] if 'animation_on_release' in kwargs else self.m_animation_on_release # pgmenu.Theme.animation_on_release
+        self.animation_on_key_press = kwargs['animation_on_key_press'] if 'animation_on_key_press' in kwargs else self.m_animation_on_key_press # pgmenu.Theme.animation_on_key_press
+        self.animation_on_key_release = kwargs['animation_on_key_release'] if 'animation_on_key_release' in kwargs else self.m_animation_on_key_release # pgmenu.Theme.animation_on_key_release
+        # kwargs update event arguments
+        self.on_key_press = kwargs['on_key_press'] if 'on_key_press' in kwargs else self.m_on_key_press # pgmenu.Theme.on_key_press
+        self.on_key_release = kwargs['on_key_release'] if 'on_key_release' in kwargs else self.m_on_key_release # pgmenu.Theme.on_key_release
+        # kwargs core arguments
+        self.state = kwargs['state'] if 'state' in kwargs else pgmenu.Theme.state
+        # Core widget arguments
+        self.rect = pygame.Rect(0, 0, 0, 0)
+        # Random number to calibrate text_size correctly in calculate_text
+        self.text_size = 10
+
+        # Link together border_radii
+        self.border_radii = AnimateMultiple(self.border_radius, self.border_top_left_radius, self.border_top_right_radius,
+                                            self.border_bottom_left_radius, self.border_bottom_right_radius, self.inside_border_radius,
+                                            self.inside_border_top_left_radius, self.inside_border_top_right_radius,
+                                            self.inside_border_bottom_left_radius, self.inside_border_bottom_right_radius)
+
+        # Link together transparencies
+        self.transparencies = AnimateMultiple(self.transparency, self.inside_transparency, self.text_transparency)
+
+    def __setattr__(self, key, value):
+        # Return if called with same value
+        if hasattr(self, key) and getattr(self, key) == value:
+            return False
+
+        # Save current key's value to use for comparison later
+        if hasattr(self, key): old_value = getattr(self, key)
+
+        # Call the original __setattr__ method to set the attribute
+        super().__setattr__(key, value)
+
+        # Animation Arguments
+        if not isinstance(getattr(self, key), Animate | AnimateTuple | AnimateColor | AnimateFill) and getattr(self, key) is not None:
+            if key == "border_radius":
+                self.border_radius = Animate(self.border_radius, self.border_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+
+                if hasattr(self, "border_top_left_radius") and self.border_top_left_radius.base_num == old_value.base_num: self.border_top_left_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "border_top_right_radius") and self.border_top_right_radius.base_num == old_value.base_num: self.border_top_right_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "border_bottom_left_radius") and self.border_bottom_left_radius.base_num == old_value.base_num: self.border_bottom_left_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "border_bottom_right_radius") and self.border_bottom_right_radius.base_num == old_value.base_num: self.border_bottom_right_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+
+                if hasattr(self, "inside_border_radius") and self.inside_border_radius.base_num == old_value.base_num: self.inside_border_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "inside_border_top_left_radius") and self.inside_border_top_left_radius.base_num == old_value.base_num: self.inside_border_top_left_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "inside_border_top_right_radius") and self.inside_border_top_right_radius.base_num == old_value.base_num: self.inside_border_top_right_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "inside_border_bottom_left_radius") and self.inside_border_bottom_left_radius.base_num == old_value.base_num: self.inside_border_bottom_left_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "inside_border_bottom_right_radius") and self.inside_border_bottom_right_radius.base_num == old_value.base_num: self.inside_border_bottom_right_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+
+            if key == "inside_border_radius":
+                self.inside_border_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+
+                if hasattr(self, "inside_border_top_left_radius") and self.inside_border_top_left_radius.base_num == old_value.base_num: self.inside_border_top_left_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "inside_border_top_right_radius") and self.inside_border_top_right_radius.base_num == old_value.base_num: self.inside_border_top_right_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "inside_border_bottom_left_radius") and self.inside_border_bottom_left_radius.base_num == old_value.base_num: self.inside_border_bottom_left_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "inside_border_bottom_right_radius") and self.inside_border_bottom_right_radius.base_num == old_value.base_num: self.inside_border_bottom_right_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+
+            if key == "border_top_left_radius": self.border_top_left_radius = Animate(self.border_top_left_radius, self.border_top_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "border_top_right_radius": self.border_top_right_radius = Animate(self.border_top_right_radius, self.border_top_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "border_bottom_left_radius": self.border_bottom_left_radius = Animate(self.border_bottom_left_radius, self.border_bottom_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "border_bottom_right_radius": self.border_bottom_right_radius = Animate(self.border_bottom_right_radius, self.border_bottom_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+
+            if key == "inside_border_top_left_radius": self.inside_border_top_left_radius = Animate(self.inside_border_top_left_radius, self.inside_border_top_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "inside_border_top_right_radius": self.inside_border_top_right_radius = Animate(self.inside_border_top_right_radius, self.inside_border_top_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "inside_border_bottom_left_radius": self.inside_border_bottom_left_radius = Animate(self.inside_border_bottom_left_radius, self.inside_border_bottom_left_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "inside_border_bottom_right_radius": self.inside_border_bottom_right_radius = Animate(self.inside_border_bottom_right_radius, self.inside_border_bottom_right_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+
+            if key == "transparency":
+                self.transparency = Animate(self.transparency, self.transparency * self.animation_scale, self.animation_duration, self.animation_curve)
+
+                if hasattr(self, "inside_transparency") and self.inside_transparency.base_num == old_value.base_num: self.inside_transparency = Animate(self.transparency.base_num, self.transparency.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+                if hasattr(self, "text_transparency") and self.text_transparency.base_num == old_value.base_num: self.text_transparency = Animate(self.transparency.base_num, self.transparency.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
+
+            if key == "inside_transparency": self.inside_transparency = Animate(self.inside_transparency, self.inside_transparency * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "text_transparency": self.text_transparency = Animate(self.text_transparency, self.text_transparency * self.animation_scale, self.animation_duration, self.animation_curve)
+
+            if key == "aa_strength": self.aa_strength = Animate(self.aa_strength, self.aa_strength * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "inside_fill": self.inside_fill = AnimateColor(self.inside_fill, (min(255, self.inside_fill[0] * self.animation_scale), min(255, self.inside_fill[1] * self.animation_scale), min(255, self.inside_fill[2] * self.animation_scale)), self.animation_duration, self.animation_curve)
+            if key == "inside_aa_strength": self.inside_aa_strength = Animate(self.inside_aa_strength, self.inside_aa_strength * self.animation_scale, self.animation_duration, self.animation_curve)
+
+        elif key is not None:
+            if hasattr(self, "border_radii") and (key == "border_radius" or key == "border_top_left_radius" or key == "border_top_right_radius" or key == "border_bottom_left_radius" or key == "border_bottom_right_radius" or key == "inside_border_radius" or key == "inside_border_top_left_radius" or key == "inside_border_top_right_radius" or key == "inside_border_bottom_left_radius" or key == "inside_border_bottom_right_radius"):
+                self.border_radii.modify(getattr(self, key))
+
+            if hasattr(self, "transparencies") and (key == "transparency" or key == "inside_transparency" or key == "text_transparency"):
+                self.transparencies.modify(getattr(self, key))

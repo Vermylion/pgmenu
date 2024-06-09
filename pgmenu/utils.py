@@ -34,6 +34,7 @@ def only_alpha_blending(source_alpha, dest_alpha):
     return new_a
 
 
+# Bypasses division by 0 Error
 def div(a, b, round_num=None):
     try:
         div_num = a / b

@@ -8,10 +8,17 @@ import time
 from typing import Callable
 import inspect
 
+import pygame
+
 import pgmenu
+from pgmenu.constants import THEME
 
 
 # TODO -> Animation doesn't work well with smaller duration
+
+# TODO -> Test AnimateFill with two surfaces
+
+# TODO -> Calling backwards resets animation to end of it -> looks weird on startup
 
 
 # x represents from beginning to end of animation, from 0 to 1
@@ -222,20 +229,18 @@ def ease_in_out_bounce(x):
         (1 + ease_out_bounce(2 * x - 1)) / 2
 
 
-# TODO -> final_num or scale?
-
 class Animate:
 
     def __init__(self,
                  base_num: int | float,
                  final_num: int | float,
-                 duration: float = 0.15,
-                 curve: Callable = sine):
+                 duration: float = THEME,
+                 curve: Callable = THEME):
 
         self.base_num = base_num
         self.final_num = final_num
-        self.duration = duration
-        self.curve = curve
+        self.duration = duration if duration != THEME else pgmenu.Theme.animation_duration
+        self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve # Different from animation_curve?
 
         self.start_time = None
         self.diff_num = self.final_num - self.base_num
@@ -243,6 +248,7 @@ class Animate:
         self.step = 0
         self.direction = pgmenu.FORWARD
         self.curve_direction = pgmenu.OUT
+        self.done = False
 
     def __int__(self):
         return int(self.num)
@@ -284,13 +290,14 @@ class Animate:
         self.diff_num = self.final_num - self.base_num
         self.num = self.base_num
         self.step = 0
+        self.done = False
 
     def update(self) -> float:
         if self.start_time is None:
             self.initial_call()
 
         # Stop progress when reached end of animation
-        if (self.step >= 1 and self.direction == pgmenu.FORWARD) or (self.step <= 0 and self.direction == pgmenu.BACKWARD):
+        if self.done:
             return self.num
 
         current_time = time.time()
@@ -303,26 +310,31 @@ class Animate:
 
         # Stop animation right after it's done -> Maybe find cleaner solution?
         if (self.step >= 1 and self.direction == pgmenu.FORWARD) or (self.step <= 0 and self.direction == pgmenu.BACKWARD):
+            self.done = True
             return self.num
 
         # Animation curve output
-        if len(inspect.signature(self.curve).parameters) > 1:
-            coeff_x = self.curve(self.step, self.curve_direction)
-        else:
-            coeff_x = self.curve(self.step)
+        # Check how many arguments self.curve takes
+        try:
+            if len(inspect.signature(self.curve).parameters) > 1:
+                coeff_x = self.curve(self.step, self.curve_direction)
+            else:
+                coeff_x = self.curve(self.step)
+        except:
+            print(self.curve, type(self.curve))
 
         # Proportion with animation curve
         self.num = self.base_num + self.diff_num * coeff_x
 
         return self.num
-    
+
     
 class AnimateTuple:
     
     def __init__(self,
                  *nums: tuple[int | float, int | float],
-                 duration: float = 0.15,
-                 curve: Callable = sine):
+                 duration: float = THEME,
+                 curve: Callable = THEME):
         """
         :param nums: succession of tuples representing (base_num, final_num)
         :param duration: duration of animation
@@ -330,8 +342,8 @@ class AnimateTuple:
         """
 
         self.nums = nums
-        self.duration = duration
-        self.curve = curve
+        self.duration = duration if duration != THEME else pgmenu.Theme.animation_duration
+        self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve
 
         self.animate_nums = [Animate(num[0], num[1], self.duration, self.curve) for num in nums]
 
@@ -346,6 +358,10 @@ class AnimateTuple:
     @property
     def basetuple(self):
         return tuple(animate_num.base_num for animate_num in self.animate_nums)
+
+    @property
+    def finaltuple(self):
+        return tuple(animate_num.final_num for animate_num in self.animate_nums)
 
     def forward(self):
         for animate_num in self.animate_nums:
@@ -369,8 +385,8 @@ class AnimateColor:
     def __init__(self,
                  base_color: tuple[int | int | int],
                  final_color: tuple[int | int | int],
-                 duration: float = 0.15,
-                 curve: Callable = sine):
+                 duration: float = THEME,
+                 curve: Callable = THEME):
 
         self.animate_tuple = AnimateTuple((base_color[0], final_color[0]), (base_color[1], final_color[1]), (base_color[2], final_color[2]),
                                           duration = duration, curve = curve)
@@ -392,10 +408,83 @@ class AnimateColor:
         self.animate_tuple.update()
 
 
+class AnimateFill:
+
+    def __init__(self,
+                 base_fill: tuple[int, int, int] | pygame.Surface | None,
+                 final_fill: tuple[int, int, int] | pygame.Surface | None,
+                 duration: float = THEME,
+                 curve: Callable = THEME):
+
+        self.base_fill = base_fill
+        self.final_fill = final_fill
+        self.duration = duration if duration != THEME else pgmenu.Theme.animation_duration
+        self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve
+
+        self.animation_type = pgmenu.NONE
+
+        # Animate transition between two surfaces
+        if isinstance(base_fill, pygame.Surface) and isinstance(final_fill, pygame.Surface):
+            self.animation_type = pgmenu.SURFACE
+            self.animate_alpha = Animate(255, 0, duration, curve)
+
+            self.blit_surf = self.final_fill.copy()
+            self.blit_surf.blits(((self.final_fill, (0, 0)), (self.base_fill, (0, 0))))
+
+        # Animate transition between two colors
+        elif isinstance(base_fill, tuple | list | pygame.Color) and isinstance(final_fill, tuple | list | pygame.Color):
+            self.animation_type = pgmenu.COLOR
+            self.animate_color = AnimateColor(base_fill, final_fill, duration, curve)
+
+    @property
+    def fill(self):
+        if self.animation_type == pgmenu.SURFACE:
+            return self.blit_surf
+
+        elif self.animation_type == pgmenu.COLOR:
+            return self.animate_color.color
+
+        else:
+            return None
+
+    def forward(self):
+        if self.animation_type == pgmenu.SURFACE:
+            self.animate_alpha.forward()
+
+        elif self.animation_type == pgmenu.COLOR:
+            self.animate_color.forward()
+
+    def backward(self):
+        if self.animation_type == pgmenu.SURFACE:
+            self.animate_alpha.backward()
+
+        elif self.animation_type == pgmenu.COLOR:
+            self.animate_color.backward()
+
+    def reset(self):
+        if self.animation_type == pgmenu.SURFACE:
+            self.animate_alpha.reset()
+            self.base_fill.set_alpha(self.animate_alpha.int)
+            self.blit_surf.blits(((self.final_fill, (0, 0)), (self.base_fill, (0, 0))))
+
+        elif self.animation_type == pgmenu.COLOR:
+            self.animate_color.reset()
+
+    def update(self):
+        if self.animation_type == pgmenu.SURFACE:
+            self.animate_alpha.update()
+
+            self.base_fill.set_alpha(self.animate_alpha.int)
+            self.blit_surf.blits(((self.final_fill, (0, 0)), (self.base_fill, (0, 0))))
+
+        elif self.animation_type == pgmenu.COLOR:
+            self.animate_color.update()
+
+
 class AnimateMultiple:
 
     def __init__(self,
-                 *animations):
+                 *animations: Animate | AnimateTuple | AnimateColor | AnimateFill):
 
         self.animations = {id(animation): animation for animation in animations}
 
