@@ -2,13 +2,15 @@
 
 ![](https://github.com/Vermylion/pgmenu/raw/master/examples/assets/pgmenu_logo.png)
 
-pgmenu is a basic library for an easy creation of menus in pygame, supporting multiple widget types and designed with the user's experience at heart.
+### IMPORTANT: This branch, pgmenu 2.0, is currently in development
+
+pgmenu is an extensive library for an easy creation of menus in pygame, supporting multiple widget types and designed with the user's experience at heart.
 
 It's optimized to not hinder performance, and hopefully as customizable as possible. pgmenu also aims to stay true to traditional pygame syntax, for, again, a hopefully seamless experience.
 
 This library is made for your project, not the project made around the library.
 
-If you have any **features** or **changes** to add, or **bugs** to fix, please contact me at [vermylioncode@gmail.com](https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSHxjhbRbxvSxFbZrdnptpzHLqnplHLDKdjrbbDXcqXZJBvCFqscPNMPTGlBrWqKmxQVPXnB). Thanks in advance!
+If you have any **features** or **changes** to add, or **bugs** to fix, don't be afraid to create a **github issue**.
 
 # Quick Guide
 
@@ -58,11 +60,11 @@ Documentation will arrive for 2.0 (*phew! finally!*).
 
 **Complete pgmenu rework from A to Z!** Here are some features to be expecting:
 
-+ **Custom rect Antialiasing**
++ **Custom rect antialiasing**
 + **Animations**
-+ **Dynamic Themes**
-+ **Dynamic Resize**
++ **Dynamic resize**
 + **Tons of new widgets**
++ **Tons of new tools**
 + **Better syntax**
 + **Documentation**
 + **And so much more!**
@@ -88,4 +90,4 @@ Documentation will arrive for 2.0 (*phew! finally!*).
 
 MIT License
 
-3.10.9 Python
+3.12.0 Python
