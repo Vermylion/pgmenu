@@ -8,8 +8,6 @@ import pgmenu.draw as draw
 import pgmenu.animation as animation
 
 import pgmenu.button as button
-# OR
-# from pgmenu.button import Button
 
 import pgmenu.theme as theme
 
@@ -28,6 +26,14 @@ from pgmenu.vars import Theme
 import pgmenu.system as system
 
 import pgmenu.projects as projects
+
+import pgmenu.display as display
+
+import pgmenu.rect as rect
+
+import pgmenu.resize as resize
+
+import pgmenu.simple as simple
 
 # Initialize library
 lib.init()

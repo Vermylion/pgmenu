@@ -1,8 +1,17 @@
 widgets = []
+# Finer control over functions that need widgets
+widgets_draw_priority = []
+widgets_draw_order = []
 # Cache dicts
 aarect_cached_surfaces = dict()
 text_cached_surfaces = dict()
 surface_cached_surfaces = dict()
+rect_cached_rects = dict()
+# Global cache
+cache = ["aarect_cached_surfaces", "text_cached_surfaces", "surface_cached_surfaces", "rect_cached_rects"]
+# How long the cache lives before getting reset (in seconds)
+cache_duration = 15 # 300
+cache_start = 0
 # Formatted later in lib
 Theme = None
 # Cursor vars

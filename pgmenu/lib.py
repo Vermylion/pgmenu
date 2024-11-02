@@ -1,7 +1,8 @@
+import sys
+import time
 import pygame
 import pgmenu
 
-# TODO -> Might need recursion of event instead of events
 
 # TODO -> Limit certain actions like mouse down, even if we're using events (in case someone uses event)
 
@@ -9,11 +10,7 @@ import pgmenu
 
 # TODO -> Have widgets be disabled when not drawn...?
 
-# TODO -> Automatic cache clearer (when it gets too big)
-
-# TODO -> To change widget animation requires lambda: func(widget) -> can maybe simplify it?
-
-# TODO -> Refactor/rewrite dynamic resize
+# TODO -> To change widget animation requires lambda: func(widget) -> can maybe simplify it? -> AnimateEvent
 
 
 def init():
@@ -23,12 +20,41 @@ def init():
     pgmenu.vars.widget_cursor = pygame.SYSTEM_CURSOR_ARROW
 
 
+def clear_cache(var_name):
+    setattr(pgmenu.vars, var_name, dict())
+
+
+# FIXME -> Cache clearer doesn't seem to be doing anything
+def auto_cache_clearer():
+    if pgmenu.vars.cache_duration is not None:
+        curr_time = time.time()
+
+        if pgmenu.vars.cache_start == 0:
+            pgmenu.vars.cache_start = curr_time
+
+        if curr_time >= pgmenu.vars.cache_start + pgmenu.vars.cache_duration:
+            pgmenu.vars.cache_start = curr_time
+            print("Cleared cache")
+
+            for cache_var in pgmenu.vars.cache:
+                print(getattr(pgmenu.vars, cache_var))
+                # clear_cache(cache_var)
+
+            pgmenu.vars.aarect_cached_surfaces = dict()
+            pgmenu.vars.text_cached_surfaces = dict()
+            pgmenu.vars.surface_cached_surfaces = dict()
+
+            for cache_var in pgmenu.vars.cache:
+                print(getattr(pgmenu.vars, cache_var))
+
+
 def draw_all():
     # Save active or hovered widgets to be drawn on top
     top_widgets = []
-    for widget in pgmenu.vars.widgets:
+    for widget in pgmenu.vars.widgets_draw_order:
         if (widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE) and pgmenu.system.widget_draw_priority:
-            top_widgets.append(widget)
+            if widget in pgmenu.vars.widgets_draw_priority:
+                top_widgets.append(widget)
         else:
             widget.draw()
 
@@ -42,6 +68,9 @@ def update(events):
     if pgmenu.vars.prev_window_size is None:
         pgmenu.vars.prev_window_size = pygame.display.get_window_size()
 
+    # Manage cache
+    # auto_cache_clearer()
+
     # Format input, so we can iterate it if event is passed as input instead of events
     events = [events] if isinstance(events, pygame.event.Event) else events
 
@@ -54,7 +83,7 @@ def update(events):
             continue
 
         # Checks that do not require events
-        # Hover
+        # Hover action
         if widget.rect.collidepoint(pgmenu.vars.mouse_x, pgmenu.vars.mouse_y):
 
             widget.state = pgmenu.HOVERED
@@ -70,45 +99,15 @@ def update(events):
             widget.animation_on_standby()
             widget.on_standby()
 
+        # Check events
         for event in events:
 
-            # Event for dynamic resize
-            if event.type == pygame.VIDEORESIZE:
-
-                if pgmenu.system.dynamic_resize or pgmenu.system.dynamic_coords:
-                    # To reset prev_window_size
-                    pgmenu.vars.videoresized = True
-
-                    win_size = pygame.display.get_window_size()
-
-                    x_factor = win_size[0] / pgmenu.vars.prev_window_size[0]
-                    y_factor = win_size[1] / pgmenu.vars.prev_window_size[1]
-                    factor = (x_factor + y_factor) / 2
-
-                if pgmenu.system.dynamic_resize:
-                    # Save size for factor in border_radius
-                    prev_min_size = min(widget.size.inttuple)
-
-                    if pgmenu.system.proportional_dynamic_resize:
-                        widget.size = widget.size.inttuple[0] * factor, widget.size.inttuple[1] * factor
-                    else:
-                        widget.size = widget.size.inttuple[0] * x_factor, widget.size.inttuple[1] * y_factor
-
-                    widget.border_radius = widget.border_radius.base_num * (min(widget.size.inttuple) / prev_min_size)
-
-                if pgmenu.system.dynamic_coords:
-                    if pgmenu.system.proportional_dynamic_coords:
-                        widget.coords = widget.coords.inttuple[0] * factor, widget.coords.inttuple[1] * factor
-                    else:
-                        widget.coords = widget.coords.inttuple[0] * x_factor, widget.coords.inttuple[1] * y_factor
+            pgmenu.resize.responsive_resize(widget, event)
 
             # Other widget actions
             widget.update(event)
 
-    # Reset window size for VIDEORESIZE
-    if pgmenu.vars.videoresized:
-        pgmenu.vars.prev_window_size = pygame.display.get_window_size()
-        pgmenu.vars.videoresized = False
+    pgmenu.resize.reset_videoresize()
 
     # Set cursor
     if pgmenu.vars.user_cursor is None:

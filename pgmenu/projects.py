@@ -6,45 +6,11 @@
 import pygame
 import pgmenu
 
-
-# Small, built-in integration for fullscreen support.
-# Unfortunately, it cannot be added as default in update loop
-def fullscreen_controls(screen, event):
-
-    if event.type == pygame.KEYUP:
-        if event.key == pygame.K_F11:
-
-            # Detect first call in a way
-            if pgmenu.vars.fs_window_size is None:
-                pgmenu.vars.fs_window_size = pygame.display.get_window_size()
-
-                # Needs VIDEORESIZE on first call for some reason
-                pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
-
-            if not pygame.display.is_fullscreen():
-                # VIDEORESIZE is not needed here apparently
-                pgmenu.vars.fs_window_size = pygame.display.get_window_size()
-                screen = pygame.display.set_mode(pygame.display.get_desktop_sizes()[0], pygame.RESIZABLE)
-                pygame.display.toggle_fullscreen()
-            else:
-                # Add VIDEORESIZE to event queue
-                pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
-
-                pygame.display.toggle_fullscreen()
-                screen = pygame.display.set_mode(pgmenu.vars.fs_window_size, pygame.RESIZABLE)
-
-    return screen
-
-
-# Infrastructure for projects, allowing x, y movements, and zooming in and out
 from pgmenu.animation import Animate
 
 
-# FIXME -> Update to work with pgmenu.update?
-
-# TODO -> Update -> really bad, doesn't work really well -> only a demo
-
-
+# FIXME -> really bad, doesn't work really well -> only a demo
+# Infrastructure for projects, allowing x, y movements, and zooming in and out
 class MovablePlaneWindow:
 
     def __init__(self, screen, **kwargs):
@@ -91,7 +57,8 @@ class MovablePlaneWindow:
 
         if event.type == pygame.MOUSEWHEEL:
             # Calculate relative scale
-            new_relative_scale = max(round(self.relative_scale.num + event.y * self.scale_speed, len(str(self.scale_speed))), self.min_scale)
+            new_relative_scale = max(
+                round(self.relative_scale.num + event.y * self.scale_speed, len(str(self.scale_speed))), self.min_scale)
             self.relative_scale = Animate(self.relative_scale.num, new_relative_scale)
 
         if self.moving:
@@ -136,11 +103,13 @@ class MovablePlaneWindow:
 
             width, height = pygame.display.get_window_size()
 
-            w_f = 20 # Wiggle factor to render outside of view, not the best solution but works
-            if 0 - w_f < coord_x + size[0] < width + size[0] + w_f and 0 - w_f < coord_y + size[1] < height + size[1] + w_f:
+            w_f = 20  # Wiggle factor to render outside of view, not the best solution but works
+            if 0 - w_f < coord_x + size[0] < width + size[0] + w_f and 0 - w_f < coord_y + size[1] < height + size[
+                1] + w_f:
 
                 # Calculate new zoomed in/out size, capped at a minimum of 1
-                new_size = (max(round(size[0] * self.relative_scale.num), 1), max(round(size[1] * self.relative_scale.num), 1))
+                new_size = (
+                    max(round(size[0] * self.relative_scale.num), 1), max(round(size[1] * self.relative_scale.num), 1))
 
                 if surface.get_size() != new_size:
                     # Resize the surface and change it in the dict
@@ -149,49 +118,6 @@ class MovablePlaneWindow:
             self.screen.blit(surface, (coord_x, coord_y))
 
 
-# Project that simplifies pgmenu syntax to tkinter level
-# Meant to be as easy to use as tkinter, but using the superior pgmenu
-class PgmenuWindow:
-
-    def __init__(self,
-                 size: tuple[int, int] = (230, 210),
-                 title: str = "pgmenu",
-                 fps: int = 60,
-                 flags: int = pygame.RESIZABLE):
-
-        self.size = size
-        self.title = title
-        self.fps = fps
-        self.flags = flags
-
-        # Set the theme based on system too
-
-        pygame.init()
-
-        self.screen = pygame.display.set_mode(self.size, self.flags)
-        pygame.display.set_caption(self.title)
-
-        # Change logo to pgmenu logo
-
-        self.clock = pygame.time.Clock()
-
-    def loop(self):
-        running = True
-        while running:
-
-            events = pygame.event.get()
-            for event in events:
-                if event.type == pygame.QUIT:
-                    running = False
-                    pygame.quit()
-
-                self.screen = pgmenu.projects.fullscreen_controls(self.screen, event)
-
-            self.screen.fill((255, 255, 255)) # Normally pgmenu.Theme.background
-
-            pgmenu.draw_all()
-
-            pgmenu.update(events)
-            pygame.display.flip()
-            self.clock.tick(self.fps)
-
+# Project to help load as images or surfaces the gradients for modern ui
+def modern_ui():
+    ...

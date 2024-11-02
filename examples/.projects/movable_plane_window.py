@@ -40,7 +40,7 @@ while running:
             pygame.display.set_caption(f'pgmenu {screen.get_size()}')
 
         # Add fullscreen controls
-        screen = pgmenu.projects.fullscreen_controls(screen, event)
+        screen = pgmenu.display.fullscreen_controls(screen, event)
 
         # Add window controls
         window.controls(event)

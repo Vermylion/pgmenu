@@ -3,10 +3,11 @@ import pgmenu
 from pgmenu.constants import THEME
 
 
+# FIXME -> Arguments aren't clear what they are
 def center_coords(size: list[int, int] | tuple[int, int],
                   rect: list[int, int, int, int] | tuple[int, int, int, int],
                   center_x: bool = THEME,
-                  center_y: bool = THEME):
+                  center_y: bool = THEME) -> tuple[float, float]:
 
     center_x = center_x if center_x != THEME else pgmenu.Theme.pos_center_x
     center_y = center_y if center_y != THEME else pgmenu.Theme.pos_center_y

@@ -8,19 +8,14 @@ from typing import Callable
 import pygame
 
 
-# TODO -> Add icon
-
-# TODO -> Handle fill and inside_fill switching when width or inside_fill
-
 # TODO -> Color animation: other argument for secondary color?
 
-# TODO -> Update fills to use AnimateFill
-
-# TODO -> Can modify base values for widgets, through theme or constants or vars? Ex -> border_radius
-
-# TODO -> Be able to set max text size / set text size?
+# TODO -> Be able to set max text size / set text size? -> Max size might look weird with animations + doesn't margin already do that?
 
 # TODO -> Be able to change text or icon centering?
+
+# TODO -> With icon, text is really jittery when resizing
+
 
 class Button(RectWidget):
 
@@ -77,7 +72,7 @@ class Button(RectWidget):
 
         # Set up arguments
         # Add widget to widget list
-        pgmenu.vars.widgets.append(self)
+        pgmenu.widget.add(self)
 
     def __setattr__(self, key, value):
         # Return if called with same value
@@ -92,44 +87,69 @@ class Button(RectWidget):
 
         # Base Arguments
         # Animation Arguments
-        if not isinstance(getattr(self, key), Animate | AnimateTuple | AnimateColor | AnimateFill) and getattr(self, key) is not None:
+        if not isinstance(getattr(self, key), Animate | AnimateTuple | AnimateColor | AnimateFill):
             if key == "coords": self.coords = AnimateTuple((self.coords[0], self.coords[0] * self.animation_scale), (self.coords[1], self.coords[1] * self.animation_scale), duration=self.animation_duration, curve=self.animation_curve)
             if key == "size": self.size = AnimateTuple((self.size[0], self.size[0] * self.animation_scale), (self.size[1], self.size[1] * self.animation_scale), duration=self.animation_duration, curve=self.animation_curve)
-            if key == "fill": self.fill = AnimateColor(self.fill, (min(255, self.fill[0] * self.animation_scale), min(255, self.fill[1] * self.animation_scale), min(255, self.fill[2] * self.animation_scale)), self.animation_duration, self.animation_curve)
             if key == "text_color": self.text_color = AnimateColor(self.text_color, (min(255, self.text_color[0] * self.animation_scale), min(255, self.text_color[1] * self.animation_scale), min(255, self.text_color[2] * self.animation_scale)), self.animation_duration, self.animation_curve)
             if key == "margin": self.margin = Animate(self.margin, self.margin * self.animation_scale, self.animation_duration, self.animation_curve)  # Is it necessary?
             if key == "width": self.width = Animate(self.width, self.width * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "outline_fill": self.outline_fill = AnimateColor(self.outline_fill, (min(255, self.outline_fill[0] * self.animation_scale), min(255, self.outline_fill[1] * self.animation_scale), min(255, self.outline_fill[2] * self.animation_scale)), self.animation_duration, self.animation_curve)
+            if key == "fill": self._format_fill(key)
+            if key == "outline_fill": self._format_fill(key)
 
     def draw(self):
         coords = pgmenu.position.center_coords(self.size.inttuple, (*self.coords.inttuple, *self.size.basetuple))
 
-        # Hopefully not definitive, but need to update rect
+        # Switch fill and outline_fill when width
+        fill = self.outline_fill.value if self.width.value and self.outline_fill.value else self.fill.value
+        inside_fill = self.fill.value if self.width.value and self.outline_fill.value else self.outline_fill.value
+
+        # Need to update rect, the easiest way to do it so far
         self.rect = pygame.Rect(*coords, *self.size.inttuple)
 
-        button_surface = pgmenu.draw.aarect(None, self.fill.color, (*coords, *self.size.inttuple), self.width.int, self.border_radius.int,
+        button_surface = pgmenu.draw.aarect(None, fill, (*coords, *self.size.inttuple), self.width.int, self.border_radius.int,
                                             self.border_top_left_radius.int, self.border_top_right_radius.int, self.border_bottom_left_radius.int,
                                             self.border_bottom_right_radius.int, self.antialiasing, self.transparency.int, self.aa_strength.int,
-                                            inside_fill=self.inside_fill.color, inside_transparency=self.inside_transparency.int, inside_border_radius=self.inside_border_radius.int,
+                                            inside_fill=inside_fill, inside_transparency=self.inside_transparency.int, inside_border_radius=self.inside_border_radius.int,
                                             inside_border_top_left_radius=self.inside_border_top_left_radius.int, inside_border_top_right_radius=self.inside_border_top_right_radius.int,
                                             inside_border_bottom_left_radius=self.inside_border_bottom_left_radius.int, inside_border_bottom_right_radius=self.inside_border_bottom_right_radius.int,
                                             inside_aa_strength=self.inside_aa_strength.int, inside_antialiasing=self.inside_antialiasing,
                                             debug=self.debug, force_only_overlay=self.force_only_overlay)
 
-        # Icon
         if self.icon is not None:
-            icon_surface = pgmenu.surface.resize(self.icon, (min(self.size.inttuple) - self.margin,)*2)
+            # Use render to get exact text proportions; it also caches the result
+            text = pgmenu.text.render(self.text)
+            # Get correct sizes for text and icon
+            icon_rect, text_rect = pgmenu.rect.fit_rects(self.size.inttuple, self.icon.get_size(), text.get_size(), margin=self.margin.value)
+            # Resize icon
+            icon_surface = pgmenu.surface.resize(self.icon, icon_rect[2:])
+
+        else:
+            text_rect = (0, 0, *self.size.inttuple)
 
         # Get text and calculate new text_size
-        text_surface = pgmenu.text.fit_text(self.text, self.text_font, self.text_color.color, self.size.inttuple,
-                                            self.margin.int, self.text_background, self.text_antialias, self.text_italic, self.text_bold, self.text_strikethrough,
-                                            self.text_underline, self.text_transparency.int)
+        text_surface = pgmenu.text.fit_text(text_rect[2:], self.text, self.text_font, self.text_color.color,
+                                            self.margin.int, self.text_background, self.text_antialias, self.text_italic,
+                                            self.text_bold, self.text_strikethrough, self.text_underline, self.text_transparency.int)
 
-        text_coords = pgmenu.position.center_coords(text_surface.get_size(), (0, 0, *self.size.inttuple))
+        # Center the text and icon
+        if self.icon is not None:
+            # When being fit, the text might not take all the space allocated to it, therefore we center it on that space
+            centered_text_coords = pgmenu.position.center_coords(text_surface.get_size(), text_rect)
+            text_rect = (*centered_text_coords, *text_surface.get_size())
+
+            # Center the text and icon
+            icon_rect, text_rect = pgmenu.rect.center_rects((0, 0, *self.size.inttuple), icon_rect, text_rect)
+
+        else:
+            # Center only the text
+            text_rect = (*pgmenu.position.center_coords(text_surface.get_size(), (0, 0, *self.size.inttuple)), text_rect[:2])
 
         self.surface.blit(button_surface, coords)
 
-        self.surface.blit(text_surface, (text_coords[0] + coords[0], text_coords[1] + coords[1]))
+        self.surface.blit(text_surface, (text_rect[0] + coords[0], text_rect[1] + coords[1]))
+
+        if self.icon is not None:
+            self.surface.blit(icon_surface, (icon_rect[0] + coords[0], icon_rect[1] + coords[1]))
 
     def update(self, event):
         # Detect mouse collisions

@@ -10,11 +10,25 @@ from pgmenu.constants import THEME
 # TODO -> Can't assign border_radii in theme because of the current system
 
 
+# Adds widget to the system and update loop
+def add(widget):
+    pgmenu.vars.widgets.append(widget)
+    # Add to draw priority and draw order
+    pgmenu.vars.widgets_draw_priority.append(widget)
+    pgmenu.vars.widgets_draw_order.append(widget)
+
+
 class Widget:
 
-    def __init(self,
-               **kwargs):
-        ...
+    def __init__(self,
+                 **kwargs):
+        # Formatting for responsive resize
+        self.responsive_size = kwargs['responsive_size'] if 'responsive_size' in kwargs else pgmenu.Theme.responsive_size
+        self.responsive_size_w = kwargs['responsive_size_w'] if 'responsive_size_w' in kwargs else pgmenu.Theme.responsive_size_w
+        self.responsive_size_h = kwargs['responsive_size_h'] if 'responsive_size_h' in kwargs else pgmenu.Theme.responsive_size_h
+        self.responsive_coords = kwargs['responsive_coords'] if 'responsive_coords' in kwargs else pgmenu.Theme.responsive_coords
+        self.responsive_coords_x = kwargs['responsive_coords_x'] if 'responsive_coords_x' in kwargs else pgmenu.Theme.responsive_coords_x
+        self.responsive_coords_y = kwargs['responsive_coords_y'] if 'responsive_coords_y' in kwargs else pgmenu.Theme.responsive_coords_y
 
     def modify(self,
                **kwargs):
@@ -63,13 +77,32 @@ class Widget:
     def m_on_key_release(self, key):
         ...
 
+    def remove_draw_priority(self):
+        pgmenu.vars.widgets_draw_priority.remove(self)
+
+    def add_draw_priority(self):
+        pgmenu.vars.widgets_draw_priority.append(self)
+
+    def move_draw_order(self, index):
+        pgmenu.vars.widgets_draw_order.remove(self)
+        pgmenu.vars.widgets_draw_order.insert(index, self)
+
 
 class RectWidget(Widget):
 
     def __init__(self,
                  border_radius,
                  **kwargs):
+
+        super().__init__(**kwargs)
+
         # kwargs aarect arguments
+        # Has to be at top since it englobes all defined and not defined border attributes
+        # Removed border_radius and inside_border_radius since they impact others, preventing low-level interactions
+        self._border_radii = ["border_top_left_radius", "border_top_right_radius", "border_bottom_left_radius", "border_bottom_right_radius",
+                              "inside_border_top_left_radius", "inside_border_top_right_radius", "inside_border_bottom_left_radius",
+                              "inside_border_bottom_right_radius"]
+
         self.border_radius = border_radius if border_radius != THEME else pgmenu.Theme.border_radius # round(min(self.size.tuple) / 3)  # if border_radius is not None else pgmenu.vars.Theme.border_radius
         self.border_top_left_radius = kwargs['border_top_left_radius'] if 'border_top_left_radius' in kwargs else self.border_radius.int # pgmenu.Theme.border_top_left_radius
         self.border_top_right_radius = kwargs['border_top_right_radius'] if 'border_top_right_radius' in kwargs else self.border_radius.int # pgmenu.Theme.border_top_right_radius
@@ -79,14 +112,15 @@ class RectWidget(Widget):
         self.transparency = kwargs['transparency'] if 'transparency' in kwargs else pgmenu.Theme.transparency
         self.aa_strength = kwargs['aa_strength'] if 'aa_strength' in kwargs else pgmenu.Theme.aa_strength
         # Additional parameters for modifying inside rect
-        self.inside_fill = kwargs['inside_fill'] if 'inside_fill' in kwargs else self.fill.color # pgmenu.Theme.inside_fill
+        # inside_fill is not used in button but could be used in other widgets
+        self.inside_fill = kwargs['inside_fill'] if 'inside_fill' in kwargs else self.fill.value # pgmenu.Theme.inside_fill
         self.inside_transparency = kwargs['inside_transparency'] if 'inside_transparency' in kwargs else self.transparency.int # pgmenu.Theme.inside_transparency
         self.inside_border_radius = kwargs['inside_border_radius'] if 'inside_border_radius' in kwargs else self.border_radius.int # pgmenu.Theme.inside_border_radius
         self.inside_border_top_left_radius = kwargs['inside_border_top_left_radius'] if 'inside_border_top_left_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_top_left_radius
         self.inside_border_top_right_radius = kwargs['inside_border_top_right_radius'] if 'inside_border_top_right_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_top_right_radius
         self.inside_border_bottom_left_radius = kwargs['inside_border_bottom_left_radius'] if 'inside_border_bottom_left_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_bottom_left_radius
         self.inside_border_bottom_right_radius = kwargs['inside_border_bottom_right_radius'] if 'inside_border_bottom_right_radius' in kwargs else self.inside_border_radius.int # pgmenu.Theme.inside_border_bottom_right_radius
-        self.inside_aa_strength = kwargs['inside_aa_strength'] if 'inside_aa_strength' in kwargs else self.aa_strength.int # pgmenu.Theme.inside_aa_strength
+        self.inside_aa_strength = kwargs['inside_aa_strength'] if 'inside_aa_strength' in kwargs else pgmenu.Theme.inside_aa_strength # self.aa_strength.int
         self.inside_antialiasing = kwargs['inside_antialiasing'] if 'inside_antialiasing' in kwargs else self.antialiasing # pgmenu.Theme.inside_antialiasing
         # Additional parameters
         self.debug = kwargs['debug'] if 'debug' in kwargs else pgmenu.Theme.debug
@@ -115,8 +149,6 @@ class RectWidget(Widget):
         self.state = kwargs['state'] if 'state' in kwargs else pgmenu.Theme.state
         # Core widget arguments
         self.rect = pygame.Rect(0, 0, 0, 0)
-        # Random number to calibrate text_size correctly in calculate_text
-        self.text_size = 10
 
         # Link together border_radii
         self.border_radii = AnimateMultiple(self.border_radius, self.border_top_left_radius, self.border_top_right_radius,
@@ -133,7 +165,8 @@ class RectWidget(Widget):
             return False
 
         # Save current key's value to use for comparison later
-        if hasattr(self, key): old_value = getattr(self, key)
+        if hasattr(self, key):
+            old_value = getattr(self, key)
 
         # Call the original __setattr__ method to set the attribute
         super().__setattr__(key, value)
@@ -142,6 +175,10 @@ class RectWidget(Widget):
         if not isinstance(getattr(self, key), Animate | AnimateTuple | AnimateColor | AnimateFill) and getattr(self, key) is not None:
             if key == "border_radius":
                 self.border_radius = Animate(self.border_radius, self.border_radius * self.animation_scale, self.animation_duration, self.animation_curve)
+
+                # FIXME -> For some reason, old_value breaks with this loop
+                # for border_radius in self._border_radii:
+                #     if hasattr(self, border_radius) and getattr(self, border_radius).base_num == old_value.base_num: setattr(self, border_radius, Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve))
 
                 if hasattr(self, "border_top_left_radius") and self.border_top_left_radius.base_num == old_value.base_num: self.border_top_left_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
                 if hasattr(self, "border_top_right_radius") and self.border_top_right_radius.base_num == old_value.base_num: self.border_top_right_radius = Animate(self.border_radius.base_num, self.border_radius.base_num * self.animation_scale, self.animation_duration, self.animation_curve)
@@ -182,8 +219,8 @@ class RectWidget(Widget):
             if key == "text_transparency": self.text_transparency = Animate(self.text_transparency, self.text_transparency * self.animation_scale, self.animation_duration, self.animation_curve)
 
             if key == "aa_strength": self.aa_strength = Animate(self.aa_strength, self.aa_strength * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "inside_fill": self.inside_fill = AnimateColor(self.inside_fill, (min(255, self.inside_fill[0] * self.animation_scale), min(255, self.inside_fill[1] * self.animation_scale), min(255, self.inside_fill[2] * self.animation_scale)), self.animation_duration, self.animation_curve)
             if key == "inside_aa_strength": self.inside_aa_strength = Animate(self.inside_aa_strength, self.inside_aa_strength * self.animation_scale, self.animation_duration, self.animation_curve)
+            if key == "inside_fill": self._format_fill(key)
 
         elif key is not None:
             if hasattr(self, "border_radii") and (key == "border_radius" or key == "border_top_left_radius" or key == "border_top_right_radius" or key == "border_bottom_left_radius" or key == "border_bottom_right_radius" or key == "inside_border_radius" or key == "inside_border_top_left_radius" or key == "inside_border_top_right_radius" or key == "inside_border_bottom_left_radius" or key == "inside_border_bottom_right_radius"):
@@ -191,3 +228,19 @@ class RectWidget(Widget):
 
             if hasattr(self, "transparencies") and (key == "transparency" or key == "inside_transparency" or key == "text_transparency"):
                 self.transparencies.modify(getattr(self, key))
+
+    def _format_fill(self, fill_name):
+        fill = getattr(self, fill_name)
+
+        if isinstance(fill, pygame.Surface) or fill is None:
+            # Don't have secondary fill argument yet
+            final_fill = getattr(self, fill_name)
+        else:
+            final_fill = (min(255, fill[0] * self.animation_scale),
+                          min(255, fill[1] * self.animation_scale),
+                          min(255, fill[2] * self.animation_scale))
+
+        fill = AnimateFill(fill, final_fill, self.animation_duration, self.animation_curve)
+        setattr(self, fill_name, fill)
+
+        return fill

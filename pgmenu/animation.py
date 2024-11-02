@@ -3,6 +3,7 @@
 # There isn't the expressions though
 # There's easing out_in
 # Ease elastic and bounce are separate from easing, with a lot more variants
+import sys
 import math
 import time
 from typing import Callable
@@ -14,11 +15,7 @@ import pgmenu
 from pgmenu.constants import THEME
 
 
-# TODO -> Animation doesn't work well with smaller duration
-
 # TODO -> Test AnimateFill with two surfaces
-
-# TODO -> Calling backwards resets animation to end of it -> looks weird on startup
 
 
 # x represents from beginning to end of animation, from 0 to 1
@@ -240,6 +237,8 @@ class Animate:
         self.base_num = base_num
         self.final_num = final_num
         self.duration = duration if duration != THEME else pgmenu.Theme.animation_duration
+        # Makes sure it can never be 0 (because of division by 0)
+        self.duration = max(self.duration, sys.float_info.epsilon)
         self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve # Different from animation_curve?
 
         self.start_time = None
@@ -260,30 +259,33 @@ class Animate:
         return round(self.num, n)
 
     @property
+    def value(self):
+        return round(self.num)
+
+    @property
     def int(self):
         return round(self.num)
 
     def initial_call(self):
         # Get initial call time
         self.start_time = time.time()
+        # Makes sure animation starts at beginning for pgmenu.BACKWARDS on start, not the best solution but works
+        # if self.direction == pgmenu.BACKWARD:
+        #     self.start_time = time.time() - self.duration
 
     def forward(self):
         if self.direction != pgmenu.FORWARD:
-            step = self.step
             self.reset()
             self.direction = pgmenu.FORWARD
             if self.curve_direction != pgmenu.IN_OUT:
                 self.curve_direction = pgmenu.OUT
-            self.step = step
 
     def backward(self):
         if self.direction != pgmenu.BACKWARD:
-            step = self.step
             self.reset()
             self.direction = pgmenu.BACKWARD
             if self.curve_direction != pgmenu.IN_OUT:
                 self.curve_direction = pgmenu.IN
-            self.step = step
 
     def reset(self):
         self.start_time = None
@@ -303,15 +305,13 @@ class Animate:
         current_time = time.time()
 
         # Dynamic iteration from 0 to 1
+        # FIXME -> Calling backwards resets animation to end of it -> looks weird on startup -> MODIFY start_time or current_time
         self.step = (current_time - self.start_time) / self.duration
+        # Cap it to 1 or 0
+        self.step = max(min(self.step, 1), 0)
 
         if self.direction == pgmenu.BACKWARD:
             self.step = 1 - self.step
-
-        # Stop animation right after it's done -> Maybe find cleaner solution?
-        if (self.step >= 1 and self.direction == pgmenu.FORWARD) or (self.step <= 0 and self.direction == pgmenu.BACKWARD):
-            self.done = True
-            return self.num
 
         # Animation curve output
         # Check how many arguments self.curve takes
@@ -325,6 +325,11 @@ class Animate:
 
         # Proportion with animation curve
         self.num = self.base_num + self.diff_num * coeff_x
+
+        # Stop animation when the max step (so 1 or 0) is reached
+        if (self.step >= 1 and self.direction == pgmenu.FORWARD) or (self.step <= 0 and self.direction == pgmenu.BACKWARD):
+            self.done = True
+            return self.num
 
         return self.num
 
@@ -346,6 +351,10 @@ class AnimateTuple:
         self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve
 
         self.animate_nums = [Animate(num[0], num[1], self.duration, self.curve) for num in nums]
+
+    @property
+    def value(self):
+        return tuple(animate_num.num for animate_num in self.animate_nums)
 
     @property
     def tuple(self):
@@ -392,6 +401,10 @@ class AnimateColor:
                                           duration = duration, curve = curve)
 
     @property
+    def value(self):
+        return self.animate_tuple.inttuple
+
+    @property
     def color(self):
         return self.animate_tuple.inttuple
 
@@ -435,6 +448,10 @@ class AnimateFill:
         elif isinstance(base_fill, tuple | list | pygame.Color) and isinstance(final_fill, tuple | list | pygame.Color):
             self.animation_type = pgmenu.COLOR
             self.animate_color = AnimateColor(base_fill, final_fill, duration, curve)
+
+    @property
+    def value(self):
+        return self.fill
 
     @property
     def fill(self):
@@ -487,6 +504,10 @@ class AnimateMultiple:
                  *animations: Animate | AnimateTuple | AnimateColor | AnimateFill):
 
         self.animations = {id(animation): animation for animation in animations}
+
+    @property
+    def value(self):
+        return [animation.value for animation in list(self.animations.values())]
 
     def modify(self, *animations):
         self.animations.update({id(animation): animation for animation in animations})

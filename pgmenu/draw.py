@@ -58,7 +58,7 @@ def aarect(surface: pygame.Surface | None = THEME,
     transparency = transparency if transparency != THEME else pgmenu.Theme.transparency
     aa_strength = aa_strength if aa_strength != THEME else pgmenu.Theme.aa_strength
     # Additional parameters for modifying inside rect
-    inside_fill = kwargs['inside_fill'] if 'inside_fill' in kwargs else fill  # pgmenu.Theme.inside_fill
+    inside_fill = kwargs['inside_fill'] if 'inside_fill' in kwargs else None  # pgmenu.Theme.inside_fill
     inside_transparency = kwargs['inside_transparency'] if 'inside_transparency' in kwargs else transparency # pgmenu.Theme.inside_transparency
     inside_border_radius = kwargs['inside_border_radius'] if 'inside_border_radius' in kwargs else border_radius # pgmenu.Theme.inside_border_radius
     inside_border_top_left_radius = kwargs['inside_border_top_left_radius'] if 'inside_border_top_left_radius' in kwargs else inside_border_radius  # pgmenu.Theme.inside_border_top_left_radius
@@ -81,3 +81,10 @@ def aarect(surface: pygame.Surface | None = THEME,
     rect_surf = rect.aarect()
 
     return rect_surf
+
+
+def gradient(color1,
+             color2,
+             angle,
+             curve):
+    ...

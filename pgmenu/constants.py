@@ -19,3 +19,6 @@ CHECKBOX = "checkbox"
 RADIOBOX = "radiobox"
 # Constant to know when to use theme
 THEME = "theme"
+# Constants for responsive resize types
+PROPORTIONAL = "proportional"
+STRETCH = "stretch"

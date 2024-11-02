@@ -9,11 +9,6 @@ from pgmenu.constants import THEME
 
 # TODO -> Finish Text widget with animations, setattr, etc.
 
-# TODO -> Library font file should work outside of directory
-
-# FIXME -> Text doesn't resize correctly on the y axis -> Only fit_text?
-# FIXME |-> The bigger the Y size, the bigger the text
-
 
 # Need Widget for default functions
 class Text(Widget):
@@ -73,7 +68,10 @@ class Text(Widget):
 
 
 def match_font(font, italic=False, bold=False):
-    font_path = pygame.font.match_font(font, italic=italic, bold=bold)
+    # Remove file extention in case since match_font only takes in names
+    font_name = os.path.splitext(font)
+
+    font_path = pygame.font.match_font(font_name, italic=italic, bold=bold)
 
     if not font_path:
         font_path = os.path.join(os.getcwd(), font)
@@ -82,6 +80,19 @@ def match_font(font, italic=False, bold=False):
             return None
 
     return font_path
+
+
+def format_font(font, italic=False, bold=False):
+    # Format font path to default if None
+    if font is None or font.lower() == "VarelaRound.ttf".lower():
+        font = os.path.abspath(os.path.join(os.path.dirname(__file__), "VarelaRound.ttf"))
+
+    # Check with system fonts if we still don't have a path
+    sys_font_path = match_font(font, italic, bold)
+    if sys_font_path is not None:
+        font = sys_font_path
+
+    return font
 
 
 def render(text: str = THEME,
@@ -117,13 +128,8 @@ def render(text: str = THEME,
     if cache_id in text_cached_surfaces and cache:
         return text_cached_surfaces[cache_id]
 
-    # Format font path to default if None
-    if font is None:
-        font = os.path.abspath(os.path.join(os.path.dirname(__file__), "VarelaRound.ttf"))
+    font = format_font(font, italic, bold)
 
-    font = match_font(font, italic, bold)
-    # Raise error if font cannot be found -> match_font() output is None
-    if not font: raise FileNotFoundError('Cannot find font file')
     text_font = pygame.font.Font(font, size)
 
     text_font.italic = italic
@@ -199,13 +205,12 @@ def write(surface,
     surface.blit(text_surface, coords)
 
 
-# TODO -> Can't be called rect since it doesn't accept coords
+# FIXME -> Can't be called rect since it doesn't accept coords
 
-# TODO -> Reminder: precise_fit is unfinished, might not be doable or even useful
-def fit_text(text: str = THEME,
+def fit_text(dest_rect: list[int, int] | tuple[int, int] = THEME,
+             text: str = THEME,
              font: str = THEME,
              color: list | tuple = THEME,
-             rect: list[int, int] | tuple[int, int] = THEME,
              margin: int = THEME,
              background: list | tuple = THEME,
              antialias: bool = THEME,
@@ -214,13 +219,29 @@ def fit_text(text: str = THEME,
              strikethrough: bool = THEME,
              underline: bool = THEME,
              transparency: int = THEME,
-             cache: bool = THEME,
-             precise_fit: bool = False):
+             cache: bool = THEME):
+    """
+    Returns a surface of the rendered text
+    :param dest_rect: main rect where text is going to be fit in
+    :param text:
+    :param font:
+    :param color:
+    :param margin:
+    :param background:
+    :param antialias:
+    :param italic:
+    :param bold:
+    :param strikethrough:
+    :param underline:
+    :param transparency:
+    :param cache:
+    :return: Returns a surface of the rendered text
+    """
 
+    dest_rect = dest_rect if dest_rect != THEME else pgmenu.Theme.text_fit_rect
     text = text if text != THEME else pgmenu.Theme.text_text
     font = font if font != THEME else pgmenu.Theme.text_font
     color = color if color != THEME else pgmenu.Theme.text_color
-    rect = rect if rect != THEME else pgmenu.Theme.text_fit_rect
     margin = margin if margin != THEME else pgmenu.Theme.text_margin
     background = background if background != THEME else pgmenu.Theme.text_background
     antialias = antialias if antialias != THEME else pgmenu.Theme.text_antialias
@@ -233,46 +254,36 @@ def fit_text(text: str = THEME,
 
     # Cache render with rect instead of size
     # Keep same cache_id in function
-    cache_id = (text, font, color, rect, background, antialias, italic, bold, strikethrough, underline, transparency)
+    cache_id = (text, font, color, dest_rect, margin, background, antialias, italic, bold, strikethrough, underline, transparency)
 
     # Load from cache if already in cache
     if cache_id in text_cached_surfaces and cache:
         return text_cached_surfaces[cache_id]
 
-    # Format font path to default if None
-    if font is None:
-        font = os.path.abspath(os.path.join(os.path.dirname(__file__), "VarelaRound.ttf"))
-
-    font = match_font(font, italic, bold)
-    # Raise error if font cannot be found -> match_font() output is None
-    if not font: raise FileNotFoundError('Cannot find font file')
+    font = format_font(font, italic, bold)
 
     # Minimum size of rect for text font
-    text_size = min(rect)
+    text_size = min(dest_rect)
     text_font = pygame.font.Font(font, text_size)
 
     # Catch when the text is too big/doesn't fit
-    max_size = max(text_font.size(text))
-    if max_size > max(rect):
+    size_x = text_font.size(text)[0]
+    if size_x > dest_rect[0]:
         # math.floor to make sure it doesn't go out of bounds
-        text_size = math.floor(text_size * max(rect) / max_size)
+        text_size = math.floor(text_size * dest_rect[0] / size_x)
         # Create new text font for min size check afterward
         text_font = pygame.font.Font(font, text_size)
 
-    min_size = min(text_font.size(text))
-    if min_size > min(rect):
+    size_y = text_font.size(text)[1]
+    if size_y > dest_rect[1]:
         # math.floor to make sure it doesn't go out of bounds
-        text_size = math.floor(text_size * min(rect) / min_size)
+        text_size = math.floor(text_size * dest_rect[1] / size_y)
 
     # Add text margin
     text_size -= margin
 
     # Render text without cache since already caching
     text_surface = render(text, font, color, text_size, background, antialias, italic, bold, strikethrough, underline, transparency, cache=False)
-
-    # Doesn't seem doable with current syntax
-    if precise_fit:
-        ...
 
     # Cache text surface if cache
     if cache:

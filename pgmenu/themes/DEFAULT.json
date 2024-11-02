@@ -1,17 +1,26 @@
 {
   "DEFAULT": {
 
+    "#": "Attributes in Widget for responsive resizing (before methods since they require synthesizing a widget class)",
+    "responsive_size": {"type": "variable", "module": "pgmenu", "variable": "PROPORTIONAL"},
+    "responsive_size_w": true,
+    "responsive_size_h": true,
+    "responsive_coords": {"type": "variable", "module": "pgmenu", "variable": "STRETCH"},
+    "responsive_coords_x": true,
+    "responsive_coords_y": true,
+
     "#": "Attributes for Button (also viable for other widgets)",
     "coords": [10, 10],
     "size": [100, 30],
     "fill": [42, 120, 205],
     "icon": null,
     "button_text": "Button",
-    "text_font": "VarelaRound.ttf",
+    "#": "font is None since text formats it automatically to VarelaRound",
+    "text_font": null,
     "text_color": [255, 255, 255],
     "margin": 3,
     "width": 0,
-    "outline_fill": [40, 105, 185],
+    "outline_fill": null,
     "on_standby": {"type": "method", "module": "pgmenu.widget", "object": "Widget", "method": "m_on_standby"},
     "on_hover": {"type": "method", "module": "pgmenu.widget", "object": "Widget", "method": "m_on_hover"},
     "on_press": {"type": "method", "module": "pgmenu.widget", "object": "Widget", "method": "m_on_press"},
@@ -37,7 +46,7 @@
     "inside_transparency": {"type": "attribute", "attribute": "transparency"},
     "aa_strength": 1,
     "inside_aa_strength": {"type": "attribute", "attribute": "aa_strength"},
-    "inside_fill": {"type": "attribute", "attribute": "fill"},
+    "inside_fill": null,
     "debug": false,
     "force_only_overlay": false,
 
@@ -81,6 +90,9 @@
 
     "#": "Attributes for position",
     "pos_center_x": true,
-    "pos_center_y": true
+    "pos_center_y": true,
+
+    "#": "General window attributes",
+    "bgcolor": [43, 46, 49]
   }
 }
