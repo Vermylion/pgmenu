@@ -2,11 +2,9 @@ import pygame
 import pgmenu
 
 
-# TODO -> Dynamic resize doesn't reset correctly -> Everything gets bigger
-
 # TODO -> Should responsive_coords account for extra space when responsive_size is False? (ex: centered button isn't centered anymore)
 
-# TODO -> PROPORTIONAL resize doesn't work exactly as expected, has to be tweaked
+# TODO -> PROPORTIONAL and STRETCH resize don't work exactly as expected, have to be tweaked
 
 
 def responsive_resize(widget, event):

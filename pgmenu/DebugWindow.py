@@ -31,17 +31,19 @@ pgmenu.Theme.set(size=(100 + glow_strength * 2, 30 + glow_strength * 2),
                  animation_duration=0.1,
                  inside_aa_strength=1,
                  fill={'type': "image", 'path': "../tests/assets/gradient.png"},
-                 outline_fill={'type': "image", 'path': "../tests/assets/gradient2.png"})
+                 outline_fill={'type': "image", 'path': "../tests/assets/gradient2.png"},
+                 responsive_coords={'type': "variable", 'module': "pgmenu", 'variable': "PROPORTIONAL"})
 
 icon = pgmenu.draw.aarect(None, (205, 42, 42), (0, 0, 32, 32), border_radius=5, width=0)
 
 button1 = pgmenu.button.Button(screen, (250, 115), text="Play (Alt + C)", border_radius=2, border_top_left_radius=pgmenu.Theme.border_radius)
 button2 = pgmenu.button.Button(screen, (355, 115), text="Stop (Alt + C)", border_radius=2, border_top_right_radius=pgmenu.Theme.border_radius)
 button3 = pgmenu.button.Button(screen, (250, 150), text="Set Hotkeys", border_radius=2, border_bottom_left_radius=pgmenu.Theme.border_radius)
-button4 = pgmenu.button.Button(screen, (355, 150), text="Help", icon=icon, margin=3, border_radius=2, border_bottom_right_radius=pgmenu.Theme.border_radius)
+button4 = pgmenu.button.Button(screen, (355, 150), text="Help", icon=icon, margin=3, border_radius=2, border_bottom_right_radius=pgmenu.Theme.border_radius, state=pgmenu.DISABLED)
 
-# surf = pgmenu.draw.aarect(None, pgmenu.Theme.outline_fill, (0, 0, *pgmenu.Theme.size), inside_fill=pgmenu.Theme.fill,
-#                           border_radius=2, border_top_left_radius=pgmenu.Theme.border_radius)
+menu1 = pgmenu.menu.Menu(button1, button2, button4)
+menu2 = pgmenu.menu.Menu(button3)
+pgmenu.menu.show(menu1)
 
 running = True
 while running:
@@ -52,15 +54,17 @@ while running:
             running = False
             pygame.quit()
 
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                pgmenu.menu.show(menu2)
+
         screen = pgmenu.display.fullscreen_controls(screen, event)
 
     screen.fill((0, 0, 0))
 
-    # screen.blit(surf, (100, 100))
-
-    # pgmenu.draw.aarect(screen, rect=(0, 0, 1500, 1500), border_radius=1500, inside_fill=(50, 50, 50), debug=True)
-
-    pgmenu.draw_all()
+    # pgmenu.draw_all()
+    # menu1.draw()
+    pgmenu.menu.draw()
 
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
 

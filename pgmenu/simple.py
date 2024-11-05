@@ -4,7 +4,7 @@ import pgmenu
 
 # Project that simplifies pgmenu syntax to tkinter level
 # Meant to be as easy to use as tkinter, but using the superior pgmenu
-# TODO -> Work on finishing PgmenuWindow, right now it's just a demo that it's possible
+# TODO -> Work on finishing PgmenuWindow, right now it's just a demo to show that it's possible
 class PgmenuWindow:
 
     def __init__(self,
@@ -19,7 +19,6 @@ class PgmenuWindow:
         self.flags = flags
         # Args used later on
         self.blit_surfaces = dict()
-        self.win_actions = []
 
         # Set the theme based on system too
 
@@ -35,10 +34,7 @@ class PgmenuWindow:
     def blit(self, surface, dest):
         self.blit_surfaces[surface] = dest
 
-    def actions(self, action):
-        self.win_actions.append(action)
-
-    def loop(self):
+    def loop(self, loop=None):
         running = True
         while running:
 
@@ -52,8 +48,8 @@ class PgmenuWindow:
 
             self.screen.fill(pgmenu.Theme.bgcolor)  # Normally pgmenu.Theme.background
 
-            for action in self.win_actions:
-                action()
+            if loop is not None:
+                loop()
 
             for surface in self.blit_surfaces:
                 self.screen.blit(surface, self.blit_surfaces[surface])

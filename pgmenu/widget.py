@@ -13,8 +13,7 @@ from pgmenu.constants import THEME
 # Adds widget to the system and update loop
 def add(widget):
     pgmenu.vars.widgets.append(widget)
-    # Add to draw priority and draw order
-    pgmenu.vars.widgets_draw_priority.append(widget)
+    # Add to draw order
     pgmenu.vars.widgets_draw_order.append(widget)
 
 
@@ -29,6 +28,16 @@ class Widget:
         self.responsive_coords = kwargs['responsive_coords'] if 'responsive_coords' in kwargs else pgmenu.Theme.responsive_coords
         self.responsive_coords_x = kwargs['responsive_coords_x'] if 'responsive_coords_x' in kwargs else pgmenu.Theme.responsive_coords_x
         self.responsive_coords_y = kwargs['responsive_coords_y'] if 'responsive_coords_y' in kwargs else pgmenu.Theme.responsive_coords_y
+        # Base widget should be able to be enabled and disabled, but could be removed later
+        self.state = kwargs['state'] if 'state' in kwargs else pgmenu.Theme.state
+        # If widget is part of draw priority
+        self.has_draw_priority = True
+        # Save widget's drawn state
+        self._drawn = False
+
+    # Redundant function here, but could be used in the future
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
 
     def modify(self,
                **kwargs):
@@ -36,7 +45,7 @@ class Widget:
             setattr(self, args, kwargs[args])
 
     def draw(self):
-        ...
+        self._drawn = True
 
     def update(self, event):
         ...
@@ -76,12 +85,6 @@ class Widget:
 
     def m_on_key_release(self, key):
         ...
-
-    def remove_draw_priority(self):
-        pgmenu.vars.widgets_draw_priority.remove(self)
-
-    def add_draw_priority(self):
-        pgmenu.vars.widgets_draw_priority.append(self)
 
     def move_draw_order(self, index):
         pgmenu.vars.widgets_draw_order.remove(self)
@@ -146,7 +149,7 @@ class RectWidget(Widget):
         self.on_key_press = kwargs['on_key_press'] if 'on_key_press' in kwargs else self.m_on_key_press # pgmenu.Theme.on_key_press
         self.on_key_release = kwargs['on_key_release'] if 'on_key_release' in kwargs else self.m_on_key_release # pgmenu.Theme.on_key_release
         # kwargs core arguments
-        self.state = kwargs['state'] if 'state' in kwargs else pgmenu.Theme.state
+        # self.state = kwargs['state'] if 'state' in kwargs else pgmenu.Theme.state
         # Core widget arguments
         self.rect = pygame.Rect(0, 0, 0, 0)
 

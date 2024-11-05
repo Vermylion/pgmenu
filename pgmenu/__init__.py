@@ -35,5 +35,7 @@ import pgmenu.resize as resize
 
 import pgmenu.simple as simple
 
+import pgmenu.menu as menu
+
 # Initialize library
 lib.init()

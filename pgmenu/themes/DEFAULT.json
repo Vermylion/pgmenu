@@ -9,6 +9,8 @@
     "responsive_coords_x": true,
     "responsive_coords_y": true,
 
+    "state": {"type": "variable", "module": "pgmenu", "variable": "NORMAL"},
+
     "#": "Attributes for Button (also viable for other widgets)",
     "coords": [10, 10],
     "size": [100, 30],
@@ -71,7 +73,6 @@
     "animation_on_key_release": {"type": "method", "module": "pgmenu.widget", "object": "Widget", "method": "m_animation_on_key_release"},
 
     "no_animation": false,
-    "state": {"type": "variable", "module": "pgmenu", "variable": "NORMAL"},
 
     "#": "Animation attributes in Button (and others)",
     "animation_scale": 1.2,

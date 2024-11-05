@@ -332,7 +332,7 @@ class AARect:
 
         return draw_rect_surface
 
-# FIXME -> Doesn't work correclty with inside_border_radii -> doesn't work with different sizes
+# FIXME -> Doesn't work correctly with inside_border_radii -> doesn't work with different sizes
     def get_corners(self):
         aa_pixel_width = self.aa_strength if self.antialiasing else 0
         border_radius_values = self.border_radius_values.copy()

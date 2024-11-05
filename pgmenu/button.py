@@ -14,7 +14,7 @@ import pygame
 
 # TODO -> Be able to change text or icon centering?
 
-# TODO -> With icon, text is really jittery when resizing
+# TODO -> With icon, text is jittery when resizing
 
 
 class Button(RectWidget):
@@ -97,6 +97,8 @@ class Button(RectWidget):
             if key == "outline_fill": self._format_fill(key)
 
     def draw(self):
+        super().draw()
+
         coords = pgmenu.position.center_coords(self.size.inttuple, (*self.coords.inttuple, *self.size.basetuple))
 
         # Switch fill and outline_fill when width
@@ -139,6 +141,8 @@ class Button(RectWidget):
 
             # Center the text and icon
             icon_rect, text_rect = pgmenu.rect.center_rects((0, 0, *self.size.inttuple), icon_rect, text_rect)
+            # Supposed to counter jitteriness, doesn't seem to be doing much
+            icon_rect, text_rect = list(map(round, icon_rect)), list(map(round, text_rect))
 
         else:
             # Center only the text

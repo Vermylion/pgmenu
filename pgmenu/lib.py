@@ -1,4 +1,3 @@
-import sys
 import time
 import pygame
 import pgmenu
@@ -7,8 +6,6 @@ import pgmenu
 # TODO -> Limit certain actions like mouse down, even if we're using events (in case someone uses event)
 
 # TODO -> Add more actions -> on_...()
-
-# TODO -> Have widgets be disabled when not drawn...?
 
 # TODO -> To change widget animation requires lambda: func(widget) -> can maybe simplify it? -> AnimateEvent
 
@@ -48,18 +45,23 @@ def auto_cache_clearer():
                 print(getattr(pgmenu.vars, cache_var))
 
 
-def draw_all():
+def _draw(*widgets):
     # Save active or hovered widgets to be drawn on top
     top_widgets = []
     for widget in pgmenu.vars.widgets_draw_order:
-        if (widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE) and pgmenu.system.widget_draw_priority:
-            if widget in pgmenu.vars.widgets_draw_priority:
+        if widget in widgets:
+            if (widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE) and pgmenu.system.widget_draw_priority and widget.has_draw_priority:
                 top_widgets.append(widget)
-        else:
-            widget.draw()
+
+            else:
+                widget.draw()
 
     for widget in top_widgets:
         widget.draw()
+
+
+def draw_all():
+    _draw(*pgmenu.vars.widgets)
 
 
 def update(events):
@@ -79,7 +81,7 @@ def update(events):
 
     for widget in pgmenu.vars.widgets:
 
-        if widget.state == pgmenu.DISABLED:
+        if widget.state == pgmenu.DISABLED or widget._drawn == False:
             continue
 
         # Checks that do not require events
@@ -101,11 +103,13 @@ def update(events):
 
         # Check events
         for event in events:
-
             pgmenu.resize.responsive_resize(widget, event)
 
             # Other widget actions
             widget.update(event)
+
+        # Reset every widget's draw state, as widgets are normally not interacted with after update state
+        widget._drawn = False
 
     pgmenu.resize.reset_videoresize()
 

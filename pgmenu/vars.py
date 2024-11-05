@@ -1,6 +1,5 @@
 widgets = []
 # Finer control over functions that need widgets
-widgets_draw_priority = []
 widgets_draw_order = []
 # Cache dicts
 aarect_cached_surfaces = dict()
@@ -25,3 +24,5 @@ videoresized = False
 fs_window_size = None
 # Cached mouse x, y positions, so pygame.mouse.get_pos() is not called multiple times
 mouse_x, mouse_y = 0, 0
+# For Menu module, to remember which menu is showed
+current_menu_showed = None
