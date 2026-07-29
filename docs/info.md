@@ -1,0 +1,1 @@
+ + `surface_size` is now the default fallback for a widget's size if the rendering of the widget is not representative of their `size` attribute. Only widgets who need surface_size will have the attribute, otherwise it remains `size`. Ref: pgmenu/widget.py:121

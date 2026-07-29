@@ -2,69 +2,10 @@ import math
 import os
 import pygame
 import pgmenu
-from pgmenu.vars import text_cached_surfaces
+from pgmenu.vars import cache
 from pgmenu.widget import Widget
 from pgmenu.constants import THEME
-
-
-# TODO -> Finish Text widget with animations, setattr, etc.
-
-
-# Need Widget for default functions
-class Text(Widget):
-
-    def __init__(self,
-                 surface: pygame.Surface,
-                 coords: list | tuple = (20, 20),
-                 text: str = "Text",
-                 font: str = None,
-                 color: list | tuple = (255, 255, 255),
-                 size: int = 20,
-                 background: list | tuple = None,
-                 antialias: bool = True,
-                 italic: bool = False,
-                 bold: bool = False,
-                 strikethrough: bool = False,
-                 underline: bool = False,
-                 transparency: int = 255,
-                 cache: bool = True,
-                 center_x: bool = False,
-                 center_y: bool = False):
-
-        self.surface = surface
-        self.coords = coords
-        self.text = text
-        self.font = font
-        self.color = color
-        self.background = background
-        self.size = size
-        self.antialias = antialias
-        self.italic = italic
-        self.bold = bold
-        self.strikethrough = strikethrough
-        self.underline = underline
-        self.transparency = transparency
-        self.cache = cache
-        self.center_x = center_x
-        self.center_y = center_y
-
-        # Don't use border_radius, set it to a dummy value
-        super().__init__(1)
-
-        # Add widget to widget list
-        pgmenu.vars.widgets.append(self)
-
-    def match_font(self):
-        match_font(self.font, self.italic, self.bold)
-
-    def render(self):
-        render(self.text, self.font, self.color, self.size, self.background, self.antialias, self.italic, self.bold, self.strikethrough, self.underline, self.cache)
-
-    def write(self):
-        write(self.surface, self.coords, self.text, self.font, self.color, self.size, self.background, self.antialias, self.italic, self.bold, self.strikethrough, self.underline, self.transparency, self.cache, self.center_x, self.center_y)
-
-    def draw(self):
-        self.write()
+from pgmenu.theme import resolve
 
 
 def match_font(font, italic=False, bold=False):
@@ -96,37 +37,36 @@ def format_font(font, italic=False, bold=False):
 
 
 def render(text: str = THEME,
-           font: str = THEME,
            color: list | tuple = THEME,
            size: int = THEME,
+           font: str = THEME,
            background: list | tuple = THEME,
            antialias: bool = THEME,
            italic: bool = THEME,
            bold: bool = THEME,
            strikethrough: bool = THEME,
            underline: bool = THEME,
-           transparency: int = THEME,
-           cache: bool = THEME):
+           transparency: int = THEME):
 
-    text = text if text != THEME else pgmenu.Theme.text_text
-    font = font if font != THEME else pgmenu.Theme.text_font
-    color = color if color != THEME else pgmenu.Theme.text_color
-    size = size if size != THEME else pgmenu.Theme.text_size
-    background = background if background != THEME else pgmenu.Theme.text_background
-    antialias = antialias if antialias != THEME else pgmenu.Theme.text_antialias
-    italic = italic if italic != THEME else pgmenu.Theme.text_italic
-    bold = bold if bold != THEME else pgmenu.Theme.text_bold
-    strikethrough = strikethrough if strikethrough != THEME else pgmenu.Theme.text_strikethrough
-    underline = underline if underline != THEME else pgmenu.Theme.text_underline
-    transparency = transparency if transparency != THEME else pgmenu.Theme.text_transparency
-    cache = cache if cache != THEME else pgmenu.Theme.text_cache
+    text = resolve(text, pgmenu.Theme.text_text)
+    color = resolve(color, pgmenu.Theme.text_color)
+    size = resolve(size, pgmenu.Theme.text_size)
+    font = resolve(font, pgmenu.Theme.text_font)
+    background = resolve(background, pgmenu.Theme.text_background)
+    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
+    italic = resolve(italic, pgmenu.Theme.text_italic)
+    bold = resolve(bold, pgmenu.Theme.text_bold)
+    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
+    underline = resolve(underline, pgmenu.Theme.text_underline)
+    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
 
     # Keep same cache_id in function
-    cache_id = (text, font, color, size, background, antialias, italic, bold, strikethrough, underline, transparency)
+    cache_id = (text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
 
     # Load from cache if already in cache
-    if cache_id in text_cached_surfaces and cache:
-        return text_cached_surfaces[cache_id]
+    cached = pgmenu.cache.lru_get(cache["text"], cache_id)
+    if cached is not None:
+        return cached
 
     font = format_font(font, italic, bold)
 
@@ -140,24 +80,34 @@ def render(text: str = THEME,
     # Render each line to enable \n characters
     # Separate text in lines
     text_lines = text.split('\n')
-    text_lines_by_len = {len(line): line for line in text_lines}
-    max_line_size = text_font.size(text_lines_by_len[max(list(text_lines_by_len.keys()))])
+    # Save each line surface in a list to add them together, keep real size
+    text_lines_surf = []
 
-    # Final surf to blit to
-    text_surface = pygame.Surface((max_line_size[0], max_line_size[1] * (len(text_lines))), pygame.SRCALPHA)
     # Loop through lines
     for i in range(text.count('\n') + 1):
         # Render each line
         line_surf = text_font.render(text_lines[i], antialias, color, background)
-        text_surface.blit(line_surf, (0, max_line_size[1] * i))
+        text_lines_surf.append(line_surf)
+
+    # Create main text surface
+    line_surf_max_x = max([surf.get_width() for surf in text_lines_surf])
+    line_surf_sum_y = sum([surf.get_height() for surf in text_lines_surf])
+    text_surface = pygame.Surface((line_surf_max_x, line_surf_sum_y), pygame.SRCALPHA)
+
+    # Blit line surfaces together
+    x, y = 0, 0
+    for i in range(len(text_lines_surf)):
+        if i != 0:
+            y += text_lines_surf[i-1].get_height()
+
+        text_surface.blit(text_lines_surf[i], (x, y))
 
     # Add transparency if need be
     if transparency <= 255:
         text_surface.set_alpha(transparency)
 
     # Cache text surface if cache
-    if cache:
-        text_cached_surfaces[cache_id] = text_surface
+    pgmenu.cache.lru_set(cache["text"], cache_id, text_surface)
 
     # Returning copy so any modification done afterward does not modify surface in cache
     return text_surface.copy()
@@ -166,9 +116,9 @@ def render(text: str = THEME,
 def write(surface,
           coords: list | tuple = THEME,
           text: str = THEME,
-          font: str = THEME,
           color: list | tuple = THEME,
           size: int = THEME,
+          font: str = THEME,
           background: list | tuple = THEME,
           antialias: bool = THEME,
           italic: bool = THEME,
@@ -176,27 +126,25 @@ def write(surface,
           strikethrough: bool = THEME,
           underline: bool = THEME,
           transparency: int = THEME,
-          cache: bool = THEME,
           center_x: bool = THEME,
           center_y: bool = THEME):
 
-    coords = coords if coords != THEME else pgmenu.Theme.text_coords
-    text = text if text != THEME else pgmenu.Theme.text_text
-    font = font if font != THEME else pgmenu.Theme.text_font
-    color = color if color != THEME else pgmenu.Theme.text_color
-    size = size if size != THEME else pgmenu.Theme.text_size
-    background = background if background != THEME else pgmenu.Theme.text_background
-    antialias = antialias if antialias != THEME else pgmenu.Theme.text_antialias
-    italic = italic if italic != THEME else pgmenu.Theme.text_italic
-    bold = bold if bold != THEME else pgmenu.Theme.text_bold
-    strikethrough = strikethrough if strikethrough != THEME else pgmenu.Theme.text_strikethrough
-    underline = underline if underline != THEME else pgmenu.Theme.text_underline
-    transparency = transparency if transparency != THEME else pgmenu.Theme.text_transparency
-    cache = cache if cache != THEME else pgmenu.Theme.text_cache
-    center_x = center_x if center_x != THEME else pgmenu.Theme.text_center_x
-    center_y = center_y if center_y != THEME else pgmenu.Theme.text_center_y
+    coords = resolve(coords, pgmenu.Theme.text_coords)
+    text = resolve(text, pgmenu.Theme.text_text)
+    color = resolve(color, pgmenu.Theme.text_color)
+    size = resolve(size, pgmenu.Theme.text_size)
+    font = resolve(font, pgmenu.Theme.text_font)
+    background = resolve(background, pgmenu.Theme.text_background)
+    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
+    italic = resolve(italic, pgmenu.Theme.text_italic)
+    bold = resolve(bold, pgmenu.Theme.text_bold)
+    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
+    underline = resolve(underline, pgmenu.Theme.text_underline)
+    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    center_x = resolve(center_x, pgmenu.Theme.text_center_x)
+    center_y = resolve(center_y, pgmenu.Theme.text_center_y)
 
-    text_surface = render(text, font, color, size, background, antialias, italic, bold, strikethrough, underline, transparency, cache)
+    text_surface = render(text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
 
     if center_x or center_y:
         surface_size = text_surface.get_size()
@@ -207,63 +155,64 @@ def write(surface,
 
 # FIXME -> Can't be called rect since it doesn't accept coords
 
-def fit_text(dest_rect: list[int, int] | tuple[int, int] = THEME,
-             text: str = THEME,
-             font: str = THEME,
-             color: list | tuple = THEME,
-             margin: int = THEME,
-             background: list | tuple = THEME,
-             antialias: bool = THEME,
-             italic: bool = THEME,
-             bold: bool = THEME,
-             strikethrough: bool = THEME,
-             underline: bool = THEME,
-             transparency: int = THEME,
-             cache: bool = THEME):
-    """
-    Returns a surface of the rendered text
-    :param dest_rect: main rect where text is going to be fit in
-    :param text:
-    :param font:
-    :param color:
-    :param margin:
-    :param background:
-    :param antialias:
-    :param italic:
-    :param bold:
-    :param strikethrough:
-    :param underline:
-    :param transparency:
-    :param cache:
-    :return: Returns a surface of the rendered text
-    """
+# FIXME -> Probably doesn't work correctly, can probably get closer to max size every time
 
-    dest_rect = dest_rect if dest_rect != THEME else pgmenu.Theme.text_fit_rect
-    text = text if text != THEME else pgmenu.Theme.text_text
-    font = font if font != THEME else pgmenu.Theme.text_font
-    color = color if color != THEME else pgmenu.Theme.text_color
-    margin = margin if margin != THEME else pgmenu.Theme.text_margin
-    background = background if background != THEME else pgmenu.Theme.text_background
-    antialias = antialias if antialias != THEME else pgmenu.Theme.text_antialias
-    italic = italic if italic != THEME else pgmenu.Theme.text_italic
-    bold = bold if bold != THEME else pgmenu.Theme.text_bold
-    strikethrough = strikethrough if strikethrough != THEME else pgmenu.Theme.text_strikethrough
-    underline = underline if underline != THEME else pgmenu.Theme.text_underline
-    transparency = transparency if transparency != THEME else pgmenu.Theme.text_transparency
-    cache = cache if cache != THEME else pgmenu.Theme.text_cache
+def fit_text_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
+                  text: str = THEME,
+                  color: list | tuple = THEME,
+                  margin: int = THEME,
+                  font: str = THEME,
+                  background: list | tuple = THEME,
+                  antialias: bool = THEME,
+                  italic: bool = THEME,
+                  bold: bool = THEME,
+                  strikethrough: bool = THEME,
+                  underline: bool = THEME,
+                  transparency: int = THEME):
+    """
+        Returns the int size of the text that would fit into the given area
+        :param dest_rect: main rect where text is going to be fit in
+        :param text:
+        :param color:
+        :param margin:
+        :param font:
+        :param background:
+        :param antialias:
+        :param italic:
+        :param bold:
+        :param strikethrough:
+        :param underline:
+        :param transparency:
+        :return: Returns the int size of the text that would fit into the given area
+        """
+
+    dest_rect = resolve(dest_rect, pgmenu.Theme.text_dest_rect)
+    text = resolve(text, pgmenu.Theme.text_text)
+    color = resolve(color, pgmenu.Theme.text_color)
+    margin = resolve(margin, pgmenu.Theme.text_margin)
+    font = resolve(font, pgmenu.Theme.text_font)
+    background = resolve(background, pgmenu.Theme.text_background)
+    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
+    italic = resolve(italic, pgmenu.Theme.text_italic)
+    bold = resolve(bold, pgmenu.Theme.text_bold)
+    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
+    underline = resolve(underline, pgmenu.Theme.text_underline)
+    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
 
     # Cache render with rect instead of size
     # Keep same cache_id in function
-    cache_id = (text, font, color, dest_rect, margin, background, antialias, italic, bold, strikethrough, underline, transparency)
+    cache_id = (text, color, dest_rect, margin, font, background, antialias, italic, bold, strikethrough, underline, transparency)
 
     # Load from cache if already in cache
-    if cache_id in text_cached_surfaces and cache:
-        return text_cached_surfaces[cache_id]
+    cached = pgmenu.cache.lru_get(cache["text"], cache_id)
+    if cached is not None:
+        return cached
 
     font = format_font(font, italic, bold)
 
     # Minimum size of rect for text font
     text_size = min(dest_rect)
+
     text_font = pygame.font.Font(font, text_size)
 
     # Catch when the text is too big/doesn't fit
@@ -282,11 +231,57 @@ def fit_text(dest_rect: list[int, int] | tuple[int, int] = THEME,
     # Add text margin
     text_size -= margin
 
-    # Render text without cache since already caching
-    text_surface = render(text, font, color, text_size, background, antialias, italic, bold, strikethrough, underline, transparency, cache=False)
+    # Cached text size
+    pgmenu.cache.lru_set(cache["text"], cache_id, text_size)
 
-    # Cache text surface if cache
-    if cache:
-        text_cached_surfaces[cache_id] = text_surface
+    return text_size
 
-    return text_surface
+
+def fit_text(dest_rect: list[int, int] | tuple[int, int] = THEME,
+             text: str = THEME,
+             color: list | tuple = THEME,
+             margin: int = THEME,
+             font: str = THEME,
+             background: list | tuple = THEME,
+             antialias: bool = THEME,
+             italic: bool = THEME,
+             bold: bool = THEME,
+             strikethrough: bool = THEME,
+             underline: bool = THEME,
+             transparency: int = THEME):
+    """
+    Returns a surface of the rendered text
+    :param dest_rect: main rect where text is going to be fit in
+    :param text:
+    :param color:
+    :param margin:
+    :param font:
+    :param background:
+    :param antialias:
+    :param italic:
+    :param bold:
+    :param strikethrough:
+    :param underline:
+    :param transparency:
+    :return: Returns a surface of the rendered text
+    """
+
+    dest_rect = resolve(dest_rect, pgmenu.Theme.text_dest_rect)
+    text = resolve(text, pgmenu.Theme.text_text)
+    color = resolve(color, pgmenu.Theme.text_color)
+    margin = resolve(margin, pgmenu.Theme.text_margin)
+    font = resolve(font, pgmenu.Theme.text_font)
+    background = resolve(background, pgmenu.Theme.text_background)
+    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
+    italic = resolve(italic, pgmenu.Theme.text_italic)
+    bold = resolve(bold, pgmenu.Theme.text_bold)
+    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
+    underline = resolve(underline, pgmenu.Theme.text_underline)
+    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+
+    text_size = fit_text_size(dest_rect, text, color, margin, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+
+    # Render text; caching is done in render
+    text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+
+    return text_surface.copy()

@@ -5,13 +5,16 @@ import pgmenu
 # Project that simplifies pgmenu syntax to tkinter level
 # Meant to be as easy to use as tkinter, but using the superior pgmenu
 # TODO -> Work on finishing PgmenuWindow, right now it's just a demo to show that it's possible
-class PgmenuWindow:
+# FIXME -> Might not be the best idea to subclass pygame.Surface
+class PgmenuWindow(pygame.Surface):
 
     def __init__(self,
                  size: tuple[int, int] = (230, 210),
                  title: str = "pgmenu",
                  fps: int = 60,
                  flags: int = pygame.RESIZABLE):
+
+        super().__init__(size)
 
         self.size = size
         self.title = title

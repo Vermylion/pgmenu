@@ -1,49 +1,64 @@
-import pygame
 import pgmenu
+import pygame
+import time
+import random
 
+from pgmenu.animation import Animate
 
 pygame.init()
 
 screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
-pygame.display.set_caption("Test window")
+pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
 fps = 1000
 
-# Test surface for "futuristic" surface
 gradient = pygame.image.load("../tests/assets/gradient.png")
+gradient2 = pygame.image.load("../tests/assets/gradient2.png")
+pinksky = pygame.image.load("../tests/assets/pinksky.jpg")
+pinksky = pygame.transform.smoothscale(pinksky, (1080, 720))
 
-white = pygame.Surface(gradient.get_size(), pygame.SRCALPHA)
-white.fill((255, 255, 255))
-white.set_alpha(50)
+# color = pgmenu.animation.AnimateTuple(*[(250, 50), (50, 200), (50, 50)], duration=0.1, curve=pgmenu.animation.ease_in_out_circ)
 
-gradient2 = gradient.copy()
-gradient2.blit(white, (0, 0))
+def make_animated_surf(size):
+    rect = pgmenu.draw.aarect(None, (63, 68, 72), (0, 0, *size))
+    rect2 = pgmenu.draw.aarect(None, (68, 72, 77), (0, 0, *size))
+    return pgmenu.animation.AnimateSurface(rect, rect2, 0, 255, 0.3, pgmenu.animation.circ)
 
-pygame.image.save(gradient2, "../tests/assets/gradient2.png")
+def on_resize(size):
+    surface.surface = make_animated_surf(size)
 
-glow_strength = 1
+def on_hover():
+    surface.surface.update(pgmenu.FORWARD)
 
-pgmenu.Theme.set(size=(100 + glow_strength * 2, 30 + glow_strength * 2),
-                 border_radius=10 + glow_strength,
-                 aa_strength=1,
-                 width=1,
-                 margin=glow_strength + 3,
-                 animation_duration=0.1,
-                 inside_aa_strength=1,
-                 fill={'type': "image", 'path': "../tests/assets/gradient.png"},
-                 outline_fill={'type': "image", 'path': "../tests/assets/gradient2.png"},
-                 responsive_coords={'type': "variable", 'module': "pgmenu", 'variable': "PROPORTIONAL"})
+def on_standby():
+    surface.surface.update(pgmenu.BACKWARD)
 
-icon = pgmenu.draw.aarect(None, (205, 42, 42), (0, 0, 32, 32), border_radius=5, width=0)
 
-button1 = pgmenu.button.Button(screen, (250, 115), text="Play (Alt + C)", border_radius=2, border_top_left_radius=pgmenu.Theme.border_radius)
-button2 = pgmenu.button.Button(screen, (355, 115), text="Stop (Alt + C)", border_radius=2, border_top_right_radius=pgmenu.Theme.border_radius)
-button3 = pgmenu.button.Button(screen, (250, 150), text="Set Hotkeys", border_radius=2, border_bottom_left_radius=pgmenu.Theme.border_radius)
-button4 = pgmenu.button.Button(screen, (355, 150), text="Help", icon=icon, margin=3, border_radius=2, border_bottom_right_radius=pgmenu.Theme.border_radius, state=pgmenu.DISABLED)
+def m_animation_on_standby():
+    label.color.update(pgmenu.BACKWARD)
 
-menu1 = pgmenu.menu.Menu(button1, button2, button4)
-menu2 = pgmenu.menu.Menu(button3)
-pgmenu.menu.show(menu1)
+def m_animation_on_hover():
+    label.color.update(pgmenu.FORWARD)
+    pgmenu.request_cursor(pygame.SYSTEM_CURSOR_HAND)
+
+
+frame = pgmenu.frame.Frame(screen, pgmenu.position.center_coords((550, 400), (0, 0, 1080, 720)), (550, 400))
+
+surface = pgmenu.surface.Surface(frame, make_animated_surf((200, 100)), (10, 150), on_resize=lambda: on_resize(surface.size), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
+
+color2 = pgmenu.animation.AnimateTuple(*((250, 50), (50, 50), (50, 250)), duration=0.5, curve=pgmenu.animation.circ)
+label = pgmenu.label.Label(frame, (250, 150), color=color2, size=100, animation_scale=1.4, animation_duration=0.15,
+                           animation_on_standby=m_animation_on_standby, animation_on_hover=m_animation_on_hover,
+                           responsive_size=pgmenu.PROPORTIONAL)
+
+icon = pgmenu.draw.aarect(None, (255, 0, 0), (0, 0, 50, 50))
+button = pgmenu.button.Button(frame, (50, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", width=1, inner_fill=(30, 110, 195), margin=3)
+button2 = pgmenu.button.Button(frame, (350, 50))
+
+go = False
+start = time.time()
+incr = 0
+debug=0
 
 running = True
 while running:
@@ -55,19 +70,61 @@ while running:
             pygame.quit()
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE:
-                pgmenu.menu.show(menu2)
+            if event.key == pygame.K_a:
+                frame.size = (450, 400)
+
+            if event.key == pygame.K_b:
+                frame.coords = (50, 50)
+
+            if event.key == pygame.K_c:
+                label.size = 10
+
+            if event.key == pygame.K_d:
+                frame.border_radius = 30
+
+            if event.key == pygame.K_TAB:
+                go = True if not go else False
+
+            if event.key == pygame.K_RETURN:
+                screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
+                pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
         screen = pgmenu.display.fullscreen_controls(screen, event)
 
-    screen.fill((0, 0, 0))
+    screen.fill(pgmenu.Theme.bgcolor)
+    # screen.blit(pinksky, (0,0))
 
-    # pgmenu.draw_all()
-    # menu1.draw()
-    pgmenu.menu.draw()
+    if go and (time.time() - start) >= 0.05:
+        start = time.time()
+        incr += 1
+        w = random.randint(10, 3000)
+        h = random.randint(10, 3000)
+
+        if incr % 100 == 0:
+            w, h = 1080, 720
+            debug = incr
+
+        if incr == debug + 1:
+            print(debug, "| Sizes:", *[w.size for w in pgmenu.vars.widgets], "| Coords:", *[w.coords for w in pgmenu.vars.widgets])
+            print("Frame top left radius:", frame.border_top_left_radius)
+
+        screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
+        pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
+
+    pgmenu.draw_all()
 
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
 
+    # print((*pgmenu.position.center_coords((550, 400), (0, 0, 1080, 720)), 550, 400))
+    # pgmenu.draw.aarect(screen, (255, 255, 255), (26, 160, 550, 400))
+
+    # if color != color.final_tuple:
+    #     surface.surface = pgmenu.draw.aarect(None, color, (200, 200, 200, 100))
+    #
+    # color.update(pgmenu.FORWARD)
+
+    win_size = pygame.display.get_window_size()
+    pygame.display.set_caption(f"Window {win_size[0]}x{win_size[1]}")
     pgmenu.update(events)
     pygame.display.flip()
     clock.tick(fps)

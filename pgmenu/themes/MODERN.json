@@ -9,7 +9,7 @@
         "width": 1,
         "margin": 4,
         "animation_duration": 0.1,
-        "inside_aa_strength": 1,
+        "inner_aa_strength": 1,
         "fill": {
             "type": "image",
             "path": "../tests/assets/gradient.png"

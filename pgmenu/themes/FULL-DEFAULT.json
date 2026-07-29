@@ -13,7 +13,6 @@
     "animation_curve": {"type": "function", "module": "pgmenu.animation", "function": "circ"},
     "animation_base_alpha": 0,
     "animation_final_alpha": 0,
-    "animation_precision": 0,
 
     "#": "Text",
     "text_text": "Text",

@@ -1,67 +1,78 @@
 import pygame
 import pgmenu
 
+from functools import wraps
+
 
 # TODO -> Should responsive_coords account for extra space when responsive_size is False? (ex: centered button isn't centered anymore)
 
-# TODO -> PROPORTIONAL and STRETCH resize don't work exactly as expected, have to be tweaked
+
+def _scale(base, master_size, master_base_size, mode, resize_x, resize_y):
+    base = max(base[0], 1), max(base[1], 1)
+
+    # Percentage of the screen the base covers
+    widget_x_coverage = base[0] / master_base_size[0]
+    widget_y_coverage = base[1] / master_base_size[1]
+
+    resized_x = round(master_size[0] * widget_x_coverage)
+    resized_y = round(master_size[1] * widget_y_coverage)
+
+    if mode == pgmenu.PROPORTIONAL:
+
+        x_resized_factor = resized_x / base[0]
+        y_resized_factor = resized_y / base[1]
+
+        aspect_ratio = base[0] / base[1]
+
+        if x_resized_factor < y_resized_factor:
+            resized_y = resized_x / aspect_ratio
+
+        elif y_resized_factor < x_resized_factor:
+            resized_x = resized_y * aspect_ratio
+
+    if not resize_x:
+        resized_x = base[0]
+
+    if not resize_y:
+        resized_y = base[1]
+
+    return resized_x, resized_y
 
 
 def responsive_resize(widget, event):
+
     if event.type == pygame.VIDEORESIZE:
 
         if widget.responsive_size or widget.responsive_coords:
             # To reset prev_window_size
             pgmenu.vars.videoresized = True
 
-            win_size = pygame.display.get_window_size()
+            if isinstance(widget.master, pgmenu.frame.Frame):
+                master_size = widget.master.size
+                master_base_size = widget.master.base_size
 
-            w_x_factor = win_size[0] / pgmenu.vars.prev_window_size[0]
-            h_y_factor = win_size[1] / pgmenu.vars.prev_window_size[1]
-
-            if w_x_factor < 1 or h_y_factor < 1:
-                proportional_factor = max(w_x_factor, h_y_factor)
             else:
-                proportional_factor = min(w_x_factor, h_y_factor)
+                master_size = pygame.display.get_window_size()
+                master_base_size = pgmenu.vars.base_window_size
 
         if widget.responsive_size:
-            prev_min_size = min(widget.size.inttuple)
 
-            # Set modifying factors
-            if widget.responsive_size == pgmenu.STRETCH:
-                w_factor, h_factor = w_x_factor, h_y_factor
+            base_size = widget.get_2d_base_size()
 
-            else:
-                w_factor, h_factor = proportional_factor, proportional_factor
+            w, h = _scale(base_size, master_size, master_base_size, widget.responsive_size, widget.responsive_size_w, widget.responsive_size_h)
 
-            if widget.responsive_size_w:
-                widget.size = widget.size.inttuple[0] * w_factor, widget.size.inttuple[1]
-
-            if widget.responsive_size_h:
-                widget.size = widget.size.inttuple[0], widget.size.inttuple[1] * h_factor
-
-            # Modify border_radii size, keeping each of their sizes proportional
-            for border_radius in widget._border_radii:
-                setattr(widget, border_radius, getattr(widget, border_radius).base_num * (min(widget.size.inttuple) / prev_min_size))
+            widget.resize(w, h)
+            widget.on_resize()
 
         if widget.responsive_coords:
 
-            # Set modifying factors
-            if widget.responsive_coords == pgmenu.STRETCH:
-                x_factor, y_factor = w_x_factor, h_y_factor
+            x, y = _scale(widget.base_coords, master_size, master_base_size, widget.responsive_coords, widget.responsive_coords_x, widget.responsive_coords_y)
 
-            else:
-                x_factor, y_factor = proportional_factor, proportional_factor
-
-            if widget.responsive_coords_x:
-                widget.coords = widget.coords.inttuple[0] * x_factor, widget.coords.inttuple[1]
-
-            if widget.responsive_coords_y:
-                widget.coords = widget.coords.inttuple[0], widget.coords.inttuple[1] * y_factor
+            widget.coords = x, y
 
 
 def reset_videoresize():
     # Reset window size for VIDEORESIZE
     if pgmenu.vars.videoresized:
-        pgmenu.vars.prev_window_size = pygame.display.get_window_size()
+        # pgmenu.vars.prev_window_size = pygame.display.get_window_size()
         pgmenu.vars.videoresized = False

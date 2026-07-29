@@ -1,162 +1,172 @@
-import pgmenu
-from pgmenu.animation import *
-from pgmenu.widget import RectWidget
-from pgmenu.constants import THEME
-
-from typing import Callable
-
 import pygame
-
-
-# TODO -> Color animation: other argument for secondary color?
-
-# TODO -> Be able to set max text size / set text size? -> Max size might look weird with animations + doesn't margin already do that?
-
-# TODO -> Be able to change text or icon centering?
-
-# TODO -> With icon, text is jittery when resizing
-
+import pgmenu
+from pgmenu.widget import Widget, RectWidget
+from pgmenu.constants import THEME
+from pgmenu.theme import resolve, resolve_widget
+from pgmenu.animation import *
 
 class Button(RectWidget):
 
-    # Argument of value None represents the user has not modified it
     def __init__(self,
-                 surface: pygame.Surface,
-                 coords: tuple[int, int] | Animate = THEME,
-                 size: tuple[int, int] | Animate = THEME,
-                 fill: tuple[int, int, int] | pygame.Surface | AnimateFill = THEME,
-                 icon: pygame.Surface | AnimateFill = THEME,
+                 master: pygame.Surface | Widget,
+                 coords: list | tuple | AnimateTuple = THEME,
+                 size: list | tuple | AnimateTuple = THEME,
+                 fill: tuple[int, int, int] | AnimateTuple | pygame.Surface | AnimateSurface = THEME,
                  text: str = THEME,
-                 text_font: str = THEME,
-                 text_color: tuple[int, int, int] | AnimateColor = THEME,
+                 text_color: tuple[int, int, int] | AnimateTuple = THEME,
+                 icon: pygame.Surface | AnimateSurface = THEME,
                  margin: int | Animate = THEME,
                  width: int | Animate = THEME,
-                 outline_fill: tuple[int, int, int] | pygame.Surface | AnimateFill = THEME,
-                 border_radius: int | Animate = THEME,  # ! Need to be able to modify in theme
-                 animation_scale: float | Animate = THEME,
-                 animation_duration: float | Animate = THEME,
-                 animation_curve: Callable = THEME,
-                 on_standby: Callable = None,
-                 on_hover: Callable = None,
-                 on_press: Callable = None,
-                 on_release: Callable = None,
+                 border_radius: int | Animate = THEME,
                  **kwargs):
+        """
+        :param master:
+        :param coords:
+        :param size:
+        :param fill:
+        :param text:
+        :param text_color:
+        :param icon: Has to be a Surface
+        :param margin:
+        :param width:
+        :param border_radius:
+        """
 
-        # Animation
-        self.animation_scale = animation_scale if animation_scale != THEME else pgmenu.Theme.animation_scale
-        self.animation_duration = animation_duration if animation_duration != THEME else pgmenu.Theme.animation_duration
-        self.animation_curve = animation_curve if animation_curve != THEME else pgmenu.Theme.animation_curve
-
-        self.surface = surface if surface != THEME else pgmenu.Theme.surface
-        self.coords = coords if coords != THEME else pgmenu.Theme.coords
-        self.size = size if size != THEME else pgmenu.Theme.size
-        self.fill = fill if fill != THEME else pgmenu.Theme.fill
-        self.icon = icon if icon != THEME else pgmenu.Theme.icon
-        self.text = text if text != THEME else pgmenu.Theme.button_text
-        self.text_font = text_font if text_font != THEME else pgmenu.Theme.text_font
-        self.text_color = text_color if text_color != THEME else pgmenu.Theme.text_color
-        self.margin = margin if margin != THEME else pgmenu.Theme.margin # round(min(self.size.inttuple) * 0.1)
-        self.width = width if width != THEME else pgmenu.Theme.width
-        self.outline_fill = outline_fill if outline_fill != THEME else pgmenu.Theme.outline_fill
-        # self.border_radius -> Border radius is taken care of in widget
-        self.on_standby = on_standby if on_standby is not None else self.m_on_standby # pgmenu.Theme.on_standby
-        self.on_hover = on_hover if on_hover is not None else self.m_on_hover # pgmenu.Theme.on_hover
-        self.on_press = on_press if on_press is not None else self.m_on_press # pgmenu.Theme.on_press
-        self.on_release = on_release if on_release is not None else self.m_on_release # pgmenu.Theme.on_release
-
-        # A defined widget type for easier widget comprehension in code
         self.type = pgmenu.BUTTON
 
-        # Declare other widget arguments
-        super().__init__(border_radius, **kwargs)
+        super().__init__(**kwargs)
 
-        # Set up arguments
-        # Add widget to widget list
+        self.master = master
+        self.coords = resolve(coords, pgmenu.Theme.button_coords)
+        self.size = resolve(size, pgmenu.Theme.button_size)
+        self.fill = resolve(fill, pgmenu.Theme.button_fill)
+
+        self.text = resolve(text, pgmenu.Theme.button_text)
+        self.text_color = resolve(text_color, pgmenu.Theme.button_text_color)
+        self.icon = resolve(icon, pgmenu.Theme.button_icon)
+        self.margin = resolve(margin, pgmenu.Theme.button_margin)
+
+        self.width = resolve(width, pgmenu.Theme.button_width)
+        self.border_radius = resolve(border_radius, pgmenu.Theme.button_border_radius, round(min(self.size) / 3))
+        # Kwargs text arguments
+        self.text_font = resolve_widget(kwargs, "text_font", self.type, THEME)
+        self.text_background = resolve_widget(kwargs, "text_background", self.type, THEME)
+        self.text_antialias = resolve_widget(kwargs, "text_antialias", self.type, THEME)
+        self.text_italic = resolve_widget(kwargs, "text_italic", self.type, THEME)
+        self.text_bold = resolve_widget(kwargs, "text_bold", self.type, THEME)
+        self.text_strikethrough = resolve_widget(kwargs, "text_strikethrough", self.type, THEME)
+        self.text_underline = resolve_widget(kwargs, "text_underline", self.type, THEME)
+        self.text_transparency = resolve_widget(kwargs, "text_transparency", self.type, THEME)
+
         pgmenu.widget.add(self)
 
-    def __setattr__(self, key, value):
-        # Return if called with same value
-        if hasattr(self, key) and getattr(self, key) == value:
-            return False
+    def get_master(self):
+        return self.master
 
-        # Save current key's value to use for comparison later
-        if hasattr(self, key): old_value = getattr(self, key)
+    def get_coords(self):
+        return self.coords
 
-        # Call the original __setattr__ method to set the attribute
-        super().__setattr__(key, value)
+    def get_size(self):
+        return self.size
 
-        # Base Arguments
-        # Animation Arguments
-        if not isinstance(getattr(self, key), Animate | AnimateTuple | AnimateColor | AnimateFill):
-            if key == "coords": self.coords = AnimateTuple((self.coords[0], self.coords[0] * self.animation_scale), (self.coords[1], self.coords[1] * self.animation_scale), duration=self.animation_duration, curve=self.animation_curve)
-            if key == "size": self.size = AnimateTuple((self.size[0], self.size[0] * self.animation_scale), (self.size[1], self.size[1] * self.animation_scale), duration=self.animation_duration, curve=self.animation_curve)
-            if key == "text_color": self.text_color = AnimateColor(self.text_color, (min(255, self.text_color[0] * self.animation_scale), min(255, self.text_color[1] * self.animation_scale), min(255, self.text_color[2] * self.animation_scale)), self.animation_duration, self.animation_curve)
-            if key == "margin": self.margin = Animate(self.margin, self.margin * self.animation_scale, self.animation_duration, self.animation_curve)  # Is it necessary?
-            if key == "width": self.width = Animate(self.width, self.width * self.animation_scale, self.animation_duration, self.animation_curve)
-            if key == "fill": self._format_fill(key)
-            if key == "outline_fill": self._format_fill(key)
+    def get_fill(self):
+        return self.fill
+
+    def get_text(self):
+        return self.text
+
+    def get_text_color(self):
+        return self.text_color
+
+    def get_icon(self):
+        return self.icon
+
+    def get_margin(self):
+        return self.margin
+
+    def get_width(self):
+        return self.width
+
+    def get_border_radius(self):
+        return self.border_radius
+
+    def get_text_font(self):
+        return self.text_font
+
+    def get_text_background(self):
+        return self.text_background
+
+    def get_text_antialias(self):
+        return self.text_antialias
+
+    def get_text_italic(self):
+        return self.text_italic
+
+    def get_text_bold(self):
+        return self.text_bold
+
+    def get_text_strikethrough(self):
+        return self.text_strikethrough
+
+    def get_text_underline(self):
+        return self.text_underline
+
+    def get_text_transparency(self):
+        return self.text_transparency
 
     def draw(self):
         super().draw()
 
-        coords = pgmenu.position.center_coords(self.size.inttuple, (*self.coords.inttuple, *self.size.basetuple))
+        coords = pgmenu.position.center_coords(self.size.int_tuple, (*self.coords.int_tuple, *self.size.base_tuple))
 
-        # Switch fill and outline_fill when width
-        fill = self.outline_fill.value if self.width.value and self.outline_fill.value else self.fill.value
-        inside_fill = self.fill.value if self.width.value and self.outline_fill.value else self.outline_fill.value
+        self.surface = pgmenu.draw.aarect(None, self.fill, (0, 0, *self.size.int_tuple), self.width, self.border_radius,
+                                          self.border_top_left_radius, self.border_top_right_radius,
+                                          self.border_bottom_left_radius, self.border_bottom_right_radius,
+                                          self.antialiasing, self.transparency, self.aa_strength,
+                                          inner_fill=self.inner_fill, inner_transparency=self.inner_transparency,
+                                          inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
-        # Need to update rect, the easiest way to do it so far
-        self.rect = pygame.Rect(*coords, *self.size.inttuple)
-
-        button_surface = pgmenu.draw.aarect(None, fill, (*coords, *self.size.inttuple), self.width.int, self.border_radius.int,
-                                            self.border_top_left_radius.int, self.border_top_right_radius.int, self.border_bottom_left_radius.int,
-                                            self.border_bottom_right_radius.int, self.antialiasing, self.transparency.int, self.aa_strength.int,
-                                            inside_fill=inside_fill, inside_transparency=self.inside_transparency.int, inside_border_radius=self.inside_border_radius.int,
-                                            inside_border_top_left_radius=self.inside_border_top_left_radius.int, inside_border_top_right_radius=self.inside_border_top_right_radius.int,
-                                            inside_border_bottom_left_radius=self.inside_border_bottom_left_radius.int, inside_border_bottom_right_radius=self.inside_border_bottom_right_radius.int,
-                                            inside_aa_strength=self.inside_aa_strength.int, inside_antialiasing=self.inside_antialiasing,
-                                            debug=self.debug, force_only_overlay=self.force_only_overlay)
+        full_rect = (0, 0, *self.size.int_tuple)
 
         if self.icon is not None:
-            # Use render to get exact text proportions; it also caches the result
-            text = pgmenu.text.render(self.text)
-            # Get correct sizes for text and icon
-            icon_rect, text_rect = pgmenu.rect.fit_rects(self.size.inttuple, self.icon.get_size(), text.get_size(), margin=self.margin.value)
-            # Resize icon
+            # Use render once to get exact text proportions for the icon/text split;
+            # fit_text below reuses the render cache internally
+            text_size = pgmenu.text.render(self.text).get_size()
+            icon_rect, text_rect = pgmenu.rect.fit_rects(self.size.int_tuple, self.icon.get_size(), text_size, margin=round(self.margin))
             icon_surface = pgmenu.surface.resize(self.icon, icon_rect[2:])
-
+            # Locally set margin as fit_text takes a margin of 0 when there is an icon, but takes normal margin otherwise
+            text_margin = 0
         else:
-            text_rect = (0, 0, *self.size.inttuple)
+            text_rect = full_rect
+            # Locally set margin as fit_text takes a margin of 0 when there is an icon, but takes normal margin otherwise
+            text_margin = round(self.margin)
 
-        # Get text and calculate new text_size
-        text_surface = pgmenu.text.fit_text(text_rect[2:], self.text, self.text_font, self.text_color.color,
-                                            self.margin.int, self.text_background, self.text_antialias, self.text_italic,
-                                            self.text_bold, self.text_strikethrough, self.text_underline, self.text_transparency.int)
+        # Render text fitted to its allotted rect
+        text_surface = pgmenu.text.fit_text(text_rect[2:], self.text, self.text_color, text_margin, self.text_font,
+                                            self.text_background, self.text_antialias, self.text_italic,
+                                            self.text_bold, self.text_strikethrough, self.text_underline, self.text_transparency)
+        # text_surface = pgmenu.draw.aarect(None, (255, 0, 0), text_rect, border_radius=0)
+        # text_surface = pgmenu.text.render(self.text, self.text_color, min(text_rect[2:]))
 
-        # Center the text and icon
-        if self.icon is not None:
-            # When being fit, the text might not take all the space allocated to it, therefore we center it on that space
-            centered_text_coords = pgmenu.position.center_coords(text_surface.get_size(), text_rect)
-            text_rect = (*centered_text_coords, *text_surface.get_size())
-
-            # Center the text and icon
-            icon_rect, text_rect = pgmenu.rect.center_rects((0, 0, *self.size.inttuple), icon_rect, text_rect)
-            # Supposed to counter jitteriness, doesn't seem to be doing much
-            icon_rect, text_rect = list(map(round, icon_rect)), list(map(round, text_rect))
-
-        else:
-            # Center only the text
-            text_rect = (*pgmenu.position.center_coords(text_surface.get_size(), (0, 0, *self.size.inttuple)), text_rect[:2])
-
-        self.surface.blit(button_surface, coords)
-
-        self.surface.blit(text_surface, (text_rect[0] + coords[0], text_rect[1] + coords[1]))
+        # fit_text may not fill its whole allotted rect, so re-center the actual
+        # rendered surface within that rect before laying out icon + text together
+        text_pos = pgmenu.position.center_coords(text_surface.get_size(), text_rect)
+        text_rect = (*text_pos, *text_surface.get_size())
 
         if self.icon is not None:
-            self.surface.blit(icon_surface, (icon_rect[0] + coords[0], icon_rect[1] + coords[1]))
+            icon_rect, text_rect = pgmenu.rect.center_rects(full_rect, icon_rect, text_rect)
+            # Round to counter sub-pixel jitter
+            icon_rect = tuple(round(v) for v in icon_rect)
+            text_rect = tuple(round(v) for v in text_rect)
+            self.surface.blit(icon_surface, icon_rect[:2])
+
+        self.surface.blit(text_surface, text_rect[:2])
+        self.master.blit(self.surface, coords)
 
     def update(self, event):
+        super().update(event)
         # Detect mouse collisions
+
         if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -165,32 +175,41 @@ class Button(RectWidget):
                     self.on_press()
                     self.animation_on_press()
 
-            if event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == pygame.BUTTON_LEFT:
+                    self.state = pgmenu.NORMAL
                     self.on_release()
                     self.animation_on_release()
 
+            # FIXME -> Is this really the best solution?
+            elif pygame.mouse.get_pressed()[0]:
+                self.on_hold()
+                self.animation_on_hold()
+
+    def resize(self, w, h):
+        self._resize_border_radii(w, h)
+
+        self.size = w, h
+
     def m_animation_on_standby(self):
-        if not self.no_animation:
-            self.size.backward()
-            self.size.update()
-
-            self.border_radii.backward()
-            self.border_radii.update()
-
-            self.fill.backward()
-            self.fill.update()
+        if not self.disable_animation:
+            self.size.update(pgmenu.BACKWARD)
+            self.margin.update(pgmenu.BACKWARD)
+            self.fill.update(pgmenu.BACKWARD)
+            self._animation_update_border_radii(pgmenu.BACKWARD)
 
     def m_animation_on_hover(self):
-        if not self.no_animation:
-            self.size.forward()
-            self.size.update()
+        if not self.disable_animation:
+            self.size.update(pgmenu.FORWARD)
+            self.fill.update(pgmenu.FORWARD)
+            self.margin.update(pgmenu.FORWARD)
+            self._animation_update_border_radii(pgmenu.FORWARD)
 
-            self.border_radii.forward()
-            self.border_radii.update()
-
-            self.fill.forward()
-            self.fill.update()
+    def m_animation_on_hold(self):
+        if not self.disable_animation:
+            self.size.update(pgmenu.BACKWARD, 0.15)
+            self.margin.update(pgmenu.BACKWARD, 0.15)
+            self._animation_update_border_radii(pgmenu.BACKWARD, 0.15)
 
     def m_on_release(self):
         print('Button pressed')

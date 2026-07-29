@@ -2,13 +2,7 @@ import math
 import pygame
 import pgmenu
 from pgmenu.constants import THEME
-
-
-# rect widget
-class Rect:
-
-    def __init__(self):
-        ...
+from pgmenu.vars import cache
 
 
 def fit_rects(dest_rect: tuple[int, int], *rects: tuple[int, int], margin: int = 0) -> list[tuple[int, int, int, int]]:
@@ -26,13 +20,14 @@ def fit_rects(dest_rect: tuple[int, int], *rects: tuple[int, int], margin: int =
     cache_id = (dest_rect, rects, margin)
 
     # Load from cache if already in cache
-    if cache_id in pgmenu.vars.rect_cached_rects:
-        return pgmenu.vars.rect_cached_rects[cache_id]
+    cached = pgmenu.cache.lru_get(cache["rect"], cache_id)
+    if cached is not None:
+        return cached
 
     dest_width, dest_height = dest_rect
-    rects = list(rects)  # Convert to a list if needed
+    # rects = list(rects)  # Convert to a list if needed
 
-    # Step 1: Scale all rects to the destination height and adjust width proportionally
+    # Scale all rects to the destination height and adjust width proportionally
     scaled_rects = []
     total_width = 0
 
@@ -45,12 +40,12 @@ def fit_rects(dest_rect: tuple[int, int], *rects: tuple[int, int], margin: int =
 
     total_width += margin * (len(scaled_rects) + 1)  # Include margins between and around the rects
 
-    # Step 2: If the total width exceeds the destination width, scale all rects down proportionally
+    # If the total width exceeds the destination width, scale all rects down proportionally
     if total_width > dest_width:
         scale_factor = (dest_width - margin * (len(scaled_rects) + 1)) / (total_width - margin * (len(scaled_rects) + 1))
         scaled_rects = [(math.ceil(width * scale_factor), math.ceil(height * scale_factor)) for width, height in scaled_rects]
 
-    # Step 3: Place rects left to right
+    # Place rects left to right
     positioned_rects = []
     x_pos = margin  # Start with the left margin
 
@@ -63,7 +58,7 @@ def fit_rects(dest_rect: tuple[int, int], *rects: tuple[int, int], margin: int =
         positioned_rects = positioned_rects[0]
 
     # Cache calculated rects
-    pgmenu.vars.rect_cached_rects[cache_id] = positioned_rects
+    pgmenu.cache.lru_set(cache["rect"], cache_id, positioned_rects)
 
     return positioned_rects
 
@@ -77,8 +72,9 @@ def center_rects(dest_rect: tuple[int, int, int, int],
     cache_id = (dest_rect, rects, center_x, center_y)
 
     # Load from cache if already in cache
-    if cache_id in pgmenu.vars.rect_cached_rects:
-        return pgmenu.vars.rect_cached_rects[cache_id]
+    cached = pgmenu.cache.lru_get(cache["rect"], cache_id)
+    if cached is not None:
+        return cached
 
     # Filler values
     x_min = rects[0][0]
@@ -112,6 +108,6 @@ def center_rects(dest_rect: tuple[int, int, int, int],
         shifted_rects = shifted_rects[0]
 
     # Cache calculated rects
-    pgmenu.vars.rect_cached_rects[cache_id] = shifted_rects
+    pgmenu.cache.lru_set(cache["rect"], cache_id, shifted_rects)
 
     return shifted_rects

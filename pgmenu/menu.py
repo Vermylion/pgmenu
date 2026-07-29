@@ -1,9 +1,7 @@
-import pygame
 import pgmenu
-from pgmenu.widget import Widget
 
 
-class Menu(Widget):
+class Menu:
 
     def __init__(self,
                  *widgets,
@@ -12,6 +10,9 @@ class Menu(Widget):
         self.widgets = list(widgets)
 
         super().__init__(**kwargs)
+
+    def get_widgets(self):
+        return self.widgets
 
     def modify(self,
                **kwargs):
@@ -35,7 +36,6 @@ class Menu(Widget):
         pgmenu.lib._draw(*self.widgets)
 
 
-# Automatically disables previous menu and activates current one
 def show(menu):
     pgmenu.vars.current_menu_showed = menu
 

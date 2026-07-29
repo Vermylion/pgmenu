@@ -6,6 +6,7 @@
 import sys
 import math
 import time
+from functools import total_ordering
 from typing import Callable
 import inspect
 
@@ -13,9 +14,7 @@ import pygame
 
 import pgmenu
 from pgmenu.constants import THEME
-
-
-# TODO -> Test AnimateFill with two surfaces
+from pgmenu.theme import resolve
 
 
 # x represents from beginning to end of animation, from 0 to 1
@@ -226,28 +225,144 @@ def ease_in_out_bounce(x):
         (1 + ease_out_bounce(2 * x - 1)) / 2
 
 
-class Animate:
+# FIXME -> Keep initial_call() as a method for all Animates?
+
+class AnimateType:
+
+    def __init__(self):
+        ...
+
+    @property
+    def value(self):
+        ...
+
+    @property
+    def base_value(self):
+        ...
+
+    @property
+    def final_value(self):
+        ...
+
+    def get_value(self):
+        ...
+
+    def get_base_value(self):
+        ...
+
+    def get_final_value(self):
+        ...
+
+    def init(self):
+        ...
+
+    def reset(self):
+        ...
+
+    def update(self, direction = pgmenu.FORWARD, reach: int | float = 1):
+        ...
+
+
+@total_ordering
+class Animate(AnimateType):
 
     def __init__(self,
                  base_num: int | float,
                  final_num: int | float,
                  duration: float = THEME,
-                 curve: Callable = THEME):
+                 curve: Callable = THEME,
+                 precision: int | None = THEME):
+
+        super().__init__()
 
         self.base_num = base_num
         self.final_num = final_num
-        self.duration = duration if duration != THEME else pgmenu.Theme.animation_duration
+        self.duration = resolve(duration, pgmenu.Theme.animation_duration)
         # Makes sure it can never be 0 (because of division by 0)
         self.duration = max(self.duration, sys.float_info.epsilon)
-        self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve # Different from animation_curve?
+        self.curve = resolve(curve, pgmenu.Theme.animation_curve) # Different from animation_curve?
+        self.precision = resolve(precision, pgmenu.Theme.animation_precision)
 
         self.start_time = None
         self.diff_num = self.final_num - self.base_num
         self.num = self.base_num
         self.step = 0
+        self.last_step = 0 # Last step of forward used in backward step loop: backward_step = (last step - step)
         self.direction = pgmenu.FORWARD
+        self.reach = 1
         self.curve_direction = pgmenu.OUT
         self.done = False
+
+    @property
+    def value(self):
+        return self.num
+
+    @property
+    def int(self):
+        return round(self.num)
+
+    @property
+    def float(self):
+        return float(self.num)
+
+    @property
+    def base_value(self):
+        return self.base_num
+
+    @property
+    def final_value(self):
+        return self.final_num
+
+    def get_value(self):
+        return self.value
+
+    def get_int(self):
+        return self.int
+
+    def get_float(self):
+        return self.float
+
+    def get_base_value(self):
+        return self.base_value
+
+    def get_final_value(self):
+        return self.final_value
+
+    def get_base_num(self):
+        return self.base_num
+
+    def get_final_num(self):
+        return self.final_num
+
+    def get_duration(self):
+        return self.duration
+
+    def get_curve(self):
+        return self.curve
+
+    def get_precision(self):
+        return self.precision
+
+    def get_start_time(self):
+        return self.start_time
+
+    def get_diff_num(self):
+        return self.diff_num
+
+    def get_num(self):
+        return self.num
+
+    def get_step(self):
+        return self.step
+
+    def get_direction(self):
+        return self.direction
+
+    def get_curve_direction(self):
+        return self.curve_direction
+
+    def get_done(self):
+        return self.done
 
     def __int__(self):
         return int(self.num)
@@ -258,250 +373,411 @@ class Animate:
     def __round__(self, n=None):
         return round(self.num, n)
 
-    @property
-    def value(self):
-        return round(self.num)
+    def __index__(self):
+        return int(self.num)
 
-    @property
-    def int(self):
-        return round(self.num)
+    def __repr__(self):
+        return str(self.num)
 
-    def initial_call(self):
+    # Comparisons (via total_ordering)
+    def _coerce(self, other):
+        return other.value if isinstance(other, AnimateType) else other
+
+    def __eq__(self, other):
+        other = self._coerce(other)
+        return self.num == other
+
+    def __lt__(self, other):
+        other = self._coerce(other)
+        return self.num < other
+
+    # Arithmetic operators
+    # (return raw numbers, not Animate)
+    def __add__(self, other):
+        return self.num + self._coerce(other)
+
+    def __radd__(self, other):
+        return self._coerce(other) + self.num
+
+    def __sub__(self, other):
+        return self.num - self._coerce(other)
+
+    def __rsub__(self, other):
+        return self._coerce(other) - self.num
+
+    def __mul__(self, other):
+        return self.num * self._coerce(other)
+
+    def __rmul__(self, other):
+        return self._coerce(other) * self.num
+
+    def __truediv__(self, other):
+        return self.num / self._coerce(other)
+
+    def __rtruediv__(self, other):
+        return self._coerce(other) / self.num
+
+    def __floordiv__(self, other):
+        return self.num // self._coerce(other)
+
+    def __rfloordiv__(self, other):
+        return self._coerce(other) // self.num
+
+    def __mod__(self, other):
+        return self.num % self._coerce(other)
+
+    def __rmod__(self, other):
+        return self._coerce(other) % self.num
+
+    def __hash__(self):
+        return id(self)
+
+    def __getattr__(self, name):
+        return getattr(float(self.num), name)
+        # raise AttributeError(f"'Animate' object has no attribute '{name}'. Use .value or .int instead.")
+
+    def init(self):
         # Get initial call time
         self.start_time = time.time()
-        # Makes sure animation starts at beginning for pgmenu.BACKWARDS on start, not the best solution but works
-        # if self.direction == pgmenu.BACKWARD:
-        #     self.start_time = time.time() - self.duration
-
-    def forward(self):
-        if self.direction != pgmenu.FORWARD:
-            self.reset()
-            self.direction = pgmenu.FORWARD
-            if self.curve_direction != pgmenu.IN_OUT:
-                self.curve_direction = pgmenu.OUT
-
-    def backward(self):
-        if self.direction != pgmenu.BACKWARD:
-            self.reset()
-            self.direction = pgmenu.BACKWARD
-            if self.curve_direction != pgmenu.IN_OUT:
-                self.curve_direction = pgmenu.IN
 
     def reset(self):
         self.start_time = None
         self.diff_num = self.final_num - self.base_num
         self.num = self.base_num
         self.step = 0
+        self.last_step = 0
         self.done = False
 
-    def update(self) -> float:
-        if self.start_time is None:
-            self.initial_call()
+    def update(self,
+               direction = pgmenu.FORWARD,
+               reach: float = 1):
+
+        if direction != self.direction or reach != self.reach:
+            self.start_time = time.time()
+            self.done = False
+
+            if direction == pgmenu.FORWARD:
+                if self.curve_direction != pgmenu.IN_OUT:
+                    self.curve_direction = pgmenu.OUT
+
+            if direction == pgmenu.BACKWARD:
+                self.last_step = self.step
+
+                if self.curve_direction != pgmenu.IN_OUT:
+                    self.curve_direction = pgmenu.IN
+
+        self.direction = direction
+
+        reach = max(min(reach, 1), 0)
+        self.reach = reach
 
         # Stop progress when reached end of animation
         if self.done:
             return self.num
 
+        if self.start_time is None:
+            self.init()
+
         current_time = time.time()
 
         # Dynamic iteration from 0 to 1
-        # FIXME -> Calling backwards resets animation to end of it -> looks weird on startup -> MODIFY start_time or current_time
-        self.step = (current_time - self.start_time) / self.duration
-        # Cap it to 1 or 0
-        self.step = max(min(self.step, 1), 0)
+        step = (current_time - self.start_time) / self.duration
 
         if self.direction == pgmenu.BACKWARD:
-            self.step = 1 - self.step
+            self.step = max(self.last_step - step, 1-self.reach)
+
+        else:
+            self.step = min(step, self.reach)
+
+        # print(self.step, 1-self.reach, self.reach)
 
         # Animation curve output
         # Check how many arguments self.curve takes
-        try:
-            if len(inspect.signature(self.curve).parameters) > 1:
-                coeff_x = self.curve(self.step, self.curve_direction)
-            else:
-                coeff_x = self.curve(self.step)
-        except:
-            print(self.curve, type(self.curve))
+        if len(inspect.signature(self.curve).parameters) > 1:
+            coeff_x = self.curve(self.step, self.curve_direction)
+        else:
+            coeff_x = self.curve(self.step)
 
         # Proportion with animation curve
         self.num = self.base_num + self.diff_num * coeff_x
 
-        # Stop animation when the max step (so 1 or 0) is reached
-        if (self.step >= 1 and self.direction == pgmenu.FORWARD) or (self.step <= 0 and self.direction == pgmenu.BACKWARD):
+        # Limit decimal digits; important for caching surfaces
+        if self.precision is not None:
+            self.num = round(self.num, self.precision)
+
+        # Stop animation when the max step is reached
+        if (self.step >= self.reach and self.direction == pgmenu.FORWARD) or (self.step <= 1-self.reach and self.direction == pgmenu.BACKWARD):
             self.done = True
-            return self.num
 
         return self.num
 
-    
-class AnimateTuple:
+
+@total_ordering
+class AnimateTuple(AnimateType):
     
     def __init__(self,
-                 *nums: tuple[int | float, int | float],
+                 *pairs: tuple[int | float, int | float],
                  duration: float = THEME,
-                 curve: Callable = THEME):
+                 curve: Callable = THEME,
+                 precision: int | None = THEME):
         """
-        :param nums: succession of tuples representing (base_num, final_num)
+        :param pairs: succession of tuples representing (base_num, final_num)
         :param duration: duration of animation
         :param curve: animation curve used
+        :param precision: number of decimal points given to each item
         """
 
-        self.nums = nums
-        self.duration = duration if duration != THEME else pgmenu.Theme.animation_duration
-        self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve
+        super().__init__()
 
-        self.animate_nums = [Animate(num[0], num[1], self.duration, self.curve) for num in nums]
+        self.duration = resolve(duration, pgmenu.Theme.animation_duration)
+        self.curve = resolve(curve, pgmenu.Theme.animation_curve)
+        self.precision = resolve(precision, pgmenu.Theme.animation_precision)
+
+        self.items = []
+        # This is done for optimization and to reduce for loops. Hopefully worth it
+        self.base_tuple = []
+        self.final_tuple = []
+        self.int_tuple = []
+        self.float_tuple = []
+
+        for base, final in pairs:
+            animate_num = Animate(base, final, self.duration, self.curve, self.precision)
+            self.items.append(animate_num)
+
+            self.base_tuple.append(base)
+            self.final_tuple.append(final)
+
+            self.int_tuple.append(int(animate_num.value))
+            self.float_tuple.append(float(animate_num.value))
+
+        self.base_tuple = tuple(self.base_tuple)
+        self.final_tuple = tuple(self.final_tuple)
+        self.int_tuple = tuple(self.int_tuple)
+        self.float_tuple = tuple(self.float_tuple)
 
     @property
     def value(self):
-        return tuple(animate_num.num for animate_num in self.animate_nums)
+        return self.float_tuple
 
     @property
     def tuple(self):
-        return tuple(animate_num.num for animate_num in self.animate_nums)
+        return self.float_tuple
 
     @property
-    def inttuple(self):
-        return tuple(round(animate_num.num) for animate_num in self.animate_nums)
+    def base_value(self):
+        return self.base_tuple
 
     @property
-    def basetuple(self):
-        return tuple(animate_num.base_num for animate_num in self.animate_nums)
+    def final_value(self):
+        return self.final_tuple
 
-    @property
-    def finaltuple(self):
-        return tuple(animate_num.final_num for animate_num in self.animate_nums)
+    def get_value(self):
+        return self.value
 
-    def forward(self):
-        for animate_num in self.animate_nums:
-            animate_num.forward()
+    def get_tuple(self):
+        return self.tuple
 
-    def backward(self):
-        for animate_num in self.animate_nums:
-            animate_num.backward()
+    def get_base_value(self):
+        return self.base_value
+
+    def get_final_value(self):
+        return self.final_value
+
+    def get_duration(self):
+        return self.duration
+    
+    def get_curve(self):
+        return self.curve
+
+    def get_precision(self):
+        return self.precision
+    
+    def get_items(self):
+        return self.items
+
+    def get_base_tuple(self):
+        return self.base_tuple
+
+    def get_final_tuple(self):
+        return self.final_tuple
+
+    def get_int_tuple(self):
+        return self.int_tuple
+
+    def get_float_tuple(self):
+        return self.float_tuple
+
+    #Core Tuple Behavior
+    def __len__(self):
+        return len(self.items)
+
+    def __iter__(self):
+        return iter(self.items)
+
+    def __getitem__(self, index):
+        return self.items[index]
+
+    def __repr__(self):
+        return repr(self.value)
+
+    def __hash__(self):
+        return id(self)
+
+    def __add__(self, other):
+        return self.value + tuple(other)
+
+    def __radd__(self, other):
+        return tuple(other) + self.value
+
+    # Comparison
+    def __eq__(self, other):
+        if isinstance(other, AnimateType):
+            return self.value == other.value
+        return self.value == other
+
+    def __lt__(self, other):
+        if isinstance(other, AnimateType):
+            return self.value < other.value
+        return self.value < other
+
+    # Animation controls
+    def init(self):
+        for animate_num in self.items:
+            animate_num.init()
 
     def reset(self):
-        for animate_num in self.animate_nums:
+        for animate_num in self.items:
             animate_num.reset()
 
-    def update(self):
-        for animate_num in self.animate_nums:
-            animate_num.update()
+    def update(self,
+               direction = pgmenu.FORWARD,
+               reach: int | float = 1):
+        self.int_tuple = []
+        self.float_tuple = []
+
+        for animate_num in self.items:
+            animate_num.update(direction, reach)
+            self.int_tuple.append(int(animate_num.value))
+            self.float_tuple.append(float(animate_num.value))
+
+        self.int_tuple = tuple(self.int_tuple)
+        self.float_tuple = tuple(self.float_tuple)
 
 
-class AnimateColor:
+class AnimateSurface(pygame.Surface, AnimateType):
 
     def __init__(self,
-                 base_color: tuple[int | int | int],
-                 final_color: tuple[int | int | int],
-                 duration: float = THEME,
-                 curve: Callable = THEME):
+                 base_surface: pygame.Surface,
+                 final_surface: pygame.Surface,
+                 base_alpha: int | float = THEME,
+                 final_alpha: int | float = THEME,
+                 duration: int | float = THEME,
+                 curve: Callable = THEME,
+                 precision: int | None = THEME):
 
-        self.animate_tuple = AnimateTuple((base_color[0], final_color[0]), (base_color[1], final_color[1]), (base_color[2], final_color[2]),
-                                          duration = duration, curve = curve)
+        super().__init__(max(base_surface.get_size(), final_surface.get_size()),
+                         base_surface.get_flags(),
+                         base_surface.get_bitsize(),
+                         base_surface.get_masks())
+
+        self.base_surface = base_surface#.convert_alpha()
+        self.final_surface = final_surface#.convert_alpha()
+
+        self.base_alpha = resolve(base_alpha, pgmenu.Theme.animation_base_alpha)
+        self.final_alpha = resolve(final_alpha, pgmenu.Theme.animation_final_alpha)
+
+        self.duration = resolve(duration, pgmenu.Theme.animation_duration)
+        self.curve = resolve(curve, pgmenu.Theme.animation_curve)
+        self.precision = resolve(precision, pgmenu.Theme.animation_precision)
+
+        self.animation_alpha = Animate(self.base_alpha, self.final_alpha, self.duration, self.curve, self.precision)
+
+        self.blit(self.base_surface, (0, 0))
 
     @property
     def value(self):
-        return self.animate_tuple.inttuple
+        return self
 
     @property
-    def color(self):
-        return self.animate_tuple.inttuple
+    def surface(self):
+        return self
 
-    def forward(self):
-        self.animate_tuple.forward()
+    @property
+    def base_value(self):
+        return self.base_surface
 
-    def backward(self):
-        self.animate_tuple.backward()
+    @property
+    def final_value(self):
+        return self.final_surface
+
+    def get_value(self):
+        return self.value
+
+    def get_surface(self):
+        return self.surface
+
+    def get_base_value(self):
+        return self.base_value
+
+    def get_final_value(self):
+        return self.final_value
+
+    def get_base_surface(self):
+        return self.base_surface
+
+    def get_final_surface(self):
+        return self.final_surface
+
+    def get_base_alpha(self):
+        return self.base_alpha
+
+    def get_final_alpha(self):
+        return self.final_alpha
+
+    def get_duration(self):
+        return self.duration
+
+    def get_curve(self):
+        return self.curve
+
+    def get_precision(self):
+        return self.precision
+
+    def get_animation_alpha(self):
+        return self.animation_alpha
+
+    def __repr__(self):
+        return repr(self.value)
+
+    def __hash__(self):
+        return id(self)
+
+    # Animation controls
+    def init(self):
+        self.animation_alpha.init()
 
     def reset(self):
-        self.animate_tuple.reset()
+        self.animation_alpha.reset()
+        # FIXME -> Is this step necessary or could we just wait till update?
+        self.fill((0, 0, 0))
+        self.final_surface.set_alpha(self.animation_alpha)
+        self.blit(self.base_surface, (0, 0))
 
-    def update(self):
-        self.animate_tuple.update()
+    def update(self,
+               direction=pgmenu.FORWARD,
+               reach: int | float = 1):
+        self.animation_alpha.update(direction, reach)
 
+        self.fill((0, 0, 0, 0))
+        self.final_surface.set_alpha(self.animation_alpha)
 
-class AnimateFill:
-
-    def __init__(self,
-                 base_fill: tuple[int, int, int] | pygame.Surface | None,
-                 final_fill: tuple[int, int, int] | pygame.Surface | None,
-                 duration: float = THEME,
-                 curve: Callable = THEME):
-
-        self.base_fill = base_fill
-        self.final_fill = final_fill
-        self.duration = duration if duration != THEME else pgmenu.Theme.animation_duration
-        self.curve = curve if curve != THEME else pgmenu.Theme.animation_curve
-
-        self.animation_type = pgmenu.NONE
-
-        # Animate transition between two surfaces
-        if isinstance(base_fill, pygame.Surface) and isinstance(final_fill, pygame.Surface):
-            self.animation_type = pgmenu.SURFACE
-            self.animate_alpha = Animate(255, 0, duration, curve)
-
-            self.blit_surf = self.final_fill.copy()
-            self.blit_surf.blits(((self.final_fill, (0, 0)), (self.base_fill, (0, 0))))
-
-        # Animate transition between two colors
-        elif isinstance(base_fill, tuple | list | pygame.Color) and isinstance(final_fill, tuple | list | pygame.Color):
-            self.animation_type = pgmenu.COLOR
-            self.animate_color = AnimateColor(base_fill, final_fill, duration, curve)
-
-    @property
-    def value(self):
-        return self.fill
-
-    @property
-    def fill(self):
-        if self.animation_type == pgmenu.SURFACE:
-            return self.blit_surf
-
-        elif self.animation_type == pgmenu.COLOR:
-            return self.animate_color.color
-
-        else:
-            return None
-
-    def forward(self):
-        if self.animation_type == pgmenu.SURFACE:
-            self.animate_alpha.forward()
-
-        elif self.animation_type == pgmenu.COLOR:
-            self.animate_color.forward()
-
-    def backward(self):
-        if self.animation_type == pgmenu.SURFACE:
-            self.animate_alpha.backward()
-
-        elif self.animation_type == pgmenu.COLOR:
-            self.animate_color.backward()
-
-    def reset(self):
-        if self.animation_type == pgmenu.SURFACE:
-            self.animate_alpha.reset()
-            self.base_fill.set_alpha(self.animate_alpha.int)
-            self.blit_surf.blits(((self.final_fill, (0, 0)), (self.base_fill, (0, 0))))
-
-        elif self.animation_type == pgmenu.COLOR:
-            self.animate_color.reset()
-
-    def update(self):
-        if self.animation_type == pgmenu.SURFACE:
-            self.animate_alpha.update()
-
-            self.base_fill.set_alpha(self.animate_alpha.int)
-            self.blit_surf.blits(((self.final_fill, (0, 0)), (self.base_fill, (0, 0))))
-
-        elif self.animation_type == pgmenu.COLOR:
-            self.animate_color.update()
+        self.blits(((self.base_surface, (0, 0)), (self.final_surface, (0, 0))))
 
 
 class AnimateMultiple:
 
     def __init__(self,
-                 *animations: Animate | AnimateTuple | AnimateColor | AnimateFill):
+                 *animations: AnimateType):
 
         self.animations = {id(animation): animation for animation in animations}
 
@@ -509,21 +785,35 @@ class AnimateMultiple:
     def value(self):
         return [animation.value for animation in list(self.animations.values())]
 
+    @property
+    def base_value(self):
+        return [animation.base_value for animation in list(self.animations.values())]
+
+    @property
+    def final_value(self):
+        return [animation.final_value for animation in list(self.animations.values())]
+
+    def get_value(self):
+        return self.value
+
+    def get_base_value(self):
+        return self.base_value
+
+    def get_final_value(self):
+        return self.final_value
+
+    def get_animations(self):
+        return self.animations
+
     def modify(self, *animations):
         self.animations.update({id(animation): animation for animation in animations})
-
-    def forward(self):
-        for animation in list(self.animations.values()):
-            animation.forward()
-
-    def backward(self):
-        for animation in list(self.animations.values()):
-            animation.backward()
 
     def reset(self):
         for animation in list(self.animations.values()):
             animation.reset()
 
-    def update(self):
+    def update(self,
+               direction = pgmenu.FORWARD,
+               reach: int | float = 1):
         for animation in list(self.animations.values()):
-            animation.update()
+            animation.update(direction, reach)
