@@ -13,20 +13,16 @@ def center_coords(size: list[int, int] | tuple[int, int],
     center_x = resolve(center_x, pgmenu.Theme.position_center_x)
     center_y = resolve(center_y, pgmenu.Theme.position_center_y)
 
-    rect_x, rect_y, rect_width, rect_height = rect
-    # Find center of rect
-    if center_x: center_rect_width = rect_width / 2
-    if center_y: center_rect_height = rect_height / 2
+    x, y, w, h = rect
+    sw, sh = size
 
-    # Offset coord to be at middle of size
-    size_width, size_height = size
-    if center_x: center_size_width = size_width / 2
-    if center_y: center_size_height = size_height / 2
+    if center_x:
+        x += (w - sw) // 2
 
-    coord_x = rect_x + center_rect_width - center_size_width if center_x else rect_x
-    coord_y = rect_y + center_rect_height - center_size_height if center_y else rect_y
+    if center_y:
+        y += (h - sh) // 2
 
-    return coord_x, coord_y
+    return x, y
 
 
 def place():

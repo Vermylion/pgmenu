@@ -12,10 +12,10 @@ pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
 fps = 1000
 
-gradient = pygame.image.load("../tests/assets/gradient.png")
-gradient2 = pygame.image.load("../tests/assets/gradient2.png")
-pinksky = pygame.image.load("../tests/assets/pinksky.jpg")
-pinksky = pygame.transform.smoothscale(pinksky, (1080, 720))
+# gradient = pygame.image.load("../tests/assets/gradient.png")
+# gradient2 = pygame.image.load("../tests/assets/gradient2.png")
+# pinksky = pygame.image.load("../tests/assets/pinksky.jpg")
+# pinksky = pygame.transform.smoothscale(pinksky, (1080, 720))
 
 # color = pgmenu.animation.AnimateTuple(*[(250, 50), (50, 200), (50, 50)], duration=0.1, curve=pgmenu.animation.ease_in_out_circ)
 
@@ -52,8 +52,8 @@ label = pgmenu.label.Label(frame, (250, 150), color=color2, size=100, animation_
                            responsive_size=pgmenu.PROPORTIONAL)
 
 icon = pgmenu.draw.aarect(None, (255, 0, 0), (0, 0, 50, 50))
-button = pgmenu.button.Button(frame, (50, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", width=1, inner_fill=(30, 110, 195), margin=3)
-button2 = pgmenu.button.Button(frame, (350, 50))
+button = pgmenu.button.Button(frame, (50, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3)
+button2 = pgmenu.button.Button(frame, (350, 50), margin=3)
 
 go = False
 start = time.time()

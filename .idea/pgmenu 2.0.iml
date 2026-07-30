@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/tests/blit sub" />
       <excludeFolder url="file://$MODULE_DIR$/tests/text" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="~\AppData\Local\Programs\Python\Python314\python.exe" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
