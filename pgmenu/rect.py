@@ -5,7 +5,9 @@ from pgmenu.constants import THEME
 from pgmenu.vars import cache
 
 
-def fit_rects(dest_rect: tuple[int, int], *rects: tuple[int, int], margin: int = 0) -> list[tuple[int, int, int, int]]:
+def fit_rects(dest_rect: tuple[int, int],
+              *rects: tuple[int, int],
+              margin: int = 0) -> list[tuple[int, int, int, int]]:
     """
     Fits multiple rectangles within a destination rectangle while maintaining their aspect ratio.
     The rectangles will all have the same height and be placed from left to right.
