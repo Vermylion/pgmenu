@@ -13,6 +13,8 @@ from pgmenu.vars import cache
 
 # TODO -> Fix corners artifacts for overlay with removing inside rect
 
+# TODO -> Look into removing draw_border_radii: https://chatgpt.com/share/6a6e8323-87b4-83eb-9431-80b6b00efb94
+
 
 @dataclass
 class _Pass:
