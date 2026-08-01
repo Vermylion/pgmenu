@@ -4,8 +4,6 @@ import pygame
 import pgmenu
 
 
-# TODO -> Can I set in theme dynamic args? -> Ex: margin = round(min(self.size.inttuple) * 0.1)
-
 # TODO -> Add support for different modes -> (dark or light mode)
 
 

@@ -1,11 +1,12 @@
 import pygame
 import pgmenu
-from pgmenu.widget import Widget, RectWidget
+from pgmenu.widget import Widget, RectMixin, TextMixin
 from pgmenu.constants import THEME
-from pgmenu.theme import resolve, resolve_widget
+from pgmenu.theme import resolve
 from pgmenu.animation import *
 
-class Button(RectWidget):
+
+class Button(Widget, RectMixin, TextMixin):
 
     def __init__(self,
                  master: pygame.Surface | Widget,
@@ -48,15 +49,6 @@ class Button(RectWidget):
 
         self.width = resolve(width, pgmenu.Theme.button_width)
         self.border_radius = resolve(border_radius, pgmenu.Theme.button_border_radius, round(min(self.size) / 3))
-        # Kwargs text arguments
-        self.text_font = resolve_widget(kwargs, "text_font", self.type, THEME)
-        self.text_background = resolve_widget(kwargs, "text_background", self.type, THEME)
-        self.text_antialias = resolve_widget(kwargs, "text_antialias", self.type, THEME)
-        self.text_italic = resolve_widget(kwargs, "text_italic", self.type, THEME)
-        self.text_bold = resolve_widget(kwargs, "text_bold", self.type, THEME)
-        self.text_strikethrough = resolve_widget(kwargs, "text_strikethrough", self.type, THEME)
-        self.text_underline = resolve_widget(kwargs, "text_underline", self.type, THEME)
-        self.text_transparency = resolve_widget(kwargs, "text_transparency", self.type, THEME)
 
         pgmenu.widget.add(self)
 
@@ -90,30 +82,6 @@ class Button(RectWidget):
     def get_border_radius(self):
         return self.border_radius
 
-    def get_text_font(self):
-        return self.text_font
-
-    def get_text_background(self):
-        return self.text_background
-
-    def get_text_antialias(self):
-        return self.text_antialias
-
-    def get_text_italic(self):
-        return self.text_italic
-
-    def get_text_bold(self):
-        return self.text_bold
-
-    def get_text_strikethrough(self):
-        return self.text_strikethrough
-
-    def get_text_underline(self):
-        return self.text_underline
-
-    def get_text_transparency(self):
-        return self.text_transparency
-
     def draw(self):
         super().draw()
 
@@ -128,12 +96,9 @@ class Button(RectWidget):
                                           inner_fill=self.inner_fill, inner_transparency=self.inner_transparency,
                                           inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
-        # Get rendered text fitted to max button size
-        final_size = (round(self.size.final_tuple[0]), round(self.size.final_tuple[1]))
-        text_surface = pgmenu.text.fit_text(final_size, self.text, self.text_color, round(self.margin), self.text_font, # In case margin is animated, it has to be passed as a whole number into fit_text
-                                            self.text_background, self.text_antialias, self.text_italic,
-                                            self.text_bold, self.text_strikethrough, self.text_underline,
-                                            self.text_transparency)
+        text_surface, text_rect = pgmenu.text.fit_render_animated(self.size, self.text, self.text_color, round(self.margin), self.text_font,  # In case margin is animated, it has to be passed as a whole number into fit_text
+                                                                  self.text_background, self.text_antialias, self.text_italic, self.text_bold,
+                                                                  self.text_strikethrough, self.text_underline, self.text_transparency)
 
         if self.icon is not None:
             # Use render once to get exact text proportions for the icon/text split;
@@ -141,29 +106,18 @@ class Button(RectWidget):
             text_2d_size = pgmenu.text.render(self.text).get_size()
             icon_rect, text_rect = pgmenu.rect.fit_rects(self.size.int_tuple, self.icon.get_size(), text_2d_size, margin=self.margin)
             icon_surface = pgmenu.surface.resize(self.icon, icon_rect[2:])
-        else:
-            # Text rect is found to smoothscale text surface to correct dimensions
-            text_rect = pgmenu.rect.fit_rects(self.size.int_tuple, text_surface.get_size(), margin=self.margin)
 
-        # Fit text surface to current text rect for smooth scaling
-        text_surface = pygame.transform.smoothscale(text_surface, text_rect[2:])
-
-        if self.icon is not None:
             icon_rect, text_rect = pgmenu.rect.center_rects((0, 0, *self.surface.get_size()), icon_rect, text_rect)
 
             self.surface.blit(icon_surface, icon_rect[:2])
-        else:
-            # FIXME -> Slight jitteriness is caused by dynamic self.surface.get_size() used to center coords
-            text_pos = pgmenu.position.center_coords(text_surface.get_size(), (0, 0, *self.surface.get_size()))
-            text_rect = (*text_pos, text_rect[2:])
 
         self.surface.blit(text_surface, text_rect[:2])
         self.master.blit(self.surface, coords)
 
     def update(self, event):
         super().update(event)
-        # Detect mouse collisions
 
+        # Detect mouse collisions
         if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
 
             if event.type == pygame.MOUSEBUTTONDOWN:

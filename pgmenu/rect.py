@@ -52,6 +52,8 @@ def fit_rects(dest_rect: tuple[int, int],
     x_pos = margin  # Start with the left margin
 
     for width, height in scaled_rects:
+        # Guard against negative widths and heights
+        width, height = max(width, 0), max(height, 0)
         positioned_rects.append((x_pos, margin, width, height))  # Place rect (x, y, width, height)
         x_pos += width + margin  # Move x position for the next rectangle
 

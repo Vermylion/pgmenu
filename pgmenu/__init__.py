@@ -43,7 +43,7 @@ import pgmenu.frame as frame
 
 import pgmenu.button as button
 
-# import pgmenu.checkbox as checkbox
+import pgmenu.checkbox as checkbox
 
 # Initialize library
 lib.init()

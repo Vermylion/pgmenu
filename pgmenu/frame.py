@@ -1,11 +1,11 @@
 import pygame
 import pgmenu
-from pgmenu.widget import Widget, RectWidget
+from pgmenu.widget import Widget, RectMixin
 from pgmenu.constants import THEME
 from pgmenu.theme import resolve
 from pgmenu.animation import *
 
-class Frame(RectWidget):
+class Frame(Widget, RectMixin):
 
     def __init__(self,
                  master: pygame.Surface | Widget,

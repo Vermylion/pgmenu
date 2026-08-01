@@ -12,12 +12,11 @@ pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
 fps = 1000
 
-# gradient = pygame.image.load("../tests/assets/gradient.png")
-# gradient2 = pygame.image.load("../tests/assets/gradient2.png")
-# pinksky = pygame.image.load("../tests/assets/pinksky.jpg")
-# pinksky = pygame.transform.smoothscale(pinksky, (1080, 720))
+gradient = pygame.image.load("../tests/assets/gradient.png")
+gradient2 = pygame.image.load("../tests/assets/gradient2.png")
+pinksky = pygame.image.load("../tests/assets/pinksky.jpg")
+pinksky = pygame.transform.smoothscale(pinksky, (1080, 720))
 
-# color = pgmenu.animation.AnimateTuple(*[(250, 50), (50, 200), (50, 50)], duration=0.1, curve=pgmenu.animation.ease_in_out_circ)
 
 def make_animated_surf(size):
     rect = pgmenu.draw.aarect(None, (63, 68, 72), (0, 0, *size))
@@ -44,7 +43,7 @@ def m_animation_on_hover():
 
 frame = pgmenu.frame.Frame(screen, pgmenu.position.center_coords((550, 400), (0, 0, 1080, 720)), (550, 400))
 
-surface = pgmenu.surface.Surface(frame, make_animated_surf((200, 100)), (10, 150), on_resize=lambda: on_resize(surface.size), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
+surface = pgmenu.surface.Surface(frame, make_animated_surf((200, 100)), (10, 150), on_resize=lambda: on_resize(surface.size.int_tuple), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
 
 color2 = pgmenu.animation.AnimateTuple(*((250, 50), (50, 50), (50, 250)), duration=0.5, curve=pgmenu.animation.circ)
 label = pgmenu.label.Label(frame, (250, 150), color=color2, size=100, animation_scale=1.4, animation_duration=0.15,
@@ -52,8 +51,9 @@ label = pgmenu.label.Label(frame, (250, 150), color=color2, size=100, animation_
                            responsive_size=pgmenu.PROPORTIONAL)
 
 icon = pgmenu.draw.aarect(None, (255, 0, 0), (0, 0, 50, 50))
-button = pgmenu.button.Button(frame, (50, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3)
-button2 = pgmenu.button.Button(frame, (350, 50), margin=3)
+button = pgmenu.button.Button(frame, (100, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3)
+checkbox = pgmenu.checkbox.Checkbox(frame, (50, 50))
+
 
 go = False
 start = time.time()
@@ -114,14 +114,6 @@ while running:
     pgmenu.draw_all()
 
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
-
-    # print((*pgmenu.position.center_coords((550, 400), (0, 0, 1080, 720)), 550, 400))
-    # pgmenu.draw.aarect(screen, (255, 255, 255), (26, 160, 550, 400))
-
-    # if color != color.final_tuple:
-    #     surface.surface = pgmenu.draw.aarect(None, color, (200, 200, 200, 100))
-    #
-    # color.update(pgmenu.FORWARD)
 
     win_size = pygame.display.get_window_size()
     pygame.display.set_caption(f"Window {win_size[0]}x{win_size[1]}")

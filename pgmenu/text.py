@@ -2,6 +2,7 @@ import math
 import os
 import pygame
 import pgmenu
+from pgmenu.animation import AnimateTuple
 from pgmenu.vars import cache
 from pgmenu.widget import Widget
 from pgmenu.constants import THEME
@@ -153,22 +154,20 @@ def write(surface,
     surface.blit(text_surface, coords)
 
 
-# FIXME -> Can't be called rect since it doesn't accept coords
+# FIXME -> Can't be called rect since it doesn't accept coords -> Change name or change input to tuple[int, int, int, int]?
 
-# FIXME -> Probably doesn't work correctly, can probably get closer to max size every time
-
-def fit_text_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
-                  text: str = THEME,
-                  color: list | tuple = THEME,
-                  margin: int = THEME,
-                  font: str = THEME,
-                  background: list | tuple = THEME,
-                  antialias: bool = THEME,
-                  italic: bool = THEME,
-                  bold: bool = THEME,
-                  strikethrough: bool = THEME,
-                  underline: bool = THEME,
-                  transparency: int = THEME):
+def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
+             text: str = THEME,
+             color: list | tuple = THEME,
+             margin: int = THEME,
+             font: str = THEME,
+             background: list | tuple = THEME,
+             antialias: bool = THEME,
+             italic: bool = THEME,
+             bold: bool = THEME,
+             strikethrough: bool = THEME,
+             underline: bool = THEME,
+             transparency: int = THEME):
     """
         Returns the int size of the text that would fit into the given area
         :param dest_rect: main rect where text is going to be fit in
@@ -237,18 +236,18 @@ def fit_text_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
     return text_size
 
 
-def fit_text(dest_rect: list[int, int] | tuple[int, int] = THEME,
-             text: str = THEME,
-             color: list | tuple = THEME,
-             margin: int = THEME,
-             font: str = THEME,
-             background: list | tuple = THEME,
-             antialias: bool = THEME,
-             italic: bool = THEME,
-             bold: bool = THEME,
-             strikethrough: bool = THEME,
-             underline: bool = THEME,
-             transparency: int = THEME):
+def fit_render(dest_rect: list[int, int] | tuple[int, int] = THEME,
+               text: str = THEME,
+               color: list | tuple = THEME,
+               margin: int = THEME,
+               font: str = THEME,
+               background: list | tuple = THEME,
+               antialias: bool = THEME,
+               italic: bool = THEME,
+               bold: bool = THEME,
+               strikethrough: bool = THEME,
+               underline: bool = THEME,
+               transparency: int = THEME):
     """
     Returns a surface of the rendered text
     :param dest_rect: main rect where text is going to be fit in
@@ -279,9 +278,70 @@ def fit_text(dest_rect: list[int, int] | tuple[int, int] = THEME,
     underline = resolve(underline, pgmenu.Theme.text_underline)
     transparency = resolve(transparency, pgmenu.Theme.text_transparency)
 
-    text_size = fit_text_size(dest_rect, text, color, margin, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+    text_size = fit_size(dest_rect, text, color, margin, font, background, antialias, italic, bold, strikethrough, underline, transparency)
 
     # Render text; caching is done in render
     text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
 
     return text_surface.copy()
+
+
+def fit_render_animated(dest_rect: AnimateTuple[int, int] = THEME,
+                        text: str = THEME,
+                        color: list | tuple = THEME,
+                        margin: int = THEME,
+                        font: str = THEME,
+                        background: list | tuple = THEME,
+                        antialias: bool = THEME,
+                        italic: bool = THEME,
+                        bold: bool = THEME,
+                        strikethrough: bool = THEME,
+                        underline: bool = THEME,
+                        transparency: int = THEME) -> tuple[pygame.Surface, tuple[int, int, int, int]]:
+    """
+    Fits rendered text to a destination area which is animated, fitting text with per-pixel precision using smoothscale instead of per font size as is with regular fit-render.
+    Returns a surface of the fitted text (by smoothscale) and a text_rect[int, int, int, int].
+    :param dest_rect: main rect where text is going to be fit in
+    :param text:
+    :param color:
+    :param margin:
+    :param font:
+    :param background:
+    :param antialias:
+    :param italic:
+    :param bold:
+    :param strikethrough:
+    :param underline:
+    :param transparency:
+    :return: Returns a surface of the fitted text (by smoothscale) and a text_rect[int, int, int, int]
+    """
+
+    dest_rect = resolve(dest_rect, pgmenu.Theme.text_dest_rect)
+    text = resolve(text, pgmenu.Theme.text_text)
+    color = resolve(color, pgmenu.Theme.text_color)
+    margin = resolve(margin, pgmenu.Theme.text_margin)
+    font = resolve(font, pgmenu.Theme.text_font)
+    background = resolve(background, pgmenu.Theme.text_background)
+    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
+    italic = resolve(italic, pgmenu.Theme.text_italic)
+    bold = resolve(bold, pgmenu.Theme.text_bold)
+    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
+    underline = resolve(underline, pgmenu.Theme.text_underline)
+    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+
+    # Get rendered text fitted to max button size
+    final_dest_rect = (round(dest_rect.final_tuple[0]), round(dest_rect.final_tuple[1]))
+    text_surface = pgmenu.text.fit_render(final_dest_rect, text, color, round(margin), font, background,  # In case margin is animated, it has to be passed as a whole number into fit_text
+                                          antialias, italic, bold, strikethrough, underline, transparency)
+
+    # Text rect is found to smoothscale text surface to correct dimensions
+    text_rect = pgmenu.rect.fit_rects(dest_rect.int_tuple, text_surface.get_size(), margin=margin)
+
+    # Fit text surface to current text rect for smooth scaling
+    text_surface = pygame.transform.smoothscale(text_surface, text_rect[2:])
+
+    # FIXME -> Slight jitteriness is caused by dynamic dest_rect used to center coords
+    text_pos = pgmenu.position.center_coords(text_surface.get_size(), (0, 0, *dest_rect))
+    text_rect = (*text_pos, text_rect[2:])
+
+    return text_surface, text_rect

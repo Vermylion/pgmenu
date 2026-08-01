@@ -2,6 +2,7 @@ import pygame
 import pygame.gfxdraw
 import math
 import time
+from dataclasses import dataclass
 
 import pgmenu
 import pgmenu.utils as utils
@@ -11,6 +12,26 @@ from pgmenu.vars import cache
 # TODO -> Look into alternatives for inside rect antialiasing, instead of using (alpha, alpha, alpha, alpha)
 
 # TODO -> Fix corners artifacts for overlay with removing inside rect
+
+
+@dataclass
+class _Pass:
+    fill: object
+    rect: tuple
+    border_radius: int
+    border_top_left_radius: int
+    border_top_right_radius: int
+    border_bottom_left_radius: int
+    border_bottom_right_radius: int
+    transparency: int
+    antialiasing: bool
+    aa_strength: int
+    inner_borders: bool = False
+    inner_aa: bool = False
+
+    @property
+    def aa_pixel_width(self):
+        return self.aa_strength if self.antialiasing else 0
 
 # A Class that will make an antialiased rectangle object
 # Everything is created when class is initiated
@@ -78,31 +99,16 @@ class AARect:
         self.force_only_overlay = False
         if self.inner_transparency == 255 and self.inner_fill is not None: self.force_only_overlay = True
 
-        # Temp vars for varied use in class
-        self.temp_fill = self.fill
-        self.temp_rect = self.rect
-        self.temp_border_radius = self.border_radius
-        self.temp_border_top_left_radius = border_top_left_radius if border_top_left_radius is not None else self.border_top_left_radius
-        self.temp_border_top_right_radius = border_top_right_radius if border_top_right_radius is not None else self.border_top_right_radius
-        self.temp_border_bottom_left_radius = border_bottom_left_radius if border_bottom_left_radius is not None else self.border_bottom_left_radius
-        self.temp_border_bottom_right_radius = border_bottom_right_radius if border_bottom_right_radius is not None else self.border_bottom_right_radius
-        self.temp_transparency = self.transparency
-        self.temp_antialiasing = self.antialiasing
-        self.temp_aa_strength = self.aa_strength
-
-        self.temp_inner_borders = False
-        self.temp_inner_aa = False
-
         # Variables for use inside class
         self.draw_border_top_left_radius = False
         self.draw_border_top_right_radius = False
         self.draw_border_bottom_left_radius = False
         self.draw_border_bottom_right_radius = False
 
-        self.border_radius_values = {'draw_border_top_left_radius': self.temp_border_top_left_radius,
-                                     'draw_border_top_right_radius': self.temp_border_top_right_radius,
-                                     'draw_border_bottom_left_radius': self.temp_border_bottom_left_radius,
-                                     'draw_border_bottom_right_radius': self.temp_border_bottom_right_radius}
+        self.border_radius_values = {'draw_border_top_left_radius': ...,
+                                     'draw_border_top_right_radius': ...,
+                                     'draw_border_bottom_left_radius': ...,
+                                     'draw_border_bottom_right_radius': ...}
 
     # Small function that calls other main functions
     # Allows appeal to function names
@@ -171,22 +177,6 @@ class AARect:
         self.border_bottom_left_radius = math.floor(min(self.border_bottom_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
         self.border_bottom_right_radius = math.floor(min(self.border_bottom_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
 
-        # Limit antialiasing width to border_radius, starts overlapping otherwise
-        # A check like this might require checking with every border_radius
-        # self.aa_strength = min(self.aa_strength, self.border_radius)
-        # self.inner_aa_strength = min(self.inner_aa_strength, self.inner_border_radius)
-
-        # Reformat border_radius list
-        self.border_radius_values = {'draw_border_top_left_radius': self.temp_border_top_left_radius,
-                                     'draw_border_top_right_radius': self.temp_border_top_right_radius,
-                                     'draw_border_bottom_left_radius': self.temp_border_bottom_left_radius,
-                                     'draw_border_bottom_right_radius': self.temp_border_bottom_right_radius}
-
-        # Set antialiasing bool
-        # A check like this might require checking with every border_radius
-        # if self.border_radius <= 0: # and self.border_top_left_radius <= 0 and self.border_bottom_right_radius <= 0 :
-        #     self.antialiasing = False
-
         self.object_cache_id = (str(self.fill), (self.rect[2], self.rect[3]), self.width, self.border_radius, self.border_top_left_radius, self.border_top_right_radius, self.border_bottom_left_radius, self.border_bottom_right_radius,
                                 self.antialiasing, self.transparency, self.aa_strength, str(self.inner_fill), self.inner_antialiasing, self.inner_transparency, self.inner_aa_strength, self.force_only_overlay)
 
@@ -205,114 +195,133 @@ class AARect:
 
         pgmenu.cache.lru_set(cache["aarect"], self.object_cache_id, rect_surfaces['rect_surface'])
 
-    # FIXME -> Replace temp variables with a dataclass
     def draw_rects(self):
         rect_surfaces = dict()
 
-        aa_pixel_width = self.aa_strength if self.antialiasing else 0
-
         # Outer rectangle
-        self.temp_fill = self.fill
-        self.temp_rect = self.rect
-        self.temp_border_radius = self.border_radius
-        self.temp_border_top_left_radius = self.border_top_left_radius
-        self.temp_border_top_right_radius = self.border_top_right_radius
-        self.temp_border_bottom_left_radius = self.border_bottom_left_radius
-        self.temp_border_bottom_right_radius = self.border_bottom_right_radius
-        self.temp_transparency = self.transparency
-        self.temp_antialiasing = self.antialiasing
-        self.temp_aa_strength = self.aa_strength
-        self.temp_inner_borders = False
-        self.temp_inner_aa = False
+        outer = _Pass(
+            fill=self.fill,
+            rect=self.rect,
 
-        self.border_radius_values = {'draw_border_top_left_radius': self.temp_border_top_left_radius, 'draw_border_top_right_radius': self.temp_border_top_right_radius,
-                                     'draw_border_bottom_left_radius': self.temp_border_bottom_left_radius, 'draw_border_bottom_right_radius': self.temp_border_bottom_right_radius}
+            border_radius=self.border_radius,
+            border_top_left_radius=self.border_top_left_radius,
+            border_top_right_radius=self.border_top_right_radius,
+            border_bottom_left_radius=self.border_bottom_left_radius,
+            border_bottom_right_radius=self.border_bottom_right_radius,
 
-        rect_surface = self.draw_rect()
+            transparency=self.transparency,
+            antialiasing=self.antialiasing,
+            aa_strength=self.aa_strength,
+        )
+
+        self.border_radius_values = {'draw_border_top_left_radius':outer.border_top_left_radius, 'draw_border_top_right_radius': outer.border_top_right_radius,
+                                     'draw_border_bottom_left_radius': outer.border_bottom_left_radius, 'draw_border_bottom_right_radius': outer.border_bottom_right_radius}
+
         # To unpack later and avoid problem with a non-uniform return of rects
-        rect_surfaces['rect_surface'] = rect_surface
+        rect_surfaces['rect_surface'] = self.draw_rect(outer)
 
         # To remove inner rectangle
         if self.width and not self.force_only_overlay:
-            self.temp_fill = self.fill
-            self.temp_rect = (self.rect[0], self.rect[1], self.rect[2] - self.width * 2 - aa_pixel_width * 2, self.rect[3] - self.width * 2 - aa_pixel_width * 2)
-            self.temp_border_radius = max(self.border_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_top_left_radius = max(self.border_top_left_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_top_right_radius = max(self.border_top_right_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_bottom_left_radius = max(self.border_bottom_left_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_bottom_right_radius = max(self.border_bottom_right_radius - self.width - aa_pixel_width, 0)
-            self.temp_transparency = self.transparency
-            self.temp_antialiasing = self.inner_antialiasing if self.inner_antialiasing else self.antialiasing
-            self.temp_aa_strength = self.inner_aa_strength
-            self.temp_inner_borders = True
-            self.temp_inner_aa = True
 
-            self.border_radius_values = {'draw_border_top_left_radius': self.temp_border_top_left_radius, 'draw_border_top_right_radius': self.temp_border_top_right_radius, 'draw_border_bottom_left_radius': self.temp_border_bottom_left_radius,
-                                         'draw_border_bottom_right_radius': self.temp_border_bottom_right_radius}
+            inner_remove = _Pass(
+                fill=self.fill,
 
-            remove_inner_rect_surface = self.draw_rect()
+                rect=(
+                    self.rect[0],
+                    self.rect[1],
+                    self.rect[2] - self.width * 2 - outer.aa_pixel_width * 2,
+                    self.rect[3] - self.width * 2 - outer.aa_pixel_width * 2,
+                ),
+
+                border_radius=max(self.border_radius - self.width - outer.aa_pixel_width, 0),
+                border_top_left_radius=max(self.border_top_left_radius - self.width - outer.aa_pixel_width, 0),
+                border_top_right_radius=max(self.border_top_right_radius - self.width - outer.aa_pixel_width, 0),
+                border_bottom_left_radius=max(self.border_bottom_left_radius - self.width - outer.aa_pixel_width, 0),
+                border_bottom_right_radius=max(self.border_bottom_right_radius - self.width - outer.aa_pixel_width, 0),
+
+                transparency=self.transparency,
+
+                antialiasing=self.inner_antialiasing if self.inner_antialiasing else self.antialiasing,
+                aa_strength=self.inner_aa_strength,
+
+                inner_borders=True,
+                inner_aa=True,
+            )
+
+            self.border_radius_values = {'draw_border_top_left_radius': inner_remove.border_top_left_radius, 'draw_border_top_right_radius': inner_remove.border_top_right_radius,
+                                         'draw_border_bottom_left_radius': inner_remove.border_bottom_left_radius,'draw_border_bottom_right_radius': inner_remove.border_bottom_right_radius}
+
             # To unpack later and avoid problem with a non-uniform return of rects
-            rect_surfaces['remove_inner_rect_surface'] = remove_inner_rect_surface
+            rect_surfaces['remove_inner_rect_surface'] = self.draw_rect(inner_remove)
 
         # Inner rectangle overlay if there is one
         if self.width and self.inner_fill:
-            self.temp_fill = self.inner_fill
-            self.temp_rect = (self.rect[0], self.rect[1], self.rect[2] - self.width * 2 - aa_pixel_width * 2, self.rect[3] - self.width * 2 - aa_pixel_width * 2)
-            self.temp_border_radius = max(self.border_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_top_left_radius = max(self.border_top_left_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_top_right_radius = max(self.border_top_right_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_bottom_left_radius = max(self.border_bottom_left_radius - self.width - aa_pixel_width, 0)
-            self.temp_border_bottom_right_radius = max(self.border_bottom_right_radius - self.width - aa_pixel_width, 0)
-            self.temp_transparency = self.inner_transparency
-            self.temp_antialiasing = self.inner_antialiasing if self.force_only_overlay else False # Not too sure why -> Looks better with transparency?
-            self.temp_aa_strength = self.inner_aa_strength
-            self.temp_inner_borders = True
-            self.temp_inner_aa = False
 
-            self.border_radius_values = {'draw_border_top_left_radius': self.temp_border_top_left_radius, 'draw_border_top_right_radius': self.temp_border_top_right_radius, 'draw_border_bottom_left_radius': self.temp_border_bottom_left_radius,
-                                         'draw_border_bottom_right_radius': self.temp_border_bottom_right_radius}
+            overlay = _Pass(
+                fill=self.fill,
 
-            overlay_rect_surface = self.draw_rect()
+                rect=(
+                    self.rect[0],
+                    self.rect[1],
+                    self.rect[2] - self.width * 2 - outer.aa_pixel_width * 2,
+                    self.rect[3] - self.width * 2 - outer.aa_pixel_width * 2,
+                ),
+
+                border_radius=max(self.border_radius - self.width - outer.aa_pixel_width, 0),
+                border_top_left_radius=max(self.border_top_left_radius - self.width - outer.aa_pixel_width, 0),
+                border_top_right_radius=max(self.border_top_right_radius - self.width - outer.aa_pixel_width, 0),
+                border_bottom_left_radius=max(self.border_bottom_left_radius - self.width - outer.aa_pixel_width, 0),
+                border_bottom_right_radius=max(self.border_bottom_right_radius - self.width - outer.aa_pixel_width, 0),
+
+                transparency=self.transparency,
+
+                antialiasing=self.inner_antialiasing if self.force_only_overlay else False,
+                aa_strength=self.inner_aa_strength,
+
+                inner_borders=True,
+                inner_aa=True,
+            )
+
+            self.border_radius_values = {'draw_border_top_left_radius': overlay.border_top_left_radius, 'draw_border_top_right_radius': overlay.border_top_right_radius,
+                                         'draw_border_bottom_left_radius': overlay.border_bottom_left_radius, 'draw_border_bottom_right_radius': overlay.border_bottom_right_radius}
+
             # To unpack later and avoid problem with a non-uniform return of rects
-            rect_surfaces['overlay_rect_surface'] = overlay_rect_surface
+            rect_surfaces['overlay_rect_surface'] = self.draw_rect(overlay)
 
         return rect_surfaces
 
-    def draw_rect(self):
-        aa_pixel_width = self.temp_aa_strength if self.temp_antialiasing else 0
-
+    def draw_rect(self, p: _Pass):
         # Exit if one of the rect values is 0 or less
-        if self.temp_rect[2] < 1 or self.temp_rect[3] < 1:
+        if p.rect[2] < 1 or p.rect[3] < 1:
             draw_rect_surface = pygame.Surface((0, 0))
             return draw_rect_surface
 
         # Reset/Create surface containing antialiasing
-        self.aa_surface = pygame.Surface((self.temp_rect[2], self.temp_rect[3]), pygame.SRCALPHA)
+        self.aa_surface = pygame.Surface((p.rect[2], p.rect[3]), pygame.SRCALPHA)
 
         # Create rect surface
-        draw_rect_surface = pygame.Surface((self.temp_rect[2], self.temp_rect[3]), pygame.SRCALPHA)
+        draw_rect_surface = pygame.Surface((p.rect[2], p.rect[3]), pygame.SRCALPHA)
 
-        if isinstance(self.temp_fill, pygame.Surface):
-            draw_rect_surface.blit(self.temp_fill, (0, 0))
+        if isinstance(p.fill, pygame.Surface):
+            draw_rect_surface.blit(p.fill, (0, 0))
         else:
-            draw_rect_surface.fill(self.temp_fill)
+            draw_rect_surface.fill(p.fill)
 
         # Set transparency
-        draw_rect_surface.set_alpha(self.temp_transparency)
+        draw_rect_surface.set_alpha(p.transparency)
 
         # Calls every corner in an efficient manner
         # aa_corners() called in func
-        self.get_corners()
+        self.get_corners(p)
 
         # Get aa sides
-        self.aa_sides()
+        self.aa_sides(p)
 
         draw_rect_surface.blit(self.aa_surface, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
 
         return draw_rect_surface
 
-    def get_corners(self):
-        aa_pixel_width = self.aa_strength if self.antialiasing else 0
+    def get_corners(self, p: _Pass):
         border_radius_values = self.border_radius_values.copy()
         dict_values_to_remove = []
 
@@ -334,7 +343,7 @@ class AARect:
             border_radius = list(border_radius_values.values())[0]
 
             if border_radius >= 0:
-                self.aa_corners(border_radius)
+                self.aa_corners(p, border_radius)
 
             # Delete done corners from corners to do
             for dict_key in dict_values_to_remove:
@@ -343,10 +352,9 @@ class AARect:
 
     # Returns pixels outside the circle / given radius
     # Calculates 1 corner and then mirrors it to return 4
-    def aa_corners(self, border_radius):
-        aa_pixel_width = self.temp_aa_strength if self.temp_antialiasing else 0
+    def aa_corners(self, p: _Pass, border_radius):
 
-        cache_id = (border_radius, aa_pixel_width, self.temp_antialiasing, self.temp_inner_aa)
+        cache_id = (border_radius, p.aa_pixel_width, p.antialiasing, p.inner_aa)
 
         if pgmenu.cache.lru_get(cache["aarect_corner"], cache_id) is None:
 
@@ -359,10 +367,10 @@ class AARect:
                     distance = math.sqrt((x - border_radius) ** 2 + (y - border_radius) ** 2)
                     pixel_distance = round(distance)
 
-                    if pixel_distance >= border_radius - aa_pixel_width:
-                        if self.temp_antialiasing and pixel_distance <= border_radius:
+                    if pixel_distance >= border_radius - p.aa_pixel_width:
+                        if p.antialiasing and pixel_distance <= border_radius:
                             # Alpha formula
-                            alpha = (border_radius - distance + 2) * (255 / (aa_pixel_width + 2))
+                            alpha = (border_radius - distance + 2) * (255 / (p.aa_pixel_width + 2))
 
                             # Limit alpha values to range 0-255
                             if alpha > 255:
@@ -384,7 +392,7 @@ class AARect:
 
                         # Gets rid of left-over alpha subtraction
                         # Inverts in a way inside rect antialiasing too
-                        if self.temp_inner_aa or alpha == 255:
+                        if p.inner_aa or alpha == 255:
                             color = (alpha, alpha, alpha, alpha)
                         else:
                             color = (0, 0, 0, alpha)
@@ -402,26 +410,25 @@ class AARect:
         if self.draw_border_top_right_radius:
             # Flip horizontally the surface to match top right corner
             top_right_aa_corners_surface = pygame.transform.flip(aa_corner_surface, True, False)
-            self.aa_surface.blit(top_right_aa_corners_surface, (self.temp_rect[2] - border_radius, 0))
+            self.aa_surface.blit(top_right_aa_corners_surface, (p.rect[2] - border_radius, 0))
         if self.draw_border_bottom_left_radius:
             # Flip vertically the surface to match bottom left corner
             bottom_left_aa_corners_surface = pygame.transform.flip(aa_corner_surface, False, True)
-            self.aa_surface.blit(bottom_left_aa_corners_surface, (0, self.temp_rect[3] - border_radius))
+            self.aa_surface.blit(bottom_left_aa_corners_surface, (0, p.rect[3] - border_radius))
         if self.draw_border_bottom_right_radius:
             # Flip horizontally and vertically the surface to match bottom right corner
             bottom_right_aa_corners_surface = pygame.transform.flip(aa_corner_surface, True, True)
-            self.aa_surface.blit(bottom_right_aa_corners_surface, (self.temp_rect[2] - border_radius, self.temp_rect[3] - border_radius))
+            self.aa_surface.blit(bottom_right_aa_corners_surface, (p.rect[2] - border_radius, p.rect[3] - border_radius))
 
         return self.aa_surface
 
     # Calculate antialiasing for the outside sides of the rect
-    def aa_sides(self):
-        aa_pixel_width = self.temp_aa_strength if self.temp_antialiasing else 0
+    def aa_sides(self, p: _Pass):
 
         # Looping through every antialiasing layer
-        for alpha_pos in range(1, aa_pixel_width + 1):
+        for alpha_pos in range(1, p.aa_pixel_width + 1):
             # Calculating alpha value
-            alpha = (alpha_pos + 1) * (255 / (aa_pixel_width + 2))
+            alpha = (alpha_pos + 1) * (255 / (p.aa_pixel_width + 2))
 
             # Blend alpha with black to compensate for passing by/using 3 surfaces instead of 1
             alpha = utils.only_alpha_blending(alpha, 0)
@@ -435,27 +442,27 @@ class AARect:
 
             # Gets rid of left-over alpha subtraction
             # Inverts in a way inside rect antialiasing too
-            if self.temp_inner_aa or alpha == 255:
+            if p.inner_aa or alpha == 255:
                 color = (alpha, alpha, alpha, alpha)
             else:
                 color = (0, 0, 0, alpha)
 
             # Creating vertical line of antialiasing on the left side
-            len_aa_side = self.temp_rect[3] - (self.temp_border_top_left_radius + self.temp_border_bottom_left_radius)
+            len_aa_side = p.rect[3] - (p.border_top_left_radius + p.border_bottom_left_radius)
             if len_aa_side > 0:
-                pygame.gfxdraw.line(self.aa_surface, alpha_pos - 1, self.temp_border_top_left_radius, alpha_pos - 1, self.temp_border_top_left_radius + len_aa_side, color)
+                pygame.gfxdraw.line(self.aa_surface, alpha_pos - 1, p.border_top_left_radius, alpha_pos - 1, p.border_top_left_radius + len_aa_side, color)
             # Creating vertical line of antialiasing on the right side
-            len_aa_side = self.temp_rect[3] - (self.temp_border_top_right_radius + self.temp_border_bottom_right_radius)
+            len_aa_side = p.rect[3] - (p.border_top_right_radius + p.border_bottom_right_radius)
             if len_aa_side > 0:
-                pygame.gfxdraw.line(self.aa_surface, self.temp_rect[2] - alpha_pos, self.temp_border_top_right_radius, self.temp_rect[2] - alpha_pos, self.temp_border_top_right_radius + len_aa_side, color)
+                pygame.gfxdraw.line(self.aa_surface, p.rect[2] - alpha_pos, p.border_top_right_radius, p.rect[2] - alpha_pos, p.border_top_right_radius + len_aa_side, color)
             # Creating vertical line of antialiasing on the top side
-            len_aa_side = self.temp_rect[2] - (self.temp_border_top_left_radius + self.temp_border_top_right_radius)
+            len_aa_side = p.rect[2] - (p.border_top_left_radius + p.border_top_right_radius)
             if len_aa_side > 0:
-                pygame.gfxdraw.line(self.aa_surface, self.temp_border_top_left_radius, alpha_pos - 1, self.temp_border_top_left_radius + len_aa_side, alpha_pos - 1, color)
+                pygame.gfxdraw.line(self.aa_surface, p.border_top_left_radius, alpha_pos - 1, p.border_top_left_radius + len_aa_side, alpha_pos - 1, color)
             # Creating vertical line of antialiasing on the bottom side
-            len_aa_side = self.temp_rect[2] - (self.temp_border_bottom_left_radius + self.temp_border_bottom_right_radius)
+            len_aa_side = p.rect[2] - (p.border_bottom_left_radius + p.border_bottom_right_radius)
             if len_aa_side > 0:
-                pygame.gfxdraw.line(self.aa_surface, self.temp_border_bottom_left_radius, self.temp_rect[3] - alpha_pos, self.temp_border_bottom_left_radius + len_aa_side, self.temp_rect[3] - alpha_pos, color)
+                pygame.gfxdraw.line(self.aa_surface, p.border_bottom_left_radius, p.rect[3] - alpha_pos, p.border_bottom_left_radius + len_aa_side, p.rect[3] - alpha_pos, color)
 
         return self.aa_surface
 

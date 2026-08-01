@@ -17,7 +17,7 @@ button.responsive_coords = pgmenu.STRETCH
 
 
 def loop():
-    pygame.display.set_caption(f"pgmenu {screen.get_size()}, {button.size.inttuple}, {button.coords.inttuple}")
+    pygame.display.set_caption(f"pgmenu {screen.get_size()}, {button.size.int_tuple}, {button.coords.int_tuple}")
     pgmenu.text.write(screen, (20, 20), str(round(window.clock.get_fps())))
 
 

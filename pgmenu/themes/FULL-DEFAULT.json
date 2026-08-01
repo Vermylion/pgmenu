@@ -63,10 +63,10 @@
     "widget_animation_curve": {"type": "function", "module": "pgmenu.animation", "function": "circ"},
     "widget_disable_animation": false,
 
-    "#": "RectWidget",
-    "rectwidget_antialiasing": true,
-    "rectwidget_transparency": 255,
-    "rectwidget_aa_strength": 1,
+    "#": "RectMixin",
+    "rectmixin_antialiasing": true,
+    "rectmixin_transparency": 255,
+    "rectmixin_aa_strength": 1,
 
     "#": "Label",
     "label_coords": [20, 20],
@@ -94,7 +94,7 @@
     "frame_fill": [47, 51, 54],
     "frame_width": 0,
     "frame_border_radius": null,
-    "#": "+RectWidget attrs",
+    "#": "+RectMixin attrs",
 
     "#": "Button",
     "button_coords": [20, 20],
@@ -106,7 +106,7 @@
     "button_margin": 3,
     "button_width": 0,
     "button_border_radius": null,
-    "#": "+RectWidget attrs",
+    "#": "+RectMixin attrs",
 
     "#": "Checkbox",
     "checkbox_fill": [63, 68, 72],

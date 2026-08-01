@@ -10,6 +10,9 @@ BACKWARD = "backward"
 IN = "in"
 OUT = "out"
 IN_OUT = "in_out"
+# Constants for Checkbox
+RIGHT = "right"
+LEFT = "left"
 # Widget types constants
 WIDGET = "widget"
 LABEL = "label"

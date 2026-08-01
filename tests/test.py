@@ -1,24 +1,43 @@
-from typing import Sequence
+import winreg
+from ctypes import (POINTER, Structure, byref, c_int, pointer, sizeof,
+                    windll, c_buffer, WINFUNCTYPE, c_uint64)
+from ctypes.wintypes import DWORD, ULONG
+import platform
 
 import pygame
-from pygame import Vector2, Color
+import pgmenu
+from pywinstyles import py_win_style
+import pywinstyles
+
 
 pygame.init()
 
+screen = pygame.display.set_mode((300, 300), pygame.RESIZABLE)
+pygame.display.set_caption("Window")
+clock = pygame.time.Clock()
+fps = 1000
 
-class CachedSurface(pygame.Surface):
+win = pygame.display.get_wm_info()["window"]
+hwnd = py_win_style.detect(win)
 
-    def __init__(self,
-                 surface,
-                 cache_id):
-        super().__init__(surface.get_size(), surface.get_flags())
+# py_win_style.paint(win)
+# windll.dwmapi.DwmSetWindowAttribute(hwnd, 20, byref(c_int(1)), sizeof(c_int))
+# py_win_style.ChangeDWMAttrib(hwnd, 20, c_int(1))
+# py_win_style.ChangeDWMAccent(hwnd, 30, 3, color=0x292929)
+# py_win_style.ExtendFrameIntoClientArea(hwnd)
 
-        self.blit(surface, (0, 0))
+pywinstyles.apply_style(win, "acrylic")
 
-        self.cache_id = cache_id
+running = True
+while running:
 
-surf1 = pygame.Surface((100, 100), pygame.SRCALPHA)
-surf = CachedSurface(surf1, "test")
-print(surf)
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            running = False
+            pygame.quit()
 
-print(type(surf))
+    pgmenu.draw_all()
+    pgmenu.update(events)
+    pygame.display.flip()
+    clock.tick(fps)
