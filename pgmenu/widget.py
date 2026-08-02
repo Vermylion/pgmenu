@@ -425,6 +425,10 @@ class RectMixin:
             if attr in ("antialiasing", "transparency", "aa_strength"):
                 default = getattr(pgmenu.Theme, f"rectmixin_{attr}")
 
+            # Set default for other rects to widget's general rect attributes
+            if prefix != "":
+                default = getattr(self, attr)
+
             setattr(self,
                     f"{prefix}{attr}",
                     resolve_widget(kwargs,f"{prefix}{attr}", self.type, default))

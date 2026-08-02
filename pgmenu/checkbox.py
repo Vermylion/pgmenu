@@ -47,8 +47,6 @@ class Checkbox(Widget, RectMixin, TextMixin):
         self.text_margin = resolve_kwarg(kwargs, "text_margin", pgmenu.Theme.checkbox_text_margin)
         self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.checkbox_text_side_margin, self.margin)
         # Checkmark (rect) kwargs attributes
-        # FIXME -> check_ attrs need to be defined -> Do them all here? In Theme?
-        #             -> I could do in theme, but some need to be based on their counterpart
         self._init_rect(kwargs, "check_")
         self.check_border_radius = resolve_kwarg(kwargs, "check_border_radius", pgmenu.Theme.checkbox_check_border_radius, self.border_radius - self.margin)
 
@@ -131,7 +129,7 @@ class Checkbox(Widget, RectMixin, TextMixin):
                                               inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
         if self.checked:
-            check_rect = (self.margin, self.margin, self.size.int_tuple[0] - self.margin*2, self.size.int_tuple[1] - self.margin*2)
+            check_rect = (self.margin.int, self.margin.int, self.size.int_tuple[0] - self.margin.int*2, self.size.int_tuple[1] - self.margin.int*2)
             pgmenu.draw.aarect(self.surface, self.check_fill, check_rect, self.check_width, self.check_border_radius,
                                self.check_border_top_left_radius, self.check_border_top_right_radius,
                                self.check_border_bottom_left_radius, self.check_border_bottom_right_radius,
@@ -184,6 +182,7 @@ class Checkbox(Widget, RectMixin, TextMixin):
         if not self.disable_animation:
             self.size.update(pgmenu.BACKWARD)
             self.fill.update(pgmenu.BACKWARD)
+            self.margin.update(pgmenu.BACKWARD)
             self._animation_update_border_radii(pgmenu.BACKWARD)
             self._animation_update_rect("check_", pgmenu.BACKWARD)
 
@@ -191,12 +190,14 @@ class Checkbox(Widget, RectMixin, TextMixin):
         if not self.disable_animation:
             self.size.update(pgmenu.FORWARD)
             self.fill.update(pgmenu.FORWARD)
+            self.margin.update(pgmenu.FORWARD)
             self._animation_update_border_radii(pgmenu.FORWARD)
             self._animation_update_rect("check_", pgmenu.FORWARD)
 
     def m_animation_on_hold(self):
         if not self.disable_animation:
             self.size.update(pgmenu.BACKWARD, 0.15)
+            self.margin.update(pgmenu.BACKWARD, 0.15)
             self._animation_update_border_radii(pgmenu.BACKWARD, 0.15)
             self._animation_update_rect("check_", pgmenu.BACKWARD, 0.15)
 
