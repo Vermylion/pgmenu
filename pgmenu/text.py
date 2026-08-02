@@ -156,6 +156,17 @@ def write(surface,
 
 # FIXME -> Can't be called rect since it doesn't accept coords -> Change name or change input to tuple[int, int, int, int]?
 
+# TODO -> Make fit_width and fit_height counterparts
+
+
+def fit_width():
+    ...
+
+
+def fit_height():
+    ...
+
+
 def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
              text: str = THEME,
              color: list | tuple = THEME,
@@ -236,6 +247,14 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
     return text_size
 
 
+def fit_width_render():
+    ...
+
+
+def fit_height_render():
+    ...
+
+
 def fit_render(dest_rect: list[int, int] | tuple[int, int] = THEME,
                text: str = THEME,
                color: list | tuple = THEME,
@@ -284,6 +303,14 @@ def fit_render(dest_rect: list[int, int] | tuple[int, int] = THEME,
     text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
 
     return text_surface.copy()
+
+
+def fit_width_render_animated():
+    ...
+
+
+def fit_height_render_animated():
+    ...
 
 
 def fit_render_animated(dest_rect: AnimateTuple[int, int] = THEME,
