@@ -141,7 +141,6 @@ class Checkbox(Widget, RectMixin, TextMixin):
 
         has_text = self.text is not None and self.text != ""
 
-        # FIXME -> text_margin doesn't position correctly
         if has_text:
             text_surface = pgmenu.text.fit_height_render(self.size.base_tuple[1], self.text, self.text_color, round(self.text_margin), self.text_font,
                                                          self.text_background, self.text_antialias, self.text_italic, self.text_bold,
