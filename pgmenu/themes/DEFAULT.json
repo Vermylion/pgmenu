@@ -126,7 +126,7 @@
     "checkbox_border_radius": null,
     "checkbox_checked": false,
     "checkbox_text_side": {"type": "variable", "module": "pgmenu", "variable": "RIGHT"},
-    "checkbox_text_margin": 0,
+    "checkbox_text_margin": 3,
     "checkbox_text_side_margin": null,
     "checkbox_check_border_radius": null,
     "#": "+RectMixin attrs",
