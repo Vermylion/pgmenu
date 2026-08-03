@@ -36,7 +36,7 @@ def fit_rects(dest_rect: tuple[int, int],
     for width, height in rects:
         aspect_ratio = width / height
         new_height = dest_height - 2 * margin  # Account for vertical margins
-        new_width = math.ceil(new_height * aspect_ratio)
+        new_width = math.floor(new_height * aspect_ratio)
         scaled_rects.append((new_width, new_height))
         total_width += new_width
 
@@ -45,7 +45,7 @@ def fit_rects(dest_rect: tuple[int, int],
     # If the total width exceeds the destination width, scale all rects down proportionally
     if total_width > dest_width:
         scale_factor = (dest_width - margin * (len(scaled_rects) + 1)) / (total_width - margin * (len(scaled_rects) + 1))
-        scaled_rects = [(math.ceil(width * scale_factor), math.ceil(height * scale_factor)) for width, height in scaled_rects]
+        scaled_rects = [(math.floor(width * scale_factor), math.floor(height * scale_factor)) for width, height in scaled_rects]
 
     # Place rects left to right
     positioned_rects = []
@@ -105,7 +105,7 @@ def center_rects(dest_rect: tuple[int, int, int, int],
     offset_y = centered_bounding_coords[1] - y_min
 
     # Shift all rects by the centered bounding offset
-    shifted_rects = [[rect[0] + offset_x, rect[1] + offset_y, *rect[2:]] for rect in rects]
+    shifted_rects = [(rect[0] + offset_x, rect[1] + offset_y, *rect[2:]) for rect in rects]
 
     # Unpack rects list if there is only 1 rect
     if len(shifted_rects) == 1:

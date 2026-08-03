@@ -51,8 +51,8 @@ label = pgmenu.label.Label(frame, (250, 150), color=color2, size=100, animation_
                            responsive_size=pgmenu.PROPORTIONAL)
 
 icon = pgmenu.draw.aarect(None, (255, 0, 0), (0, 0, 50, 50))
-button = pgmenu.button.Button(frame, (100, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3)
-checkbox = pgmenu.checkbox.Checkbox(frame, (50, 50))
+button = pgmenu.button.Button(frame, (300, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3, text_italic=False, text_bold=False)
+checkbox = pgmenu.checkbox.Checkbox(frame, (50, 50), text_side=pgmenu.RIGHT)
 
 
 go = False

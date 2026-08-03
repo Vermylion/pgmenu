@@ -6,7 +6,6 @@ from pgmenu.theme import resolve, resolve_kwarg
 from pgmenu.animation import *
 
 
-# TODO -> Switch Checkbox to a Button child?
 class Checkbox(Widget, RectMixin, TextMixin):
 
     def __init__(self,
@@ -45,10 +44,10 @@ class Checkbox(Widget, RectMixin, TextMixin):
         # Kwargs attributes
         self.text_side = resolve_kwarg(kwargs, "text_side", pgmenu.Theme.checkbox_text_side)
         self.text_margin = resolve_kwarg(kwargs, "text_margin", pgmenu.Theme.checkbox_text_margin)
-        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.checkbox_text_side_margin, self.margin)
+        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.checkbox_text_side_margin, self.margin.base_value)
         # Checkmark (rect) kwargs attributes
         self._init_rect(kwargs, "check_")
-        self.check_border_radius = resolve_kwarg(kwargs, "check_border_radius", pgmenu.Theme.checkbox_check_border_radius, self.border_radius - self.margin)
+        self.check_border_radius = resolve_kwarg(kwargs, "check_border_radius", pgmenu.Theme.checkbox_check_border_radius, self.border_radius.base_value - self.margin.base_value)
 
         pgmenu.widget.add(self)
 
@@ -117,11 +116,14 @@ class Checkbox(Widget, RectMixin, TextMixin):
     def draw(self):
         super().draw()
 
-        coords = pgmenu.position.center_coords(self.size.int_tuple, (*self.coords.int_tuple, *self.size.base_tuple))
+        # The largest extent the checkbox will ever reach across its animation, regardless of whether hover grows or shrinks it.
+        # This is the stable "slot" size the checkbox is centered within, so growth/shrink never shifts the text.
+        max_w = max(self.size.base_tuple[0], self.size.final_tuple[0])
+        max_h = max(self.size.base_tuple[1], self.size.final_tuple[1])
 
         full_rect = (0, 0, *self.size.int_tuple)
 
-        self.surface = pgmenu.draw.aarect(None, self.fill, full_rect, self.width, self.border_radius,
+        checkbox_surface = pgmenu.draw.aarect(None, self.fill, full_rect, self.width, self.border_radius,
                                               self.border_top_left_radius, self.border_top_right_radius,
                                               self.border_bottom_left_radius, self.border_bottom_right_radius,
                                               self.antialiasing, self.transparency, self.aa_strength,
@@ -130,23 +132,46 @@ class Checkbox(Widget, RectMixin, TextMixin):
 
         if self.checked:
             check_rect = (self.margin.int, self.margin.int, self.size.int_tuple[0] - self.margin.int*2, self.size.int_tuple[1] - self.margin.int*2)
-            pgmenu.draw.aarect(self.surface, self.check_fill, check_rect, self.check_width, self.check_border_radius,
+            pgmenu.draw.aarect(checkbox_surface, self.check_fill, check_rect, self.check_width, self.check_border_radius,
                                self.check_border_top_left_radius, self.check_border_top_right_radius,
                                self.check_border_bottom_left_radius, self.check_border_bottom_right_radius,
                                self.check_antialiasing, self.check_transparency, self.check_aa_strength,
                                inner_fill=self.check_inner_fill, inner_transparency=self.check_inner_transparency,
                                inner_aa_strength=self.check_inner_aa_strength, inner_antialiasing=self.check_inner_antialiasing)
 
-        # TODO -> Add text: find a way to get the right size without fitting it to a restrictive rect
-        # TODO -> Create self.surface -> Should it incorporate text or not -> self.rect linked to self.surface
-        #           -> If text part of it, then should the hover grow animation also apply?
-        #           -> What about cursor?
-        # if self.text is not None and self.text != "":
-        # text_surface, text_rect = pgmenu.text.fit_render_animated(self.size, self.text, self.text_color, round(self.text_margin), self.text_font,
-        #                                                           self.text_background, self.text_antialias, self.text_italic, self.text_bold,
-        #                                                           self.text_strikethrough, self.text_underline, self.text_transparency)
+        has_text = self.text is not None and self.text != ""
 
-        self.master.blit(self.surface, coords)
+        if has_text:
+            text_surface = pgmenu.text.fit_height_render(self.size.base_tuple[1], self.text, self.text_color, round(self.text_margin), self.text_font,
+                                                         self.text_background, self.text_antialias, self.text_italic, self.text_bold,
+                                                         self.text_strikethrough, self.text_underline, self.text_transparency)
+            text_surf_size = text_surface.get_size()
+            side_margin = self.text_side_margin
+        else:
+            text_surface = None
+            text_surf_size = (0, 0)
+            side_margin = 0
+
+        # Combined surface sized off the MAX checkbox extent, plus text
+        # (if any), so it's constant across the hover animation either way.
+        surface_size = (max_w + side_margin + text_surf_size[0], max_h)
+        self.surface = pgmenu.surface.cached_surface(surface_size, pygame.SRCALPHA)
+
+        if has_text and self.text_side == pgmenu.LEFT:
+            text_x = 0
+            checkbox_x = text_surf_size[0] + side_margin
+        else:  # pgmenu.RIGHT (default), or no text at all
+            checkbox_x = 0
+            text_x = max_w + side_margin
+
+        checkbox_pos = pgmenu.position.center_coords(checkbox_surface.get_size(), (checkbox_x, 0, max_w, max_h))
+        self.surface.blit(checkbox_surface, checkbox_pos)
+
+        if has_text:
+            text_pos = pgmenu.position.center_coords(text_surf_size, (text_x, self.text_margin, text_x + text_surf_size[0], max_h), center_x=False)
+            self.surface.blit(text_surface, text_pos)
+
+        self.master.blit(self.surface, self.coords.int_tuple)
 
     def update(self, event):
         super().update(event)
@@ -172,6 +197,7 @@ class Checkbox(Widget, RectMixin, TextMixin):
                 self.on_hold()
                 self.animation_on_hold()
 
+    # FIXME -> Maybe resize margin? -> Gets too big at small sizes from responsive resize
     def resize(self, w, h):
         self._resize_border_radii(w, h)
         self._resize_rect("check_", w, h)

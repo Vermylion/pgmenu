@@ -9,6 +9,10 @@ pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
 fps = 1000
 
+
+text_surf = pgmenu.text.render("Button", (255, 255, 255), 19, bold=True)
+print(text_surf.get_size())
+
 # label = pgmenu.label.Label(screen, (80, 70), "Button", (255, 255, 255), 22, center_x=True, center_y=True)
 text_base = pgmenu.text.render("Button", (255, 255, 255), 22)
 text_w, text_h = text_base.get_size()

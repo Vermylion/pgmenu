@@ -32,6 +32,11 @@
     "text_center_y": false,
     "text_coords": [20, 20],
     "text_dest_rect": [100, 30],
+    "text_max_dest_rect": [120, 36],
+    "text_dest_width": 100,
+    "text_max_dest_width": 120,
+    "text_dest_height": 30,
+    "text_max_dest_height": 36,
 
     "#": "AARect in Draw",
     "aarect_fill": [255, 255, 255],
