@@ -478,7 +478,7 @@ class RectMixin:
             value = getattr(self, base_attr)
 
             if value is not None:
-                setattr(self, current_attr, round(value * factor))
+                setattr(self, current_attr, int(value * factor))
 
     def _animation_update_border_radii(self, direction=pgmenu.FORWARD, reach=1):
         self._animation_update_rect("", direction, reach)
