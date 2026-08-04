@@ -368,7 +368,6 @@ class Widget:
 # Only fully dynamic Mixin
 # FIXME -> Should all Mixins be fully dynamic?
 # TODO -> Review/revamp code as it was mostly AI written
-# FIXME -> For now, border_radius has to be set manually
 # FIXME -> Make it work better; less hassle and simpler
 class RectMixin:
 
