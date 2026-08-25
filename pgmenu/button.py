@@ -127,6 +127,9 @@ class Button(Widget, RectMixin, TextMixin):
     def resize(self, w, h):
         self._resize_border_radii(w, h)
 
+        factor = min(w / self.base_size[0], h / self.base_size[1])
+        self.margin = int(self.margin * factor)
+
         self.size = w, h
 
     def m_animation_on_standby(self):

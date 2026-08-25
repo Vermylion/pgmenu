@@ -260,7 +260,6 @@ class Widget:
 # Only fully dynamic Mixin
 # FIXME -> Should all Mixins be fully dynamic?
 # TODO -> Review/revamp code as it was mostly AI written
-# FIXME -> For now, border_radius has to be set manually
 # FIXME -> Make it work better; less hassle and simpler
 class RectMixin:
 
@@ -353,7 +352,7 @@ class RectMixin:
             value = getattr(self, base_attr)
 
             if value is not None:
-                setattr(self, current_attr, round(value * factor))
+                setattr(self, current_attr, int(value * factor))
 
     def _animation_update_border_radii(self, direction=pgmenu.FORWARD, reach=1):
         self._animation_update_rect("", direction, reach)

@@ -155,10 +155,13 @@ class Checkbox(Widget, RectMixin, TextMixin):
                 self.on_hold()
                 self.animation_on_hold()
 
-    # FIXME -> Maybe resize margin? -> Gets too big at small sizes from responsive resize
     def resize(self, w, h):
         self._resize_border_radii(w, h)
         self._resize_rect("check_", w, h)
+        
+        # Change margin size dynamically
+        factor = min(w / self.base_size[0], h / self.base_size[1])
+        self.margin = int(self.margin * factor)
 
         self.size = w, h
 
