@@ -118,8 +118,7 @@ Module-level mutable state. See [9.6](09-menus-and-utilities.md#96-pgmenuvars) f
 
 ### `AnimateType`
 
-Abstract base. Properties `value`, `base_value`, `final_value`; accessors `get_value`,
-`get_base_value`, `get_final_value`; methods `init()`, `reset()`,
+Abstract base. Properties `value`, `base_value`, `final_value`; methods `init()`, `reset()`,
 `update(direction=FORWARD, reach=1)`.
 
 ### `Animate(base_num, final_num, duration=THEME, curve=THEME, precision=THEME)`
@@ -137,7 +136,6 @@ Abstract base. Properties `value`, `base_value`, `final_value`; accessors `get_v
 | `last_step` | attr | Step at the moment of the last forward-to-backward switch |
 | `direction`, `reach`, `curve_direction`, `done` | attr | Current run state |
 | `value`, `int`, `float`, `base_value`, `final_value` | property | Value views |
-| `get_*` | method | Accessor for every attribute and property above |
 | `__int__`, `__float__`, `__round__`, `__index__`, `__repr__` | dunder | Numeric conversions |
 | `__eq__`, `__lt__` plus `total_ordering` | dunder | Comparisons against numbers or other animations |
 | `__add__`/`__radd__`, `__sub__`/`__rsub__`, `__mul__`/`__rmul__`, `__truediv__`/`__rtruediv__`, `__floordiv__`/`__rfloordiv__`, `__mod__`/`__rmod__` | dunder | Arithmetic returning plain numbers |
@@ -154,7 +152,6 @@ Abstract base. Properties `value`, `base_value`, `final_value`; accessors `get_v
 | `base_tuple`, `final_tuple`, `int_tuple`, `float_tuple` | attr | Derived tuples kept in sync by `update` |
 | `duration`, `curve`, `precision` | attr | Construction parameters |
 | `value`, `tuple`, `base_value`, `final_value` | property | Value views |
-| `get_*` | method | Accessor for each of the above |
 | `__len__`, `__iter__`, `__getitem__`, `__repr__`, `__hash__` | dunder | Tuple protocol |
 | `__add__`, `__radd__` | dunder | Concatenation with plain tuples |
 | `__eq__`, `__lt__` plus `total_ordering` | dunder | Comparisons |
@@ -171,7 +168,6 @@ Subclass of `pygame.Surface` and `AnimateType`.
 | `duration`, `curve`, `precision` | attr | Construction parameters |
 | `animation_alpha` | attr | The `Animate` driving the blend |
 | `value`, `surface`, `base_value`, `final_value` | property | `self`, `self`, base, final |
-| `get_*` | method | Accessor for each of the above |
 | `__repr__`, `__hash__` | dunder | |
 | `init()`, `reset()`, `update(direction=FORWARD, reach=1)` | method | Recomposites its own pixels |
 
@@ -181,7 +177,6 @@ Subclass of `pygame.Surface` and `AnimateType`.
 | --- | --- | --- |
 | `animations` | attr | `{id: animation}` |
 | `value`, `base_value`, `final_value` | property | Lists of member values |
-| `get_value`, `get_base_value`, `get_final_value`, `get_animations` | method | Accessors |
 | `modify(*animations)` | method | Add or replace members |
 | `reset()`, `update(direction=FORWARD, reach=1)` | method | Applied to every member |
 
@@ -204,17 +199,6 @@ insertion rule.
 `responsive_size`, `responsive_size_w`, `responsive_size_h`, `responsive_coords`,
 `responsive_coords_x`, `responsive_coords_y`, `state`, `rect`, `size`, `coords`, `surface`,
 `surface_size`, `base_size`, `base_coords`, `has_draw_priority`, `_drawn`.
-
-**Accessors**: `get_type`, `get_animation_scale`, `get_animation_duration`,
-`get_animation_curve`, `get_disable_animation`, `get_animation_on_standby`,
-`get_animation_on_hover`, `get_animation_on_press`, `get_animation_on_hold`,
-`get_animation_on_release`, `get_animation_on_key_press`, `get_animation_on_key_hold`,
-`get_animation_on_key_release`, `get_on_standby`, `get_on_hover`, `get_on_press`,
-`get_on_hold`, `get_on_release`, `get_on_key_press`, `get_on_key_hold`, `get_on_key_release`,
-`get_on_resize`, `get_responsive_size`, `get_responsive_size_w`, `get_responsive_size_h`,
-`get_responsive_coords`, `get_responsive_coords_x`, `get_responsive_coords_y`, `get_state`,
-`get_rect`, `get_size`, `get_coords`, `get_surface_size`, `get_base_size`, `get_base_coords`,
-`get_has_draw_priority`.
 
 **Methods**
 
@@ -243,15 +227,7 @@ insertion rule.
 **Attributes**: `border_radius`, `border_top_left_radius`, `border_top_right_radius`,
 `border_bottom_left_radius`, `border_bottom_right_radius`, `base_border_radius` and the four
 `base_border_*_radius`, `antialiasing`, `transparency`, `aa_strength`, `inner_fill`,
-`inner_transparency`, `inner_aa_strength`, `inner_antialiasing`.
-
-**Accessors**: `get_border_radius`, `get_border_top_left_radius`,
-`get_border_top_right_radius`, `get_border_bottom_left_radius`,
-`get_border_bottom_right_radius`, `get_base_border_radius`, `get_base_border_top_left_radius`,
-`get_base_border_top_right_radius`, `get_base_border_bottom_left_radius`,
-`get_base_border_bottom_right_radius`, `get_antialiasing`, `get_transparency`,
-`get_aa_strength`, `get_inner_fill`, `get_inner_transparency`, `get_inner_aa_strength`,
-`get_inner_antialiasing`.
+`inner_transparency`, `inner_aa_strength`, `inner_antialiasing`. .
 
 **Methods**
 
@@ -267,9 +243,6 @@ insertion rule.
 **Attributes**: `text_font`, `text_background`, `text_antialias`, `text_italic`, `text_bold`,
 `text_strikethrough`, `text_underline`, `text_transparency`, all defaulting to `UNSET`.
 
-**Accessors**: `get_text_font`, `get_text_background`, `get_text_antialias`, `get_text_italic`,
-`get_text_bold`, `get_text_strikethrough`, `get_text_underline`, `get_text_transparency`.
-
 **Methods**: `_mixin_init(**kwargs)`.
 
 ---
@@ -282,10 +255,6 @@ Label(master, coords=THEME, text=THEME, color=THEME, size=THEME, font=THEME,
       strikethrough=THEME, underline=THEME, transparency=THEME,
       center_x=THEME, center_y=THEME, **kwargs)
 ```
-
-**Accessors**: `get_master`, `get_text`, `get_color`, `get_font`, `get_background`,
-`get_antialias`, `get_italic`, `get_bold`, `get_strikethrough`, `get_underline`,
-`get_transparency`, `get_center_x`, `get_center_y`.
 
 **Methods**: `draw()`, `resize(w, h)` (sets `size = h`).
 
@@ -325,8 +294,6 @@ Inherits `Widget` and `RectMixin`.
 **Attributes**: `master`, `coords`, `size`, `fill`, `width`, `border_radius`, `widgets`,
 `_widgets_to_blit`.
 
-**Accessors**: `get_master`, `get_fill`, `get_width`, `get_border_radius`, `get_widgets`.
-
 **Methods**: `add(*widgets)`, `remove(*widgets)`, `blit(surface, coords)`, `draw()`,
 `resize(w, h)`.
 
@@ -340,9 +307,6 @@ Button(master, coords=THEME, size=THEME, fill=THEME, text=THEME, text_color=THEM
 ```
 
 Inherits `Widget`, `RectMixin` and `TextMixin`.
-
-**Accessors**: `get_master`, `get_coords`, `get_size`, `get_fill`, `get_text`,
-`get_text_color`, `get_icon`, `get_margin`, `get_width`, `get_border_radius`.
 
 **Methods**: `draw()`, `update(event)`, `resize(w, h)`, `m_animation_on_standby()`,
 `m_animation_on_hover()`, `m_animation_on_hold()`, `m_on_release()`, `request_cursor()`.
@@ -360,9 +324,6 @@ Checkbox(master, coords=THEME, size=THEME, fill=THEME, text=THEME, text_color=TH
 **Extra attributes**: `check_antialiasing`, `check_transparency`, `check_aa_strength`,
 `check_inner_fill`, `check_inner_transparency`, `check_inner_aa_strength`,
 `check_inner_antialiasing`.
-
-**Accessors**: `get_master`, `get_coords`, `get_size`, `get_fill`, `get_text`,
-`get_text_color`, `get_check_fill`, `get_margin`, `get_width`, `get_border_radius`.
 
 **Methods**: `_format_size(size)` (implemented), `resize(w, h)` (implemented),
 `request_cursor()` (implemented), `is_checked()`, `check()`, `uncheck()`, `toggle()`,
@@ -466,7 +427,6 @@ resolution.
 | Name | Signature | Description |
 | --- | --- | --- |
 | `Menu` | `(*widgets, **kwargs)` | Widget group |
-| `Menu.get_widgets` | `(self)` | Accessor |
 | `Menu.modify` | `(self, **kwargs)` | Set on the menu and on every member |
 | `Menu.add` | `(self, *widgets)` | Append members |
 | `Menu.remove` | `(self, *widgets)` | Remove members |

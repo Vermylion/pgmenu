@@ -166,7 +166,7 @@ class Checkbox(Widget, RectMixin, TextMixin):
         self.size = w, h
 
     def m_animation_on_standby(self):
-        if not self.disable_animation:
+        if not self.disable_default_animation:
             self.size.update(pgmenu.BACKWARD)
             self.fill.update(pgmenu.BACKWARD)
             self.margin.update(pgmenu.BACKWARD)
@@ -174,7 +174,7 @@ class Checkbox(Widget, RectMixin, TextMixin):
             self._animation_update_rect("check_", pgmenu.BACKWARD)
 
     def m_animation_on_hover(self):
-        if not self.disable_animation:
+        if not self.disable_default_animation:
             self.size.update(pgmenu.FORWARD)
             self.fill.update(pgmenu.FORWARD)
             self.margin.update(pgmenu.FORWARD)
@@ -182,7 +182,7 @@ class Checkbox(Widget, RectMixin, TextMixin):
             self._animation_update_rect("check_", pgmenu.FORWARD)
 
     def m_animation_on_hold(self):
-        if not self.disable_animation:
+        if not self.disable_default_animation:
             self.size.update(pgmenu.BACKWARD, 0.15)
             self.margin.update(pgmenu.BACKWARD, 0.15)
             self._animation_update_border_radii(pgmenu.BACKWARD, 0.15)

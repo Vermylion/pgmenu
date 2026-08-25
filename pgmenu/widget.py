@@ -9,20 +9,30 @@ from pgmenu.theme import resolve, resolve_kwarg, resolve_widget
 # Adds widget to the system and update loop
 def add(widget):
     # Sets Frame objects at the end of the draw order so other surfaces have time to blit on to them
-    def frame_handling():
+    def insert_before_frames():
         for i in range(len(pgmenu.vars.widgets_draw_order)):
             if pgmenu.vars.widgets_draw_order[i].type == pgmenu.FRAME:
                 pgmenu.vars.widgets_draw_order.insert(i, widget)
                 return
-
         pgmenu.vars.widgets_draw_order.append(widget)
 
     if widget.type == pgmenu.FRAME:
-        frame_handling()
-    else:
+        # Frames always go at the true end, so multiple frames keep their original (e.g. nesting) order relative to each other
         pgmenu.vars.widgets_draw_order.append(widget)
+    else:
+        # Regular widgets must be inserted before any existing Frame, otherwise they'd draw after it and the Frame couldn't have them blitted onto it yet
+        insert_before_frames()
 
     pgmenu.vars.widgets.append(widget)
+
+def remove(widget):
+    pgmenu.vars.widgets_draw_order.remove(widget)
+    pgmenu.vars.widgets.remove(widget)
+
+
+def remove_all():
+    pgmenu.vars.widgets_draw_order.clear()
+    pgmenu.vars.widgets.clear()
 
 
 # TODO -> Add .place() method referencing position.py in here? Or .grid()?
@@ -40,7 +50,7 @@ class Widget:
         self.animation_duration = resolve_widget(kwargs, 'animation_duration', self.type, pgmenu.Theme.widget_animation_duration)
         self.animation_curve = resolve_widget(kwargs, 'animation_curve', self.type, pgmenu.Theme.widget_animation_curve)
         # Disable animation
-        self.disable_animation = resolve_widget(kwargs, 'disable_animation', self.type, pgmenu.Theme.widget_disable_animation)
+        self.disable_default_animation = resolve_widget(kwargs, 'disable_default_animation', self.type, pgmenu.Theme.widget_disable_default_animation)
         # No need to define attr in DEFAULT theme, as an absence of theme attr goes to default in resolve_widget
         self.animation_on_standby = resolve_widget(kwargs, 'animation_on_standby', self.type, self.m_animation_on_standby)
         self.animation_on_hover = resolve_widget(kwargs, 'animation_on_hover', self.type, self.m_animation_on_hover)

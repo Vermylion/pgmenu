@@ -46,5 +46,5 @@ def lru_set(cache, key, value):
 
 
 def clear_cache():
-    for cache_var in pgmenu.vars.cache:
-        getattr(pgmenu.vars, cache_var).clear()
+    for cache_dict in pgmenu.vars.cache.values():
+        cache_dict.clear()

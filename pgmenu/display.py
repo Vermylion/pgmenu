@@ -1,8 +1,12 @@
 import pygame
 import pgmenu
 
-import ctypes
-from ctypes import wintypes
+import sys
+
+# OS protected import of windows only libraries
+if sys.platform == "win32":
+    import ctypes
+    from ctypes import wintypes
 
 
 # Functions that allow for more extensive or easier manipulation of the window
@@ -42,6 +46,9 @@ def fullscreen_controls(screen, event):
 
 # Function allowing for a transparent window
 def set_transparent_window(transparency):
+    if sys.platform != "win32":
+        raise OSError("set_transparent_window only works on Windows")
+
     # Constants for Windows API
     GWL_EXSTYLE = -20
     WS_EX_LAYERED = 0x80000
@@ -64,6 +71,9 @@ def set_transparent_window(transparency):
 
 # Works the same as transparent_window, but instead makes a colorkey transparent
 def set_transparent_colorkey(colorkey):
+    if sys.platform != "win32":
+        raise OSError("set_transparent_colorkey only works on Windows")
+
     # Constants for Windows API
     GWL_EXSTYLE = -20
     WS_EX_LAYERED = 0x80000

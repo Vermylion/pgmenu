@@ -6,12 +6,12 @@ widgets = []
 # Finer control over functions that need widgets
 widgets_draw_order = []
 # Widget types
-widget_types = ["label",
+widget_types = ("label",
                 "surface",
                 "frame",
                 "button",
                 "checkbox",
-                "radiobutton"]
+                "radiobutton")
 # Global cache
 cache = {
     "aarect": Cache(),

@@ -52,7 +52,7 @@ class Frame(Widget, RectMixin):
         self.surface = pgmenu.draw.aarect(None, self.fill, (0, 0, *self.size.int_tuple), self.width, self.border_radius,
                            self.border_top_left_radius, self.border_top_right_radius, self.border_bottom_left_radius, self.border_bottom_right_radius,
                            self.antialiasing, self.transparency, self.aa_strength, inner_fill=self.inner_fill,
-                           inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing, debug=True)
+                           inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
         for surface, coords in self._widgets_to_blit.items():
             self.surface.blit(surface, coords)

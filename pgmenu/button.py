@@ -133,24 +133,21 @@ class Button(Widget, RectMixin, TextMixin):
         self.size = w, h
 
     def m_animation_on_standby(self):
-        if not self.disable_animation:
+        if not self.disable_default_animation:
             self.size.update(pgmenu.BACKWARD)
             self.fill.update(pgmenu.BACKWARD)
             self._animation_update_border_radii(pgmenu.BACKWARD)
 
     def m_animation_on_hover(self):
-        if not self.disable_animation:
+        if not self.disable_default_animation:
             self.size.update(pgmenu.FORWARD)
             self.fill.update(pgmenu.FORWARD)
             self._animation_update_border_radii(pgmenu.FORWARD)
 
     def m_animation_on_hold(self):
-        if not self.disable_animation:
+        if not self.disable_default_animation:
             self.size.update(pgmenu.BACKWARD, 0.15)
             self._animation_update_border_radii(pgmenu.BACKWARD, 0.15)
-
-    def m_on_release(self):
-        print('Button pressed')
 
     def request_cursor(self):
         pgmenu.vars.widget_cursor = pygame.SYSTEM_CURSOR_HAND

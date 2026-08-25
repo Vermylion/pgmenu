@@ -67,7 +67,7 @@
     "widget_animation_scale": 1.2,
     "widget_animation_duration": 0.15,
     "widget_animation_curve": {"type": "function", "module": "pgmenu.animation", "function": "circ"},
-    "widget_disable_animation": false,
+    "widget_disable_default_animation": false,
 
     "#": "RectMixin",
     "rectmixin_antialiasing": true,

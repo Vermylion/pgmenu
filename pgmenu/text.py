@@ -11,7 +11,7 @@ from pgmenu.theme import resolve
 
 def match_font(font, italic=False, bold=False):
     # Remove file extention in case since match_font only takes in names
-    font_name = os.path.splitext(font)
+    font_name = os.path.splitext(font)[0]
 
     font_path = pygame.font.match_font(font_name, italic=italic, bold=bold)
 

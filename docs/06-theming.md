@@ -264,11 +264,6 @@ Old entries age out through the LRU.
 **`DEFAULT.json`** is the reference theme and the one loaded at import. It defines every key
 the library reads.
 
-**`FULL-DEFAULT.json`** is a near-identical copy, intended as the pristine backup of the full
-key set. It is missing `animation_precision`, which `Animate`, `AnimateTuple` and
-`AnimateSurface` all read; loading it as the only theme raises `AttributeError`. Treat it as
-a reference document, not a runnable theme, until that key is restored.
-
 **`MODERN.json`** is experimental. Its keys (`size`, `border_radius`, `fill`, `outline_fill`,
 `margin`, ...) do not carry a module or widget prefix, so nothing in the library reads them;
 they are simply attached to the theme object. Its `image` paths are also relative

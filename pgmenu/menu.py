@@ -4,12 +4,11 @@ import pgmenu
 class Menu:
 
     def __init__(self,
-                 *widgets,
-                 **kwargs):
+                 *widgets):
 
         self.widgets = list(widgets)
 
-        super().__init__(**kwargs)
+        super().__init__()
 
     def get_widgets(self):
         return self.widgets
