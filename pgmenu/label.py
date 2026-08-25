@@ -51,45 +51,6 @@ class Label(Widget):
         # Add widget to widget list
         pgmenu.widget.add(self)
 
-    def get_master(self):
-        return self.master
-
-    def get_text(self):
-        return self.text
-
-    def get_color(self):
-        return self.color
-
-    def get_font(self):
-        return self.font
-
-    def get_background(self):
-        return self.background
-
-    def get_antialias(self):
-        return self.antialias
-
-    def get_italic(self):
-        return self.italic
-
-    def get_bold(self):
-        return self.bold
-
-    def get_strikethrough(self):
-        return self.strikethrough
-
-    def get_underline(self):
-        return self.underline
-
-    def get_transparency(self):
-        return self.transparency
-
-    def get_center_x(self):
-        return self.center_x
-
-    def get_center_y(self):
-        return self.center_y
-
     def draw(self):
         super().draw()
 

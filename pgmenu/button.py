@@ -52,36 +52,6 @@ class Button(Widget, RectMixin, TextMixin):
 
         pgmenu.widget.add(self)
 
-    def get_master(self):
-        return self.master
-
-    def get_coords(self):
-        return self.coords
-
-    def get_size(self):
-        return self.size
-
-    def get_fill(self):
-        return self.fill
-
-    def get_text(self):
-        return self.text
-
-    def get_text_color(self):
-        return self.text_color
-
-    def get_icon(self):
-        return self.icon
-
-    def get_margin(self):
-        return self.margin
-
-    def get_width(self):
-        return self.width
-
-    def get_border_radius(self):
-        return self.border_radius
-
     def draw(self):
         super().draw()
 

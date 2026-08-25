@@ -62,48 +62,6 @@ class Checkbox(Widget, RectMixin, TextMixin):
 
         return size
 
-    def get_master(self):
-        return self.master
-
-    def get_coords(self):
-        return self.coords
-
-    def get_size(self):
-        return self.size
-
-    def get_fill(self):
-        return self.fill
-
-    def get_text(self):
-        return self.text
-
-    def get_text_color(self):
-        return self.text_color
-
-    def get_check_fill(self):
-        return self.check_fill
-
-    def get_margin(self):
-        return self.margin
-
-    def get_width(self):
-        return self.width
-
-    def get_border_radius(self):
-        return self.border_radius
-
-    def get_checked(self):
-        return self.checked
-
-    def is_checked(self):
-        return self.checked
-
-    def get_text_side(self):
-        return self.text_side
-
-    def get_text_margin(self):
-        return self.text_margin
-
     def check(self):
         self.checked = True
 

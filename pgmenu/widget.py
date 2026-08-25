@@ -88,114 +88,6 @@ class Widget:
         # Save widget's drawn state
         self._drawn = False
 
-    def get_type(self):
-        return self.type
-
-    def get_animation_scale(self):
-        return self.animation_scale
-
-    def get_animation_duration(self):
-        return self.animation_duration
-
-    def get_animation_curve(self):
-        return self.animation_curve
-
-    def get_disable_animation(self):
-        return self.disable_animation
-
-    def get_animation_on_standby(self):
-        return self.animation_on_standby
-
-    def get_animation_on_hover(self):
-        return self.animation_on_hover
-
-    def get_animation_on_press(self):
-        return self.animation_on_press
-
-    def get_animation_on_hold(self):
-        return self.animation_on_hold
-
-    def get_animation_on_release(self):
-        return self.animation_on_release
-
-    def get_animation_on_key_press(self):
-        return self.animation_on_key_press
-
-    def get_animation_on_key_hold(self):
-        return self.animation_on_key_hold
-
-    def get_animation_on_key_release(self):
-        return self.animation_on_key_release
-
-    def get_on_standby(self):
-        return self.on_standby
-
-    def get_on_hover(self):
-        return self.on_hover
-
-    def get_on_press(self):
-        return self.on_press
-
-    def get_on_hold(self):
-        return self.on_hold
-
-    def get_on_release(self):
-        return self.on_release
-
-    def get_on_key_press(self):
-        return self.on_key_press
-
-    def get_on_key_hold(self):
-        return self.on_key_hold
-
-    def get_on_key_release(self):
-        return self.on_key_release
-
-    def get_on_resize(self):
-        return self.on_resize
-
-    def get_responsive_size(self):
-        return self.responsive_size
-
-    def get_responsive_size_w(self):
-        return self.responsive_size_w
-
-    def get_responsive_size_h(self):
-        return self.responsive_size_h
-
-    def get_responsive_coords(self):
-        return self.responsive_coords
-
-    def get_responsive_coords_x(self):
-        return self.responsive_coords_x
-
-    def get_responsive_coords_y(self):
-        return self.responsive_coords_y
-
-    def get_state(self):
-        return self.state
-
-    def get_rect(self):
-        return self.rect
-
-    def get_size(self):
-        return self.size
-
-    def get_coords(self):
-        return self.coords
-
-    def get_surface_size(self):
-        return self.surface_size
-
-    def get_base_size(self):
-        return self.base_size
-
-    def get_base_coords(self):
-        return self.base_coords
-
-    def get_has_draw_priority(self):
-        return self.has_draw_priority
-
     def __setattr__(self, key, value):
         # Prevent redefining animations if it's the same value
         if hasattr(self, key):
@@ -414,8 +306,6 @@ class RectMixin:
         # Base values used for responsive resizing
         for attr in self.BASE_RECT_ATTRIBUTES:
             setattr(self, f"base_{prefix}{attr}", None)
-            # Create getters
-            self._create_rect_getter(f"base_{prefix}{attr}")
 
         for attr in self.RECT_ATTRIBUTES:
 
@@ -432,22 +322,6 @@ class RectMixin:
             setattr(self,
                     f"{prefix}{attr}",
                     resolve_widget(kwargs,f"{prefix}{attr}", self.type, default))
-
-            # Create getters
-            self._create_rect_getter(f"{prefix}{attr}")
-
-    def _create_rect_getter(self, attribute):
-        getter_name = f"get_{attribute}"
-
-        # Avoid replacing existing methods
-        if hasattr(type(self), getter_name):
-            return
-
-        def getter(instance):
-            return getattr(instance, attribute)
-
-        getter.__name__ = getter_name
-        setattr(type(self), getter_name, getter)
 
     def _mixin_setattr_hook(self, key, value):
 
@@ -509,27 +383,3 @@ class TextMixin:
         self.text_strikethrough = resolve_widget(kwargs, "text_strikethrough", self.type, pgmenu.UNSET)
         self.text_underline = resolve_widget(kwargs, "text_underline", self.type, pgmenu.UNSET)
         self.text_transparency = resolve_widget(kwargs, "text_transparency", self.type, pgmenu.UNSET)
-
-    def get_text_font(self):
-        return self.text_font
-
-    def get_text_background(self):
-        return self.text_background
-
-    def get_text_antialias(self):
-        return self.text_antialias
-
-    def get_text_italic(self):
-        return self.text_italic
-
-    def get_text_bold(self):
-        return self.text_bold
-
-    def get_text_strikethrough(self):
-        return self.text_strikethrough
-
-    def get_text_underline(self):
-        return self.text_underline
-
-    def get_text_transparency(self):
-        return self.text_transparency

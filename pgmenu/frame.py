@@ -34,21 +34,6 @@ class Frame(Widget, RectMixin):
 
         pgmenu.widget.add(self)
 
-    def get_master(self):
-        return self.master
-
-    def get_fill(self):
-        return self.fill
-
-    def get_width(self):
-        return self.width
-
-    def get_border_radius(self):
-        return self.border_radius
-
-    def get_widgets(self):
-        return self.widgets
-
     def add(self, *widgets):
         self.widgets += widgets
 
