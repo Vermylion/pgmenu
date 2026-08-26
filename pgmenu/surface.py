@@ -1,4 +1,6 @@
 import pygame
+from pygame import Color
+
 import pgmenu
 from pgmenu.vars import cache
 from pgmenu.widget import Widget
@@ -33,9 +35,6 @@ class Surface(Widget):
 
         pgmenu.widget.add(self)
 
-    def get_master(self):
-        return self.master
-
     def __setattr__(self, key, value):
 
         super().__setattr__(key, value)
@@ -53,7 +52,7 @@ class Surface(Widget):
 
         original_surface = self._surface
 
-        self.surface = resize(self._surface, self.size)
+        self.surface = cached_smoothscale(self._surface, self.size)
 
         self._surface = original_surface
 
@@ -63,15 +62,43 @@ class Surface(Widget):
         self.size = self.surface.get_size()
 
 
-# FIXME -> Is this really necessary?
-def resize(surface: pygame.Surface | AnimateSurface,
-           size: tuple[int, int] | AnimateTuple):
-    """resizes surface with pygame.transform.smoothscale and caches result"""
+def cached_smoothscale(surface: pygame.Surface | AnimateSurface,
+                       size: tuple[int, int] | AnimateTuple):
+    """Resizes surface with pygame.transform.smoothscale and caches result"""
     cache_id = (surface, size)
 
-    if pgmenu.cache.lru_get(cache["surface"], cache_id) is None:
-        surface = pygame.transform.smoothscale(surface, size)
+    cache_surface = pgmenu.cache.lru_get(cache["surface"], cache_id)
+
+    if cache_surface is None:
+        cache_surface = pygame.transform.smoothscale(surface, size)
+
+        pgmenu.cache.lru_set(cache["surface"], cache_id, cache_surface)
+
+    return cache_surface.copy()
+
+
+def cached_surface(size: list[int, int] | tuple[int, int],
+                   flags: int = 0,
+                   depth: int | None = None,
+                   masks: Color | list[int, int] | tuple[int, int] | str | int | None = None) -> pygame.Surface:
+    """Creates a pygame Surface and caches the result"""
+
+    cache_id = (size, flags, depth, masks)
+
+    surface = pgmenu.cache.lru_get(cache["surface"], cache_id)
+
+    if surface is None:
+        args = [size]
+
+        if flags or depth is not None or masks is not None:
+            args.append(flags)
+        if depth is not None or masks is not None:
+            args.append(depth)
+        if masks is not None:
+            args.append(masks)
+
+        surface = pygame.Surface(*args)
 
         pgmenu.cache.lru_set(cache["surface"], cache_id, surface)
 
-    return pgmenu.cache.lru_get(cache["surface"], cache_id)
+    return surface.copy()

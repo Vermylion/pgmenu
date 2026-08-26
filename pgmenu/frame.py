@@ -1,11 +1,11 @@
 import pygame
 import pgmenu
-from pgmenu.widget import Widget, RectWidget
+from pgmenu.widget import Widget, RectMixin
 from pgmenu.constants import THEME
 from pgmenu.theme import resolve
 from pgmenu.animation import *
 
-class Frame(RectWidget):
+class Frame(Widget, RectMixin):
 
     def __init__(self,
                  master: pygame.Surface | Widget,
@@ -34,21 +34,6 @@ class Frame(RectWidget):
 
         pgmenu.widget.add(self)
 
-    def get_master(self):
-        return self.master
-
-    def get_fill(self):
-        return self.fill
-
-    def get_width(self):
-        return self.width
-
-    def get_border_radius(self):
-        return self.border_radius
-
-    def get_widgets(self):
-        return self.widgets
-
     def add(self, *widgets):
         self.widgets += widgets
 
@@ -67,7 +52,7 @@ class Frame(RectWidget):
         self.surface = pgmenu.draw.aarect(None, self.fill, (0, 0, *self.size.int_tuple), self.width, self.border_radius,
                            self.border_top_left_radius, self.border_top_right_radius, self.border_bottom_left_radius, self.border_bottom_right_radius,
                            self.antialiasing, self.transparency, self.aa_strength, inner_fill=self.inner_fill,
-                           inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing, debug=True)
+                           inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
         for surface, coords in self._widgets_to_blit.items():
             self.surface.blit(surface, coords)

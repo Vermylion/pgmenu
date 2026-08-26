@@ -6,28 +6,33 @@ from pgmenu.constants import THEME
 from pgmenu.theme import resolve, resolve_kwarg, resolve_widget
 
 
-# TODO -> Class RectWidget: inner_radii are probably not getting updated when inner_border_radius is
-
-# TODO -> Can't assign border_radii in theme because of the current system
-
-
 # Adds widget to the system and update loop
 def add(widget):
     # Sets Frame objects at the end of the draw order so other surfaces have time to blit on to them
-    def frame_handling():
+    def insert_before_frames():
         for i in range(len(pgmenu.vars.widgets_draw_order)):
             if pgmenu.vars.widgets_draw_order[i].type == pgmenu.FRAME:
                 pgmenu.vars.widgets_draw_order.insert(i, widget)
                 return
-
         pgmenu.vars.widgets_draw_order.append(widget)
 
     if widget.type == pgmenu.FRAME:
-        frame_handling()
-    else:
+        # Frames always go at the true end, so multiple frames keep their original (e.g. nesting) order relative to each other
         pgmenu.vars.widgets_draw_order.append(widget)
+    else:
+        # Regular widgets must be inserted before any existing Frame, otherwise they'd draw after it and the Frame couldn't have them blitted onto it yet
+        insert_before_frames()
 
     pgmenu.vars.widgets.append(widget)
+
+def remove(widget):
+    pgmenu.vars.widgets_draw_order.remove(widget)
+    pgmenu.vars.widgets.remove(widget)
+
+
+def remove_all():
+    pgmenu.vars.widgets_draw_order.clear()
+    pgmenu.vars.widgets.clear()
 
 
 # TODO -> Add .place() method referencing position.py in here? Or .grid()?
@@ -35,6 +40,9 @@ class Widget:
 
     def __init__(self,
                  **kwargs):
+        # Call to mixins if there are any
+        self._init_mixins(kwargs)
+
         # self.type should be defined before calling super().__init__(), if not, defaults to WIDGET
         self.type = getattr(self, "type") if hasattr(self, "type") else pgmenu.WIDGET
         # Set animation attributes to theme according to widget type
@@ -42,7 +50,7 @@ class Widget:
         self.animation_duration = resolve_widget(kwargs, 'animation_duration', self.type, pgmenu.Theme.widget_animation_duration)
         self.animation_curve = resolve_widget(kwargs, 'animation_curve', self.type, pgmenu.Theme.widget_animation_curve)
         # Disable animation
-        self.disable_animation = resolve_widget(kwargs, 'disable_animation', self.type, pgmenu.Theme.widget_disable_animation)
+        self.disable_default_animation = resolve_widget(kwargs, 'disable_default_animation', self.type, pgmenu.Theme.widget_disable_default_animation)
         # No need to define attr in DEFAULT theme, as an absence of theme attr goes to default in resolve_widget
         self.animation_on_standby = resolve_widget(kwargs, 'animation_on_standby', self.type, self.m_animation_on_standby)
         self.animation_on_hover = resolve_widget(kwargs, 'animation_on_hover', self.type, self.m_animation_on_hover)
@@ -89,114 +97,6 @@ class Widget:
         self.has_draw_priority = False
         # Save widget's drawn state
         self._drawn = False
-
-    def get_type(self):
-        return self.type
-
-    def get_animation_scale(self):
-        return self.animation_scale
-
-    def get_animation_duration(self):
-        return self.animation_duration
-
-    def get_animation_curve(self):
-        return self.animation_curve
-
-    def get_disable_animation(self):
-        return self.disable_animation
-
-    def get_animation_on_standby(self):
-        return self.animation_on_standby
-
-    def get_animation_on_hover(self):
-        return self.animation_on_hover
-
-    def get_animation_on_press(self):
-        return self.animation_on_press
-
-    def get_animation_on_hold(self):
-        return self.animation_on_hold
-
-    def get_animation_on_release(self):
-        return self.animation_on_release
-
-    def get_animation_on_key_press(self):
-        return self.animation_on_key_press
-
-    def get_animation_on_key_hold(self):
-        return self.animation_on_key_hold
-
-    def get_animation_on_key_release(self):
-        return self.animation_on_key_release
-
-    def get_on_standby(self):
-        return self.on_standby
-
-    def get_on_hover(self):
-        return self.on_hover
-
-    def get_on_press(self):
-        return self.on_press
-
-    def get_on_hold(self):
-        return self.on_hold
-
-    def get_on_release(self):
-        return self.on_release
-
-    def get_on_key_press(self):
-        return self.on_key_press
-
-    def get_on_key_hold(self):
-        return self.on_key_hold
-
-    def get_on_key_release(self):
-        return self.on_key_release
-
-    def get_on_resize(self):
-        return self.on_resize
-
-    def get_responsive_size(self):
-        return self.responsive_size
-
-    def get_responsive_size_w(self):
-        return self.responsive_size_w
-
-    def get_responsive_size_h(self):
-        return self.responsive_size_h
-
-    def get_responsive_coords(self):
-        return self.responsive_coords
-
-    def get_responsive_coords_x(self):
-        return self.responsive_coords_x
-
-    def get_responsive_coords_y(self):
-        return self.responsive_coords_y
-
-    def get_state(self):
-        return self.state
-
-    def get_rect(self):
-        return self.rect
-
-    def get_size(self):
-        return self.size
-
-    def get_coords(self):
-        return self.coords
-
-    def get_surface_size(self):
-        return self.surface_size
-
-    def get_base_size(self):
-        return self.base_size
-
-    def get_base_coords(self):
-        return self.base_coords
-
-    def get_has_draw_priority(self):
-        return self.has_draw_priority
 
     def __setattr__(self, key, value):
         # Prevent redefining animations if it's the same value
@@ -248,9 +148,23 @@ class Widget:
             if isinstance(value, pgmenu.frame.Frame):
                 value.add(self)
 
-            # Internal modified size in resize for all widgets -> Useful in resize logic, can't be updated during resize logic, only through user input
+        # Internal modified size in resize for all widgets -> Useful in resize logic, can't be updated during resize logic, only through user input
         if key in ("size", "coords") and not pgmenu.vars.videoresized:
             setattr(self, f"base_{key}", value)
+
+        # Hook to call __setattr__ functionality in mixins
+        for cls in type(self).__mro__:
+            hook = cls.__dict__.get("_mixin_setattr_hook")
+            if hook:
+                hook(self, key, value)
+
+    def _init_mixins(self, kwargs):
+        seen = set()
+        for cls in type(self).__mro__[1:]:
+            init = cls.__dict__.get("_mixin_init")
+            if init and init not in seen:
+                seen.add(init)
+                init(self, kwargs)
 
     def _update_rect(self, size, coords):
         if isinstance(self.master, pgmenu.frame.Frame):
@@ -353,106 +267,128 @@ class Widget:
     def request_cursor(self):
         ...
 
+# Only fully dynamic Mixin
+# FIXME -> Should all Mixins be fully dynamic?
+# TODO -> Review/revamp code as it was mostly AI written
+# FIXME -> Make it work better; less hassle and simpler
+class RectMixin:
 
-class RectWidget(Widget):
+    RECT_ATTRIBUTES = (
+        "width",
+        "border_radius",
+        "border_top_left_radius",
+        "border_top_right_radius",
+        "border_bottom_left_radius",
+        "border_bottom_right_radius",
+        "antialiasing",
+        "transparency",
+        "aa_strength",
+        "inner_fill",
+        "inner_transparency",
+        "inner_aa_strength",
+        "inner_antialiasing",
+    )
 
-    def __init__(self,
-                 **kwargs):
-        super().__init__(**kwargs)
+    BASE_RECT_ATTRIBUTES = (
+        "border_radius",
+        "border_top_left_radius",
+        "border_top_right_radius",
+        "border_bottom_left_radius",
+        "border_bottom_right_radius",
+    )
 
-        # Resize attributes
-        self.base_border_radius = None
-        self.base_border_top_left_radius = None
-        self.base_border_top_right_radius = None
-        self.base_border_bottom_left_radius = None
-        self.base_border_bottom_right_radius = None
+    def _mixin_init(self, kwargs):
+        self._init_rect(kwargs)
 
-        # Defined afterward in normal widget class, this it to appease syntaxing
-        self.border_radius = None
+    def _init_rect(self, kwargs, prefix=""):
+        """
+        Initializes a rectangle attribute group.
 
-        self.border_top_left_radius = resolve_widget(kwargs, 'border_top_left_radius', self.type)
-        self.border_top_right_radius = resolve_widget(kwargs, 'border_top_right_radius', self.type)
-        self.border_bottom_left_radius = resolve_widget(kwargs, 'border_bottom_left_radius', self.type)
-        self.border_bottom_right_radius = resolve_widget(kwargs, 'border_bottom_right_radius', self.type)
+        Example:
+            _init_rect(kwargs)
+                -> border_radius
 
-        self.antialiasing = resolve_widget(kwargs, 'antialiasing', self.type, pgmenu.Theme.rectwidget_antialiasing)
-        self.transparency = resolve_widget(kwargs, 'transparency', self.type, pgmenu.Theme.rectwidget_transparency)
-        self.aa_strength = resolve_widget(kwargs, 'aa_strength', self.type, pgmenu.Theme.rectwidget_aa_strength)
+            _init_rect(kwargs, "check_")
+                -> check_border_radius
+        """
 
-        self.inner_fill = resolve_widget(kwargs, 'inner_fill', self.type, pgmenu.UNSET)
-        self.inner_transparency = resolve_widget(kwargs, 'inner_transparency', self.type, pgmenu.UNSET)
-        self.inner_aa_strength = resolve_widget(kwargs, 'inner_aa_strength', self.type, pgmenu.UNSET)
-        self.inner_antialiasing = resolve_widget(kwargs, 'inner_antialiasing', self.type, pgmenu.UNSET)
+        # Base values used for responsive resizing
+        for attr in self.BASE_RECT_ATTRIBUTES:
+            setattr(self, f"base_{prefix}{attr}", None)
 
-    def get_base_border_radius(self):
-        return self.base_border_radius
+        for attr in self.RECT_ATTRIBUTES:
 
-    def get_base_border_top_left_radius(self):
-        return self.base_border_top_left_radius
+            default = pgmenu.UNSET if attr.startswith("inner_") else None
 
-    def get_base_border_top_right_radius(self):
-        return self.base_border_top_right_radius
+            # Theme defaults for normal rectangle properties
+            if attr in ("antialiasing", "transparency", "aa_strength"):
+                default = getattr(pgmenu.Theme, f"rectmixin_{attr}")
 
-    def get_base_border_bottom_left_radius(self):
-        return self.base_border_bottom_left_radius
+            # Set default for other rects to widget's general rect attributes
+            if prefix != "":
+                default = getattr(self, attr)
 
-    def get_base_border_bottom_right_radius(self):
-        return self.base_border_bottom_right_radius
+            setattr(self,
+                    f"{prefix}{attr}",
+                    resolve_widget(kwargs,f"{prefix}{attr}", self.type, default))
 
-    def get_border_radius(self):
-        return self.border_radius
+    def _mixin_setattr_hook(self, key, value):
 
-    def get_border_top_left_radius(self):
-        return self.border_top_left_radius
+        # Update base values for responsive resizing
+        if key.startswith("base_"):
+            return
 
-    def get_border_top_right_radius(self):
-        return self.border_top_right_radius
+        for attr in self.BASE_RECT_ATTRIBUTES:
 
-    def get_border_bottom_left_radius(self):
-        return self.border_bottom_left_radius
+            if key == attr or key.endswith(f"_{attr}"):
 
-    def get_border_bottom_right_radius(self):
-        return self.border_bottom_right_radius
+                if not pgmenu.vars.videoresized:
+                    setattr(self, f"base_{key}", value)
 
-    def get_antialiasing(self):
-        return self.antialiasing
-
-    def get_transparency(self):
-        return self.transparency
-
-    def get_aa_strength(self):
-        return self.aa_strength
-
-    def get_inner_fill(self):
-        return self.inner_fill
-
-    def get_inner_transparency(self):
-        return self.inner_transparency
-
-    def get_inner_aa_strength(self):
-        return self.inner_aa_strength
-
-    def get_inner_antialiasing(self):
-        return self.inner_antialiasing
-
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-
-        if key in ("border_radius", "border_top_left_radius", "border_top_right_radius", "border_bottom_left_radius", "border_bottom_right_radius") and not pgmenu.vars.videoresized:
-            setattr(self, f"base_{key}", value)
+                return
 
     def _resize_border_radii(self, w, h):
+        self._resize_rect("", w, h)
+
+    def _resize_rect(self, prefix, w, h):
+
         factor = min(w / self.base_size[0], h / self.base_size[1])
 
-        self.border_radius = round(self.base_border_radius * factor) if self.border_radius is not None else None
-        self.border_top_left_radius = round(self.base_border_top_left_radius * factor) if self.border_top_left_radius is not None else None
-        self.border_top_right_radius = round(self.base_border_top_right_radius * factor) if self.border_top_right_radius is not None else None
-        self.border_bottom_left_radius = round(self.base_border_bottom_left_radius * factor) if self.border_bottom_left_radius is not None else None
-        self.border_bottom_right_radius = round(self.base_border_bottom_right_radius * factor) if self.border_bottom_right_radius is not None else None
+        for attr in self.BASE_RECT_ATTRIBUTES:
+
+            base_attr = f"base_{prefix}{attr}"
+            current_attr = f"{prefix}{attr}"
+
+            value = getattr(self, base_attr)
+
+            if value is not None:
+                setattr(self, current_attr, int(value * factor))
 
     def _animation_update_border_radii(self, direction=pgmenu.FORWARD, reach=1):
-        self.border_radius.update(direction, reach) if self.border_radius is not None else None
-        self.border_top_left_radius.update(direction, reach) if self.border_top_left_radius is not None else None
-        self.border_top_right_radius.update(direction, reach) if self.border_top_right_radius is not None else None
-        self.border_bottom_left_radius.update(direction, reach) if self.border_bottom_left_radius is not None else None
-        self.border_bottom_right_radius.update(direction, reach) if self.border_bottom_right_radius is not None else None
+        self._animation_update_rect("", direction, reach)
+
+    def _animation_update_rect(self,
+                               prefix="",
+                               direction=pgmenu.FORWARD,
+                               reach=1):
+
+        for attr in self.BASE_RECT_ATTRIBUTES:
+
+            value = getattr(self, f"{prefix}{attr}", None)
+
+            if value is not None:
+                value.update(direction, reach)
+
+
+class TextMixin:
+
+    def _mixin_init(self,
+                    kwargs):
+        self.text_font = resolve_widget(kwargs, "text_font", self.type, pgmenu.UNSET)
+        self.text_background = resolve_widget(kwargs, "text_background", self.type, pgmenu.UNSET)
+        self.text_antialias = resolve_widget(kwargs, "text_antialias", self.type, pgmenu.UNSET)
+        self.text_italic = resolve_widget(kwargs, "text_italic", self.type, pgmenu.UNSET)
+        self.text_bold = resolve_widget(kwargs, "text_bold", self.type, pgmenu.UNSET)
+        self.text_strikethrough = resolve_widget(kwargs, "text_strikethrough", self.type, pgmenu.UNSET)
+        self.text_underline = resolve_widget(kwargs, "text_underline", self.type, pgmenu.UNSET)
+        self.text_transparency = resolve_widget(kwargs, "text_transparency", self.type, pgmenu.UNSET)

@@ -244,15 +244,6 @@ class AnimateType:
     def final_value(self):
         ...
 
-    def get_value(self):
-        ...
-
-    def get_base_value(self):
-        ...
-
-    def get_final_value(self):
-        ...
-
     def init(self):
         ...
 
@@ -312,57 +303,6 @@ class Animate(AnimateType):
     @property
     def final_value(self):
         return self.final_num
-
-    def get_value(self):
-        return self.value
-
-    def get_int(self):
-        return self.int
-
-    def get_float(self):
-        return self.float
-
-    def get_base_value(self):
-        return self.base_value
-
-    def get_final_value(self):
-        return self.final_value
-
-    def get_base_num(self):
-        return self.base_num
-
-    def get_final_num(self):
-        return self.final_num
-
-    def get_duration(self):
-        return self.duration
-
-    def get_curve(self):
-        return self.curve
-
-    def get_precision(self):
-        return self.precision
-
-    def get_start_time(self):
-        return self.start_time
-
-    def get_diff_num(self):
-        return self.diff_num
-
-    def get_num(self):
-        return self.num
-
-    def get_step(self):
-        return self.step
-
-    def get_direction(self):
-        return self.direction
-
-    def get_curve_direction(self):
-        return self.curve_direction
-
-    def get_done(self):
-        return self.done
 
     def __int__(self):
         return int(self.num)
@@ -571,42 +511,6 @@ class AnimateTuple(AnimateType):
     def final_value(self):
         return self.final_tuple
 
-    def get_value(self):
-        return self.value
-
-    def get_tuple(self):
-        return self.tuple
-
-    def get_base_value(self):
-        return self.base_value
-
-    def get_final_value(self):
-        return self.final_value
-
-    def get_duration(self):
-        return self.duration
-    
-    def get_curve(self):
-        return self.curve
-
-    def get_precision(self):
-        return self.precision
-    
-    def get_items(self):
-        return self.items
-
-    def get_base_tuple(self):
-        return self.base_tuple
-
-    def get_final_tuple(self):
-        return self.final_tuple
-
-    def get_int_tuple(self):
-        return self.int_tuple
-
-    def get_float_tuple(self):
-        return self.float_tuple
-
     #Core Tuple Behavior
     def __len__(self):
         return len(self.items)
@@ -710,42 +614,6 @@ class AnimateSurface(pygame.Surface, AnimateType):
     def final_value(self):
         return self.final_surface
 
-    def get_value(self):
-        return self.value
-
-    def get_surface(self):
-        return self.surface
-
-    def get_base_value(self):
-        return self.base_value
-
-    def get_final_value(self):
-        return self.final_value
-
-    def get_base_surface(self):
-        return self.base_surface
-
-    def get_final_surface(self):
-        return self.final_surface
-
-    def get_base_alpha(self):
-        return self.base_alpha
-
-    def get_final_alpha(self):
-        return self.final_alpha
-
-    def get_duration(self):
-        return self.duration
-
-    def get_curve(self):
-        return self.curve
-
-    def get_precision(self):
-        return self.precision
-
-    def get_animation_alpha(self):
-        return self.animation_alpha
-
     def __repr__(self):
         return repr(self.value)
 
@@ -792,18 +660,6 @@ class AnimateMultiple:
     @property
     def final_value(self):
         return [animation.final_value for animation in list(self.animations.values())]
-
-    def get_value(self):
-        return self.value
-
-    def get_base_value(self):
-        return self.base_value
-
-    def get_final_value(self):
-        return self.final_value
-
-    def get_animations(self):
-        return self.animations
 
     def modify(self, *animations):
         self.animations.update({id(animation): animation for animation in animations})

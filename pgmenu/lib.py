@@ -26,7 +26,7 @@ def _draw(*widgets):
             continue
 
         # Enact widget priority
-        if pgmenu.FRAME or ((widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE) and pgmenu.system.widget_draw_priority and widget.has_draw_priority):
+        if widget.type == pgmenu.FRAME or ((widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE) and pgmenu.system.widget_draw_priority and widget.has_draw_priority):
             top_widgets.append(widget)
             continue
 
@@ -47,10 +47,9 @@ def update(events):
         pgmenu.vars.base_window_size = pygame.display.get_window_size()
 
     # Format input, so we can iterate it if event is passed as input instead of events
-    events = [events] if isinstance(events, pygame.event.Event) else events
-    # Have always at least 1 event, so widget updates still get called every frame
-    if len(events) == 0:
-        events.append(pygame.event.Event(123))
+    events = [events] if isinstance(events, pygame.event.Event) else list(events)
+    if not events:
+        events.append(pygame.event.Event(pgmenu.IDLE_EVENT))
 
     # Save mouse x, y pos to not call pygame.mouse.get_pos() multiple times
     pgmenu.vars.mouse_x, pgmenu.vars.mouse_y = pygame.mouse.get_pos()

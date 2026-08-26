@@ -1,3 +1,5 @@
+import pygame
+
 # Constants for state
 NORMAL = "normal"
 HOVERED = "hovered"
@@ -10,6 +12,9 @@ BACKWARD = "backward"
 IN = "in"
 OUT = "out"
 IN_OUT = "in_out"
+# Constants for Checkbox
+RIGHT = "right"
+LEFT = "left"
 # Widget types constants
 WIDGET = "widget"
 LABEL = "label"
@@ -22,6 +27,8 @@ RADIOBUTTON = "radiobutton"
 THEME = "theme"
 # Constant to determine if an attribute derived from Theme is undefined
 UNSET = "unset"
+# lib.py update() pygame event for no events; idle
+IDLE_EVENT = pygame.USEREVENT + 100
 # Constants for responsive resize types
 PROPORTIONAL = "proportional"
 STRETCH = "stretch"

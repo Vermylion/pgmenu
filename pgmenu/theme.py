@@ -4,8 +4,6 @@ import pygame
 import pgmenu
 
 
-# TODO -> Can I set in theme dynamic args? -> Ex: margin = round(min(self.size.inttuple) * 0.1)
-
 # TODO -> Add support for different modes -> (dark or light mode)
 
 
@@ -25,9 +23,9 @@ class Theme:
             # Global attribute assignment
             # Slower but follows attribute assignement order
             if attr.startswith("widgets_"):
+                suffix = attr[len("widgets_"):]
                 for any_attr in attrs:
-                    # Check if self_attr is a widget's attribute
-                    if any_attr.startswith(pgmenu.vars.widget_types):
+                    if any_attr.startswith(pgmenu.vars.widget_types) and any_attr.endswith(suffix):
                         setattr(self, any_attr, value)
 
             # Allow for different custom json types
@@ -58,7 +56,9 @@ class Theme:
                     value = pygame.image.load(value['path'])
 
                 elif value['type'] == "exec":
-                    exec("value = " + value["code"])
+                    namespace = {"self": self, "pgmenu": pgmenu, "pygame": pygame}
+                    exec("value = " + value["code"], namespace)
+                    value = namespace["value"]
 
             # For now, transform all lists into tuples (lists are unhashable for cache)
             if type(value) == list:
