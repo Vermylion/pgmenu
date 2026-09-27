@@ -173,13 +173,14 @@ User-tunable engine settings, meant to be assigned directly.
 
 | Setting | Default | Effect |
 | --- | --- | --- |
-| `widget_draw_priority` | `True` | Whether hovered/active widgets that opt in are drawn on top |
-| `max_cache_size` | `300` | Maximum entries **per cache**; there are five caches |
+| `WIDGET_DRAW_PRIORITY` | `True` | Whether hovered/active widgets that opt in are drawn on top |
+| `MAX_CACHE_SIZE` | `300` | Maximum entries **per cache**; there are five caches |
 
 ```python
 import pgmenu
-pgmenu.system.max_cache_size = 100        # lower memory ceiling
-pgmenu.system.widget_draw_priority = False
+
+pgmenu.system.MAX_CACHE_SIZE = 100  # lower memory ceiling
+pgmenu.system.WIDGET_DRAW_PRIORITY = False
 ```
 
 The source note is worth repeating: roughly 100 entries in the rectangle cache costs on the
@@ -198,7 +199,7 @@ what the engine expects.
 | --- | --- |
 | `widgets` | Every widget ever created, in creation order (update order) |
 | `widgets_draw_order` | Draw order, with the frame insertion rule applied |
-| `widget_types` | Names used to detect widget-prefixed theme keys |
+| `WIDGET_TYPES` | Names used to detect widget-prefixed theme keys |
 | `cache` | The five `Cache` instances |
 | `Theme` | Always `None`; the live theme is `pgmenu.Theme` |
 | `widget_cursor` | Cursor requested by a widget this frame |
@@ -225,7 +226,7 @@ print({name: len(c) for name, c in pgmenu.vars.cache.items()})
 | --- | --- |
 | `Cache` | `OrderedDict` subclass that normalises `AnimateType` values inside tuple keys |
 | `lru_get(cache, key)` | Return the value and mark it recently used, or `None` |
-| `lru_set(cache, key, value)` | Insert and evict the least recently used entry past `max_cache_size` |
+| `lru_set(cache, key, value)` | Insert and evict the least recently used entry past `MAX_CACHE_SIZE` |
 | `clear_cache()` | Intended to empty every cache; currently broken |
 
 To clear the caches today:

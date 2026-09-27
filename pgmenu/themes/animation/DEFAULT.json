@@ -1,0 +1,100 @@
+{
+  "DEFAULT": {
+    "#": "Base animations",
+    "actionable_widget_standby": [
+      {"type": "attribute", "name": "size", "args": ["backward"]},
+      {"type": "attribute", "name": "fill", "args": ["backward"]},
+      {"type": "method", "name": "_animation_update_border_radii", "args": ["backward"]}
+    ],
+    "actionable_widget_hover": [
+      {"type": "attribute", "name": "size", "args": ["forward"]},
+      {"type": "attribute", "name": "fill", "args": ["forward"]},
+      {"type": "method", "name": "_animation_update_border_radii", "args": ["forward"]}
+    ],
+    "actionable_widget_hold": [
+      {"type": "attribute", "name": "size", "args": ["backward", 0.15]},
+      {"type": "method", "name": "_animation_update_border_radii", "args": ["backward", 0.15]}
+    ],
+
+    "#": "Button animations",
+    "button_animation_on_standby": [
+      {"type":  "base", "name":  "actionable_widget_standby"}
+    ],
+    "button_animation_on_hover": [
+      {"type":  "base", "name":  "actionable_widget_hover"}
+    ],
+    "button_animation_on_hold": [
+      {"type":  "base", "name":  "actionable_widget_hold"}
+    ],
+
+    "#": "Checkbox animations",
+    "checkbox_animation_on_standby": [
+      {"type":  "base", "name":  "actionable_widget_standby"},
+      {"type": "attribute", "name": "margin", "args": ["backward"]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["check_", "backward"]}
+    ],
+    "checkbox_animation_on_hover": [
+      {"type":  "base", "name":  "actionable_widget_hover"},
+      {"type": "attribute", "name": "margin", "args": ["forward"]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["check_", "forward"]}
+    ],
+    "checkbox_animation_on_hold": [
+      {"type":  "base", "name":  "actionable_widget_hold"},
+      {"type": "attribute", "name": "margin", "args": ["backward", 0.15]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["check_", "backward", 0.15]}
+    ],
+    "checkbox_animation_on_select": [
+      {"type": "attribute", "name": "check_transparency", "args": ["forward"]}
+    ],
+    "checkbox_animation_on_deselect": [
+      {"type": "attribute", "name": "check_transparency", "args": ["backward"]}
+    ],
+
+    "#": "Radiobutton animations",
+    "radiobutton_animation_on_standby": [
+      {"type":  "base", "name":  "actionable_widget_standby"},
+      {"type": "attribute", "name": "margin", "args": ["backward"]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["dot_", "backward"]}
+    ],
+    "radiobutton_animation_on_hover": [
+      {"type":  "base", "name":  "actionable_widget_hover"},
+      {"type": "attribute", "name": "margin", "args": ["forward"]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["dot_", "forward"]}
+    ],
+    "radiobutton_animation_on_hold": [
+      {"type":  "base", "name":  "actionable_widget_hold"},
+      {"type": "attribute", "name": "margin", "args": ["backward", 0.15]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["dot_", "backward", 0.15]}
+    ],
+    "radiobutton_animation_on_select": [
+      {"type": "attribute", "name": "dot_transparency", "args": ["forward"]}
+    ],
+    "radiobutton_animation_on_deselect": [
+      {"type": "attribute", "name": "dot_transparency", "args": ["backward"]}
+    ],
+
+    "#": "Toggleswitch animations",
+    "toggleswitch_animation_on_standby": [
+      {"type": "attribute", "name": "margin", "args": ["backward"]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["thumb_", "backward"]}
+    ],
+    "toggleswitch_animation_on_hover": [
+      {"type": "attribute", "name": "margin", "args": ["forward"]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["thumb_", "forward"]}
+    ],
+    "toggleswitch_animation_on_hold": [
+      {"type": "attribute", "name": "margin", "args": ["backward", 0.15]},
+      {"type": "method", "name": "_animation_update_rect", "args": ["thumb_", "backward", 0.15]}
+    ],
+    "toggleswitch_animation_on_select": [
+      {"type": "attribute", "name": "thumb_fill", "args": ["forward"]},
+      {"type": "attribute", "name": "fill", "args": ["forward"]},
+      {"type": "attribute", "name": "transition", "args": ["forward"]}
+    ],
+    "toggleswitch_animation_on_deselect": [
+      {"type": "attribute", "name": "thumb_fill", "args": ["backward"]},
+      {"type": "attribute", "name": "fill", "args": ["backward"]},
+      {"type": "attribute", "name": "transition", "args": ["backward"]}
+    ]
+  }
+}

@@ -112,32 +112,10 @@ Using `cls.__dict__` rather than `getattr` matches what `__setattr__` already do
 
 ## 3. Structural suggestions
 
-### 3.1 A widget removal API
-
-The most conspicuous missing piece. Widgets are registered in two lists and never leave them.
-
-```python
-# widget.py, proposed
-def remove(widget):
-    """Unregister a widget from the engine."""
-    if widget in pgmenu.vars.widgets:
-        pgmenu.vars.widgets.remove(widget)
-    if widget in pgmenu.vars.widgets_draw_order:
-        pgmenu.vars.widgets_draw_order.remove(widget)
-    if isinstance(widget.master, pgmenu.frame.Frame):
-        widget.master.remove(widget)
-
-
-class Widget:
-    def destroy(self):
-        """Remove this widget from the engine."""
-        pgmenu.widget.remove(self)
-```
-
-`Frame.destroy` would additionally destroy its children. Without this, any dynamic UI leaks
-widgets, and `Menu` cannot really own its members.
+### 3.1 A widget removal API: DONE
 
 ### 3.2 Replace the `AARect` `temp_*` block with a dataclass: DONE
+
 ### 3.3 Separate state transitions from continuous state
 
 `on_hover` and `on_standby` firing every frame, and `on_hold` firing once per queued event,
@@ -157,20 +135,7 @@ with `lib.update` calling `_set_state` and then the continuous hooks, and `on_ho
 of the per-event loop into the per-frame section. This addresses the existing TODO in `lib.py`
 about limiting repeated actions.
 
-### 3.4 One source of truth for the default theme
-
-`DEFAULT.json` and `FULL-DEFAULT.json` are 99 percent identical and have already diverged by
-one key. Either delete one, or generate `FULL-DEFAULT.json` from `DEFAULT.json` as part of a
-release step, or make `FULL-DEFAULT.json` the source and have `DEFAULT.json` be a thin theme
-loaded on top of it.
-
-A validation helper would also catch drift early:
-
-```python
-def validate(self, required_keys):
-    """Return the theme keys the library reads but this theme does not define."""
-    return [k for k in required_keys if not hasattr(self, k)]
-```
+### 3.4 One source of truth for the default theme: DONE
 
 ### 3.5 Reconsider the `Frame` blit queue key
 

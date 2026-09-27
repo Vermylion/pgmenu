@@ -5,13 +5,6 @@ from pgmenu.cache import Cache
 widgets = []
 # Finer control over functions that need widgets
 widgets_draw_order = []
-# Widget types
-widget_types = ("label",
-                "surface",
-                "frame",
-                "button",
-                "checkbox",
-                "radiobutton")
 # Global cache
 cache = {
     "aarect": Cache(),
@@ -22,6 +15,7 @@ cache = {
 }
 # Formatted later in lib
 Theme = None
+AnimationTheme = None
 # Cursor vars
 widget_cursor = None
 user_cursor = None
@@ -35,3 +29,7 @@ fs_window_size = None
 mouse_x, mouse_y = 0, 0
 # For Menu module, to remember which menu is shown
 current_menu_showed = None
+# Current SELECTED widget
+kb_selected_widget = None
+# Animations to run after a single call
+running_animations = []

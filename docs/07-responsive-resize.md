@@ -235,6 +235,6 @@ Current implementations:
 * Nothing clamps a widget to its master's bounds. A widget can be scaled outside its frame;
   it will still draw (clipped by the frame surface) but its hit rect is clipped by
   `_update_rect`.
-* Sustained resizing generates one new cache key per distinct size. `max_cache_size` bounds
+* Sustained resizing generates one new cache key per distinct size. `MAX_CACHE_SIZE` bounds
   memory, but a drag-resize does invalidate the caches continuously, which is the expected
   frame-rate dip during the drag.

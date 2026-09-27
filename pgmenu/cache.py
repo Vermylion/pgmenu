@@ -41,7 +41,7 @@ def lru_set(cache, key, value):
         cache.move_to_end(key)
     cache[key] = value
 
-    if len(cache) > pgmenu.system.max_cache_size:
+    if len(cache) > pgmenu.system.MAX_CACHE_SIZE:
         cache.popitem(last=False)  # remove least recently used
 
 

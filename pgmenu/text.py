@@ -79,7 +79,10 @@ def render(text: str = THEME,
     text_font.underline = underline
 
     if '\n' not in text:
-        text_surface = text_font.render(text, antialias, color, background)
+        if text:
+            text_surface = text_font.render(text, antialias, color, background)
+        else:
+            text_surface = pygame.Surface((0, 0), pygame.SRCALPHA)
     else:
         text_lines_surf = [
             text_font.render(line, antialias, color, background)
@@ -196,7 +199,7 @@ def fit_width(dest_width: int = THEME,
         text_size = math.floor(text_size * dest_width / size_x)
 
     # Add text margin
-    text_size -= margin
+    text_size -= margin * 2
 
     # Cached text size
     pgmenu.cache.lru_set(cache["text"], cache_id, text_size)
@@ -251,7 +254,7 @@ def fit_height(dest_height: int = THEME,
         text_size = math.floor(text_size * dest_height / size_y)
 
     # Add text margin
-    text_size -= margin
+    text_size -= margin * 2
 
     # Cached text size
     pgmenu.cache.lru_set(cache["text"], cache_id, text_size)
@@ -313,7 +316,7 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
         text_size = math.floor(text_size * dest_rect[1] / size_y)
 
     # Add text margin
-    text_size -= margin
+    text_size -= margin * 2
 
     # Cached text size
     pgmenu.cache.lru_set(cache["text"], cache_id, text_size)
@@ -528,7 +531,7 @@ def fit_width_render_smoothscale(dest_width: int = THEME,
                                                  antialias, italic, bold, strikethrough, underline, transparency)
 
     # Target width for the smoothscale step, matching fit_render_smoothscale's margin handling
-    target_width = max(1, round(dest_width - margin))
+    target_width = max(1, round(dest_width - margin * 2))
 
     orig_width, orig_height = text_surface.get_size()
 
@@ -603,7 +606,7 @@ def fit_height_render_smoothscale(dest_height: int = THEME,
                                                   antialias, italic, bold, strikethrough, underline, transparency)
 
     # Target height for the smoothscale step, matching fit_render_smoothscale's margin handling
-    target_height = max(1, round(dest_height - margin))
+    target_height = max(1, round(dest_height - margin * 2))
 
     orig_width, orig_height = text_surface.get_size()
 

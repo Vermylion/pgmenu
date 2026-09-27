@@ -10,7 +10,7 @@ SCREEN_HEIGHT = 720
 MIN_SIZE = 50
 MAX_SIZE = 800
 
-pgmenu.system.max_cache_size = NUM_WIDGETS
+pgmenu.system.MAX_CACHE_SIZE = NUM_WIDGETS
 
 pygame.init()
 

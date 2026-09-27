@@ -87,7 +87,7 @@ objects to their current value so animated arguments still produce stable, hasha
 | `pgmenu/lib.py` | The engine: `init`, `_draw`, `draw_all`, `update`, `request_cursor` |
 | `pgmenu/constants.py` | All string constants (states, directions, widget types, sentinels) |
 | `pgmenu/vars.py` | Mutable global runtime state (registry, caches, cursor, window sizes) |
-| `pgmenu/system.py` | User-tunable engine settings (`widget_draw_priority`, `max_cache_size`) |
+| `pgmenu/system.py` | User-tunable engine settings (`WIDGET_DRAW_PRIORITY`, `MAX_CACHE_SIZE`) |
 | `pgmenu/cache.py` | `Cache` (animation-aware `OrderedDict`) and the LRU helpers |
 | `pgmenu/theme.py` | `Theme` class, JSON loading/saving, `resolve*` helpers |
 | `pgmenu/animation.py` | Easing curves and the four animation object types |

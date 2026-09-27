@@ -40,7 +40,7 @@ Each constant's value is its lowercase name (`NORMAL == "normal"`).
 
 Module-level mutable state. See [9.6](09-menus-and-utilities.md#96-pgmenuvars) for the table.
 
-`widgets`, `widgets_draw_order`, `widget_types`, `cache`, `Theme`, `widget_cursor`,
+`widgets`, `widgets_draw_order`, `WIDGET_TYPES`, `cache`, `Theme`, `widget_cursor`,
 `user_cursor`, `base_window_size`, `videoresized`, `fs_window_size`, `mouse_x`, `mouse_y`,
 `current_menu_showed`.
 
@@ -50,8 +50,8 @@ Module-level mutable state. See [9.6](09-menus-and-utilities.md#96-pgmenuvars) f
 
 | Name | Type | Default |
 | --- | --- | --- |
-| `widget_draw_priority` | bool | `True` |
-| `max_cache_size` | int | `300` |
+| `WIDGET_DRAW_PRIORITY` | bool | `True` |
+| `MAX_CACHE_SIZE` | int | `300` |
 
 ---
 

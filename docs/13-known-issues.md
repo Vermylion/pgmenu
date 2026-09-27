@@ -24,21 +24,14 @@ rate-limiting these.
 Pressing a button, dragging off it and releasing still fires `on_release`, because nothing
 clears `ACTIVE` except the button's own mouse-up branch.
 
-### S4. `pgmenu.update` mutates the caller's event list
-
-When the queue is empty, a dummy `pygame.event.Event(123)` is appended to the list you passed
-in. Reusing that list afterwards exposes an event with an arbitrary type number.
+### S4. `pgmenu.update` mutates the caller's event list: DONE
 
 ### S5. Colour animation can exceed the valid range
 
 Automatic wrapping multiplies each component by `animation_scale`, with no clamping to
 `0..255`. See [Animation 5.8](05-animation.md#the-colour-argument-problem) for the workaround.
 
-### S6. No widget removal API
-
-Widgets live in `vars.widgets` and `vars.widgets_draw_order` for the lifetime of the process.
-`Frame.remove` only detaches from the frame's own list. Use `state = pgmenu.HIDDEN` to
-neutralise a widget.
+### S6. No widget removal API: DONE
 
 ### S7. `pgmenu.vars.Theme` is always `None`
 
@@ -98,8 +91,6 @@ avoids it.
 
 | Item | State |
 | --- | --- |
-| `Checkbox` | Constructor done; `draw`, `update`, `check`, `uncheck`, `toggle`, `is_checked` are stubs; not imported by `__init__.py`; most `checkbox_*` theme keys undefined |
-| `RadioButton` | Constant and `widget_types` entry only |
 | `draw.gradient` | Stub |
 | `position.place` | Stub |
 | `projects.modern_ui` | Stub |

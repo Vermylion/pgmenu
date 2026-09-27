@@ -1,12 +1,12 @@
 import pygame
 import pgmenu
-from pgmenu.widget import Widget, RectMixin, TextMixin
+from pgmenu.widget import Widget, RectMixin, TextMixin, ActionableMixin
 from pgmenu.constants import THEME
 from pgmenu.theme import resolve
 from pgmenu.animation import *
 
 
-class Button(Widget, RectMixin, TextMixin):
+class Button(Widget, RectMixin, TextMixin, ActionableMixin):
 
     def __init__(self,
                  master: pygame.Surface | Widget,
@@ -102,52 +102,15 @@ class Button(Widget, RectMixin, TextMixin):
         self.surface.blit(text_surface, text_rect[:2])
         self.master.blit(self.surface, coords)
 
-    def update(self, event):
-        super().update(event)
-
-        # Detect mouse collisions
-        if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == pygame.BUTTON_LEFT:
-                    self.state = pgmenu.ACTIVE
-                    self.on_press()
-                    self.animation_on_press()
-
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == pygame.BUTTON_LEFT:
-                    self.state = pgmenu.NORMAL
-                    self.on_release()
-                    self.animation_on_release()
-
-            elif pygame.mouse.get_pressed()[0]:
-                self.on_hold()
-                self.animation_on_hold()
-
+    # FIXME --> Button margin doesn't resize correctly with current factor --> Factor is wrong
     def resize(self, w, h):
         self._resize_border_radii(w, h)
 
         factor = min(w / self.base_size[0], h / self.base_size[1])
-        self.margin = int(self.margin * factor)
+        self.margin = int(self.base_margin * factor)
 
         self.size = w, h
 
-    def m_animation_on_standby(self):
-        if not self.disable_default_animation:
-            self.size.update(pgmenu.BACKWARD)
-            self.fill.update(pgmenu.BACKWARD)
-            self._animation_update_border_radii(pgmenu.BACKWARD)
-
-    def m_animation_on_hover(self):
-        if not self.disable_default_animation:
-            self.size.update(pgmenu.FORWARD)
-            self.fill.update(pgmenu.FORWARD)
-            self._animation_update_border_radii(pgmenu.FORWARD)
-
-    def m_animation_on_hold(self):
-        if not self.disable_default_animation:
-            self.size.update(pgmenu.BACKWARD, 0.15)
-            self._animation_update_border_radii(pgmenu.BACKWARD, 0.15)
 
     def request_cursor(self):
         pgmenu.vars.widget_cursor = pygame.SYSTEM_CURSOR_HAND

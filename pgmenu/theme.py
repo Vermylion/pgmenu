@@ -1,10 +1,21 @@
 import os, sys
+from functools import partial
 import json
 import pygame
 import pgmenu
+from pgmenu import system
 
 
 # TODO -> Add support for different modes -> (dark or light mode)
+
+
+def _format_theme_path(theme, path="themes"):
+    # Format theme text correctly if the file extension was included
+    theme = os.path.splitext(theme)[0]
+    # Format theme to directory path
+    theme_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f"{path}/{theme}.json"))
+
+    return theme, theme_path
 
 
 class Theme:
@@ -13,6 +24,7 @@ class Theme:
         ...
 
     def set(self, **attrs):
+
         for attr in attrs:
             # Ignore custom comments
             if attr == "#":
@@ -25,7 +37,7 @@ class Theme:
             if attr.startswith("widgets_"):
                 suffix = attr[len("widgets_"):]
                 for any_attr in attrs:
-                    if any_attr.startswith(pgmenu.vars.widget_types) and any_attr.endswith(suffix):
+                    if any_attr.startswith(system.WIDGET_TYPES) and any_attr.endswith(suffix):
                         setattr(self, any_attr, value)
 
             # Allow for different custom json types
@@ -55,34 +67,11 @@ class Theme:
                 elif value['type'] == "image":
                     value = pygame.image.load(value['path'])
 
-                elif value['type'] == "exec":
-                    namespace = {"self": self, "pgmenu": pgmenu, "pygame": pygame}
-                    exec("value = " + value["code"], namespace)
-                    value = namespace["value"]
-
             # For now, transform all lists into tuples (lists are unhashable for cache)
             if type(value) == list:
                 value = tuple(value)
 
             setattr(self, attr, value)
-
-    def save(self, theme, **attrs):
-
-        theme, theme_path = _format_theme_path(theme)
-
-        with open(theme_path, 'w') as f:
-            json.dump({theme: attrs}, f, indent=4)
-
-    # Save all arguments attributed and loaded to this class
-    def save_all(self, theme):
-
-        theme, theme_path = _format_theme_path(theme)
-
-        # Get all attributes by filtering them out of dir()
-        attrs = vars(self) # {attr: getattr(self, attr) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")}
-
-        with open(theme_path, 'w') as f:
-            json.dump({theme: attrs}, f, indent=4)
 
     def load(self, theme: str = "DEFAULT"):
 
@@ -94,14 +83,73 @@ class Theme:
             attrs = json.load(f)[theme]
             self.set(**attrs)
 
+    # TODO -> Fix save and save_all methods, or remove them
+    # def save(self, theme, **attrs):
+    #
+    #     theme, theme_path = _format_theme_path(theme)
+    #
+    #     with open(theme_path, 'w') as f:
+    #         json.dump({theme: attrs}, f, indent=4)
+    #
+    # # Save all arguments attributed and loaded to this class
+    # def save_all(self, theme):
+    #
+    #     theme, theme_path = _format_theme_path(theme)
+    #
+    #     # Get all attributes by filtering them out of dir()
+    #     attrs = vars(self) # {attr: getattr(self, attr) for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__")}
+    #
+    #     with open(theme_path, 'w') as f:
+    #         json.dump({theme: attrs}, f, indent=4)
 
-def _format_theme_path(theme):
-    # Format theme text correctly if the file extension was included
-    theme = os.path.splitext(theme)[0]
-    # Format theme to directory path
-    theme_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f"themes/{theme}.json"))
 
-    return theme, theme_path
+class AnimationTheme:
+
+    def __init__(self):
+        ...
+
+    def set(self, **funcs):
+
+        animation_funcs = {}
+
+        def create_animation_function(animation):
+
+            def animate(self):
+                if self.disable_default_animation:
+                    return
+
+                for action in animation:
+                    action_type = action["type"]
+                    name = action["name"]
+                    args = action.get("args", [])
+
+                    if action_type == "attribute":
+                        getattr(self, name).update(*args)
+
+                    elif action_type == "method":
+                        getattr(self, name)(*args)
+
+                    elif action_type == "base":
+                        animation_funcs[name](self)
+
+            return animate
+
+        for func in funcs:
+            if func == "#":
+                continue
+
+            animation_funcs[func] = create_animation_function(funcs[func])
+
+            setattr(self, func, animation_funcs[func])
+
+    def load(self, theme: str = "DEFAULT"):
+
+        theme, theme_path = _format_theme_path(theme, "themes/animation")
+
+        # Load attributes
+        with open(theme_path) as f:
+            funcs = json.load(f)[theme]
+            self.set(**funcs)
 
 
 """
@@ -131,7 +179,7 @@ resolve_widget(...)
 │                     └── Return default
 """
 
-def resolve(value, theme_attr, default = None):
+def resolve(value, theme_attr, default = None, bind = None):
     """
     Function to resolve THEME affectation and Theme default case with None.
     Any value that is pgmenu.UNSET is disregarded and sent to theme_attr or default
@@ -151,29 +199,34 @@ def resolve(value, theme_attr, default = None):
     """
 
     if value != pgmenu.THEME and value != pgmenu.UNSET:
-        return value
+        result = value
 
     elif theme_attr is not None:
-        return theme_attr
+        result = theme_attr
+
+        if bind is not None and callable(result):
+            return partial(result, bind)
 
     else:
-        return default
+        result = default
 
-def resolve_kwarg(kwargs, key, theme_attr, default = None):
+    return result
+
+def resolve_kwarg(kwargs, key, theme_attr, default = None, bind = None):
     """
     Function to resolve kwarg affectation and Theme default case with None.
     Any value that is pgmenu.UNSET is disregarded and sent to theme_attr or default
     """
 
-    return resolve(kwargs.get(key, pgmenu.THEME), theme_attr, default)
+    return resolve(kwargs.get(key, pgmenu.THEME), theme_attr, default, bind)
 
-def resolve_widget(kwargs, key, widget_type, default = None):
+def resolve_widget(kwargs, key, widget_type, default = None, theme = pgmenu.Theme, bind = None):
     """
     Function to resolve kwarg affectation and Theme default case with None with theme attribute per widget type.
     Any value that is pgmenu.UNSET is disregarded and sent to theme_attr or default
     """
 
     # an absence of theme attr goes to default in resolve_widget -> returns None, hence default
-    theme_attr = getattr(pgmenu.Theme, f'{widget_type}_{key}', None)
+    theme_attr = getattr(theme, f'{widget_type}_{key}', None)
 
-    return resolve_kwarg(kwargs, key, theme_attr, default)
+    return resolve_kwarg(kwargs, key, theme_attr, default, bind)

@@ -11,7 +11,7 @@
 | Step | File | What to do |
 | --- | --- | --- |
 | 1 | `constants.py` | Add a widget type constant, for example `SLIDER = "slider"` |
-| 2 | `vars.py` | Append `"slider"` to `widget_types` |
+| 2 | `vars.py` | Append `"slider"` to `WIDGET_TYPES` |
 | 3 | `slider.py` | Write the widget class |
 | 4 | `__init__.py` | `import pgmenu.slider as slider`, after the other widgets |
 | 5 | `themes/DEFAULT.json` | Add a `slider_*` block with every default the widget reads |

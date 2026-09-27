@@ -11,6 +11,7 @@ import pgmenu.cache as cache
 import pgmenu.vars as vars
 
 from pgmenu.vars import Theme
+from pgmenu.vars import AnimationTheme
 
 import pgmenu.animation as animation
 
@@ -44,6 +45,10 @@ import pgmenu.frame as frame
 import pgmenu.button as button
 
 import pgmenu.checkbox as checkbox
+
+import pgmenu.radiobutton as radiobutton
+
+import pgmenu.toggleswitch as toggleswitch
 
 # Initialize library
 lib.init()

@@ -173,11 +173,12 @@ class AARect:
         self.width = round(min(self.width, (min(self.rect[2], self.rect[3]) / 2)))
 
         # Limit radius
-        self.border_radius = math.floor(min(self.border_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_top_left_radius = math.floor(min(self.border_top_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_top_right_radius = math.floor(min(self.border_top_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_bottom_left_radius = math.floor(min(self.border_bottom_left_radius, (min(self.rect[2], self.rect[3]) / 2)))
-        self.border_bottom_right_radius = math.floor(min(self.border_bottom_right_radius, (min(self.rect[2], self.rect[3]) / 2)))
+        max_border_radius = min(self.rect[2], self.rect[3]) / 2 - 1
+        self.border_radius = math.floor(min(self.border_radius, max_border_radius))
+        self.border_top_left_radius = math.floor(min(self.border_top_left_radius, max_border_radius))
+        self.border_top_right_radius = math.floor(min(self.border_top_right_radius, max_border_radius))
+        self.border_bottom_left_radius = math.floor(min(self.border_bottom_left_radius, max_border_radius))
+        self.border_bottom_right_radius = math.floor(min(self.border_bottom_right_radius, max_border_radius))
 
         self.object_cache_id = (self.fill, (self.rect[2], self.rect[3]), self.width, self.border_radius, self.border_top_left_radius, self.border_top_right_radius, self.border_bottom_left_radius, self.border_bottom_right_radius,
                                 self.antialiasing, self.transparency, self.aa_strength, str(self.inner_fill), self.inner_antialiasing, self.inner_transparency, self.inner_aa_strength, self.force_only_overlay)

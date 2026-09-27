@@ -3,6 +3,7 @@ import pygame
 import time
 import random
 
+from pgmenu import toggleswitch
 from pgmenu.animation import Animate
 
 pygame.init()
@@ -11,6 +12,8 @@ screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
 pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
 fps = 1000
+
+# pgmenu.AnimationTheme.load("SIMPLE")
 
 gradient = pygame.image.load("../tests/assets/gradient.png")
 gradient2 = pygame.image.load("../tests/assets/gradient2.png")
@@ -41,9 +44,16 @@ def m_animation_on_hover():
     pgmenu.request_cursor(pygame.SYSTEM_CURSOR_HAND)
 
 
-frame = pgmenu.frame.Frame(screen, pgmenu.position.center_coords((550, 400), (0, 0, 1080, 720)), (550, 400))
+def button_action():
+    print("button pressed")
 
-surface = pgmenu.surface.Surface(frame, make_animated_surf((200, 100)), (10, 150), on_resize=lambda: on_resize(surface.size.int_tuple), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
+
+pgmenu.Theme.set(**{'widget_disable_default_animation': False})
+
+
+frame = pgmenu.frame.Frame(screen, pgmenu.position.center_coords((600, 450), (0, 0, 1080, 720)), (600, 450))
+
+surface = pgmenu.surface.Surface(frame, make_animated_surf((200, 100)), (300, 275), on_resize=lambda: on_resize(surface.size.int_tuple), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
 
 color2 = pgmenu.animation.AnimateTuple(*((250, 50), (50, 50), (50, 250)), duration=0.5, curve=pgmenu.animation.circ)
 label = pgmenu.label.Label(frame, (250, 150), color=color2, size=100, animation_scale=1.4, animation_duration=0.15,
@@ -51,8 +61,17 @@ label = pgmenu.label.Label(frame, (250, 150), color=color2, size=100, animation_
                            responsive_size=pgmenu.PROPORTIONAL)
 
 icon = pgmenu.draw.aarect(None, (255, 0, 0), (0, 0, 50, 50))
-button = pgmenu.button.Button(frame, (300, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3, text_italic=False, text_bold=False)
-checkbox = pgmenu.checkbox.Checkbox(frame, (50, 50), text_side=pgmenu.RIGHT, text_margin=3)
+button = pgmenu.button.Button(frame, (300, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3, text_italic=False, text_bold=False, animation_curve=pgmenu.animation.circ, on_release=button_action)
+
+checkbox1 = pgmenu.checkbox.Checkbox(frame, (50, 50), text_side=pgmenu.RIGHT)
+checkbox2 = pgmenu.checkbox.Checkbox(frame, (50, 100), text_side=pgmenu.RIGHT)
+
+radiobutton1 = pgmenu.radiobutton.Radiobutton(frame, (50, 175))
+radiobutton2 = pgmenu.radiobutton.Radiobutton(frame, (50, 225))
+radiobutton3 = pgmenu.radiobutton.Radiobutton(frame, (50, 275))
+radiogroup = pgmenu.radiobutton.RadioGroup(radiobutton1, radiobutton2, radiobutton3)
+
+toggleswitch = pgmenu.toggleswitch.ToggleSwitch(frame, (50, 350), (60, 30), toggle_direction=pgmenu.RIGHT)
 
 
 go = False
@@ -77,15 +96,15 @@ while running:
                 frame.coords = (50, 50)
 
             if event.key == pygame.K_c:
-                label.size = 10
+                radiobutton1.selected = False
 
             if event.key == pygame.K_d:
                 frame.border_radius = 30
 
-            if event.key == pygame.K_TAB:
+            if event.key == pygame.K_ASTERISK:
                 go = True if not go else False
 
-            if event.key == pygame.K_RETURN:
+            if event.key == pygame.K_BACKSPACE:
                 screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
                 pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
@@ -111,9 +130,12 @@ while running:
         screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
         pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
+
     pgmenu.draw_all()
 
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
+    # if pgmenu.vars.kb_selected_widget:
+    #     pgmenu.text.write(screen, (300, 20), str(checkbox1.check_transparency))
 
     win_size = pygame.display.get_window_size()
     pygame.display.set_caption(f"Window {win_size[0]}x{win_size[1]}")

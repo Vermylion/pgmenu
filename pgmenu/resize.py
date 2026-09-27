@@ -4,9 +4,6 @@ import pgmenu
 from functools import wraps
 
 
-# TODO -> Should responsive_coords account for extra space when responsive_size is False? (ex: centered button isn't centered anymore)
-
-
 def _scale(base, master_size, master_base_size, mode, resize_x, resize_y):
     base = max(base[0], 1), max(base[1], 1)
 
@@ -36,7 +33,7 @@ def _scale(base, master_size, master_base_size, mode, resize_x, resize_y):
     if not resize_y:
         resized_y = base[1]
 
-    return resized_x, resized_y
+    return round(resized_x), round(resized_y)
 
 
 def responsive_resize(widget, event):

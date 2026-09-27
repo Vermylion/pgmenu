@@ -389,10 +389,11 @@ class Animate(AnimateType):
         self.done = False
 
     def update(self,
-               direction = pgmenu.FORWARD,
+               direction= pgmenu.FORWARD,
                reach: float = 1):
 
         if direction != self.direction or reach != self.reach:
+            self.last_step = self.step  # capture current progress regardless of direction
             self.start_time = time.time()
             self.done = False
 
@@ -401,8 +402,6 @@ class Animate(AnimateType):
                     self.curve_direction = pgmenu.OUT
 
             if direction == pgmenu.BACKWARD:
-                self.last_step = self.step
-
                 if self.curve_direction != pgmenu.IN_OUT:
                     self.curve_direction = pgmenu.IN
 
@@ -424,12 +423,9 @@ class Animate(AnimateType):
         step = (current_time - self.start_time) / self.duration
 
         if self.direction == pgmenu.BACKWARD:
-            self.step = max(self.last_step - step, 1-self.reach)
-
+            self.step = max(self.last_step - step, 1 - self.reach)
         else:
-            self.step = min(step, self.reach)
-
-        # print(self.step, 1-self.reach, self.reach)
+            self.step = min(self.last_step + step, self.reach)
 
         # Animation curve output
         # Check how many arguments self.curve takes
@@ -510,6 +506,10 @@ class AnimateTuple(AnimateType):
     @property
     def final_value(self):
         return self.final_tuple
+
+    @property
+    def done(self):
+        return self.items[0].done
 
     #Core Tuple Behavior
     def __len__(self):
@@ -614,6 +614,10 @@ class AnimateSurface(pygame.Surface, AnimateType):
     def final_value(self):
         return self.final_surface
 
+    @property
+    def done(self):
+        return self.animation_alpha.done
+
     def __repr__(self):
         return repr(self.value)
 
@@ -661,6 +665,10 @@ class AnimateMultiple:
     def final_value(self):
         return [animation.final_value for animation in list(self.animations.values())]
 
+    @property
+    def done(self):
+        return all([animation.done for animation in list(self.animations.values())])
+
     def modify(self, *animations):
         self.animations.update({id(animation): animation for animation in animations})
 
@@ -673,3 +681,77 @@ class AnimateMultiple:
                reach: int | float = 1):
         for animation in list(self.animations.values()):
             animation.update(direction, reach)
+
+
+# TODO -> Implement RunningAnimation
+class RunningAnimation:
+    def __init__(self):
+        ...
+
+
+# TODO -> Implement yoyo?: reverse_target + loop? -> Is it necessary?
+class RunningCallable:
+
+    def __init__(self,
+                 target: Callable,
+                 done: Callable = None):
+
+        self.target = target
+        # Caller decides what "done" means, since a method has no built-in .done
+        self.done_check = done
+
+    def update(self):
+        """Calls the current method one frame. Returns True if it should be removed from the running list."""
+        self.target()
+
+        # No done_check -> keep calling forever, only stop_animation() ends it
+        if self.done_check is None or not self.done_check():
+            return False
+
+        return True
+
+
+def run_animation() -> RunningCallable:
+    """
+        Registers an AnimateType to run on its own, updated every frame inside lib.update().
+    """
+
+    running = RunningAnimation()
+    pgmenu.vars.running_animations.append(running)
+
+    return running
+
+
+def run_callable(target: Callable,
+                  done: Callable = None) -> RunningCallable:
+    """
+       Registers a  callable to be called every frame inside lib.update()
+
+       :param target: any custom zero-arg callable
+       :param done: callable returning True when target's driven animations should
+           be considered finished, e.g. `lambda: button.size.done and button.fill.done`.
+           Omit to keep calling it every frame until stop_animation().
+       """
+
+    running = RunningCallable(target, done)
+    pgmenu.vars.running_animations.append(running)
+
+    return running
+
+
+def stop_animation(running_animation):
+    """Cancels a running animation or callable registered via run_animation()/run_callable()."""
+    if running_animation in pgmenu.vars.running_animations:
+        pgmenu.vars.running_animations.remove(running_animation)
+
+
+def stop_callable(running_callable):
+    stop_animation(running_callable)
+
+
+def update_running_animations():
+    """Advances all registered running animations/callables by one frame; called from lib.update()."""
+    finished = [animation for animation in pgmenu.vars.running_animations if animation.update()]
+
+    for animation in finished:
+        pgmenu.vars.running_animations.remove(animation)
