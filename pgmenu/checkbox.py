@@ -22,7 +22,7 @@ class Checkbox(ToggleWidget):
                  checked: bool = THEME,
                  **kwargs):
 
-        self.type = pgmenu.CHECKBOX
+        self.set_type(pgmenu.CHECKBOX)
 
         self._set_indicator("check_")
         self._set_on_attr("checked")

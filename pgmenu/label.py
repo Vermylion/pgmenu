@@ -28,7 +28,7 @@ class Label(Widget):
                  **kwargs):
 
         # self.type has to be defined before super().__init__()
-        self.type = pgmenu.LABEL
+        self.set_type(pgmenu.LABEL)
 
         super().__init__(**kwargs)
 

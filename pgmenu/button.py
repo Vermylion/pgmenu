@@ -33,7 +33,7 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
         :param border_radius:
         """
 
-        self.type = pgmenu.BUTTON
+        self.set_type(pgmenu.BUTTON)
 
         super().__init__(**kwargs)
 

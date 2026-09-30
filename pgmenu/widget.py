@@ -60,7 +60,7 @@ class Widget:
         self._mixin_hook("_mixin_init", **kwargs)
 
         # self.type should be defined before calling super().__init__(), if not, defaults to WIDGET
-        self.type = getattr(self, "type") if hasattr(self, "type") else pgmenu.WIDGET
+        self.set_type(pgmenu.WIDGET)
         # Set animation attributes to theme according to widget type
         self.animation_scale = resolve_widget(kwargs, 'animation_scale', self.type, pgmenu.Theme.widget_animation_scale)
         self.animation_duration = resolve_widget(kwargs, 'animation_duration', self.type, pgmenu.Theme.widget_animation_duration)
@@ -238,6 +238,14 @@ class Widget:
 
     def get_2d_base_size(self):
         return self._get_2d("base_size")
+
+    def set_type(self, type):
+        """
+        :param type:
+        :return:
+        Sets type of widget to the passed type only if type wasn't assigned previously.
+        """
+        self.type = getattr(self, "type") if hasattr(self, "type") else type
 
     # Method allows to modify multiple attributes at a time
     def modify(self,

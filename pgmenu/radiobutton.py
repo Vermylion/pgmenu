@@ -23,7 +23,7 @@ class Radiobutton(ToggleWidget):
                  selected: bool = THEME,
                  **kwargs):
 
-        self.type = pgmenu.RADIOBUTTON
+        self.set_type(pgmenu.RADIOBUTTON)
 
         self._set_indicator("dot_")
         self._set_on_attr("selected")

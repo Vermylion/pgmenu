@@ -22,7 +22,7 @@ class ToggleSwitch(ToggleWidget):
                  on: bool = THEME,
                  **kwargs):
 
-        self.type = pgmenu.TOGGLESWITCH
+        self.set_type(pgmenu.TOGGLESWITCH)
 
         self._set_indicator("thumb_")
         self._set_on_attr("on")

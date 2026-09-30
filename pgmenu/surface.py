@@ -20,7 +20,7 @@ class Surface(Widget):
                  coords: list | tuple | AnimateTuple = THEME,
                  **kwargs):
 
-        self.type = pgmenu.SURFACE
+        self.set_type(pgmenu.SURFACE)
 
         super().__init__(**kwargs)
 

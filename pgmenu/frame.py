@@ -16,7 +16,7 @@ class Frame(Widget, RectMixin):
                  border_radius: int | Animate = THEME,
                  **kwargs):
 
-        self.type = pgmenu.FRAME
+        self.set_type(pgmenu.FRAME)
 
         super().__init__(**kwargs)
 
@@ -54,10 +54,13 @@ class Frame(Widget, RectMixin):
                            self.antialiasing, self.transparency, self.aa_strength, inner_fill=self.inner_fill,
                            inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
-        for surface, coords in self._widgets_to_blit.items():
-            self.surface.blit(surface, coords)
+        self.draw_widgets()
 
         self.master.blit(self.surface, self.coords)
+
+    def draw_widgets(self):
+        for surface, coords in self._widgets_to_blit.items():
+            self.surface.blit(surface, coords)
 
         self._widgets_to_blit.clear()
 
