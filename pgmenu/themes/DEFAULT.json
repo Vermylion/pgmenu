@@ -113,6 +113,7 @@
     "button_margin": 3,
     "button_width": 0,
     "button_border_radius": null,
+    "button_cursor": {"type": "variable", "module": "pygame", "variable": "SYSTEM_CURSOR_HAND"},
     "#": "+RectMixin attrs",
 
     "#": "Checkbox",
@@ -131,6 +132,7 @@
     "checkbox_text_side_margin": null,
     "checkbox_check_border_radius": null,
     "checkbox_check_base_transparency": 0,
+    "checkbox_cursor": {"type": "variable", "module": "pygame", "variable": "SYSTEM_CURSOR_HAND"},
     "#": "+RectMixin attrs",
     "#": "+RectMixin checkmark attrs",
 
@@ -150,6 +152,7 @@
     "radiobutton_text_side_margin": null,
     "radiobutton_dot_border_radius": null,
     "radiobutton_dot_base_transparency": 0,
+    "radiobutton_cursor": {"type": "variable", "module": "pygame", "variable": "SYSTEM_CURSOR_HAND"},
     "#": "+RectMixin attrs",
     "#": "+RectMixin dot indicator attrs",
 
@@ -173,6 +176,7 @@
     "toggleswitch_thumb_border_radius": null,
     "toggleswitch_toggle_direction": {"type": "variable", "module": "pgmenu", "variable": "RIGHT"},
     "toggleswitch_transition": 0,
+    "toggleswitch_cursor": {"type": "variable", "module": "pygame", "variable": "SYSTEM_CURSOR_HAND"},
     "#": "+RectMixin attrs",
     "#": "+RectMixin thumb attrs",
 

@@ -110,7 +110,3 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
         self.margin = int(self.base_margin * factor)
 
         self.size = w, h
-
-
-    def request_cursor(self):
-        pgmenu.vars.widget_cursor = pygame.SYSTEM_CURSOR_HAND

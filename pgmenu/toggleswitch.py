@@ -65,7 +65,7 @@ class ToggleSwitch(ToggleWidget):
         self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.toggleswitch_text_side_margin, self.margin.base_value)
         # Checkmark (rect) kwargs attributes
         self._init_rect(kwargs, "thumb_")
-        self.thumb_border_radius = resolve_kwarg(kwargs, "thumb_border_radius", pgmenu.Theme.toggleswitch_thumb_border_radius, self.border_radius.base_value)
+        self.thumb_border_radius = resolve_kwarg(kwargs, "thumb_border_radius", pgmenu.Theme.toggleswitch_thumb_border_radius, self.border_radius.base_value - self.margin.base_value)
 
         self.toggle_direction = resolve_kwarg(kwargs, "toggle_direction", pgmenu.Theme.toggleswitch_toggle_direction)
 
@@ -172,7 +172,7 @@ class ToggleSwitch(ToggleWidget):
 
     def resize(self, w, h):
         self._resize_border_radii(w, h)
-        self._resize_rect(self._indicator_prefix, w, h)
+        self._resize_rect("thumb_", w, h)
 
         factor = min(w / self.base_size[0], h / self.base_size[1])
 

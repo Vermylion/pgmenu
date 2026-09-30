@@ -52,7 +52,7 @@ class Radiobutton(ToggleWidget):
         self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.radiobutton_text_side_margin, self.margin.base_value)
         # Dot (Inner indicator) (rect) kwargs attributes
         self._init_rect(kwargs, "dot_")
-        self.dot_border_radius = resolve_kwarg(kwargs, "dot_border_radius", pgmenu.Theme.radiobutton_dot_border_radius, self.border_radius.base_value)
+        self.dot_border_radius = resolve_kwarg(kwargs, "dot_border_radius", pgmenu.Theme.radiobutton_dot_border_radius, self.border_radius.base_value - self.margin.base_value)
 
         self.dot_base_transparency = resolve_kwarg(kwargs, "dot_base_transparency", pgmenu.Theme.radiobutton_dot_base_transparency)
         # Setting base custom animation

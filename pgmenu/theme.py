@@ -220,11 +220,14 @@ def resolve_kwarg(kwargs, key, theme_attr, default = None, bind = None):
 
     return resolve(kwargs.get(key, pgmenu.THEME), theme_attr, default, bind)
 
-def resolve_widget(kwargs, key, widget_type, default = None, theme = pgmenu.Theme, bind = None):
+def resolve_widget(kwargs, key, widget_type, default = None, theme = None, bind = None):
     """
     Function to resolve kwarg affectation and Theme default case with None with theme attribute per widget type.
     Any value that is pgmenu.UNSET is disregarded and sent to theme_attr or default
     """
+
+    # Set unspecified theme to base theme
+    theme = theme if theme is not None else pgmenu.Theme
 
     # an absence of theme attr goes to default in resolve_widget -> returns None, hence default
     theme_attr = getattr(theme, f'{widget_type}_{key}', None)

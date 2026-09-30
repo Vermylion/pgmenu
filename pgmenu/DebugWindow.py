@@ -73,7 +73,6 @@ radiogroup = pgmenu.radiobutton.RadioGroup(radiobutton1, radiobutton2, radiobutt
 
 toggleswitch = pgmenu.toggleswitch.ToggleSwitch(frame, (50, 350), (60, 30), toggle_direction=pgmenu.RIGHT)
 
-
 go = False
 start = time.time()
 incr = 0

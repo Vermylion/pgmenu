@@ -94,6 +94,8 @@ class Widget:
         self.on_key_hold = resolve_widget(kwargs, 'on_key_hold', self.type, self.m_on_key_hold)
         self.on_key_release = resolve_widget(kwargs, 'on_key_release', self.type, self.m_on_key_release)
         self.on_resize = resolve_widget(kwargs, 'on_resize', self.type, self.m_on_resize)
+        # Base hover cursor for the widget
+        self.cursor = resolve_widget(kwargs, 'cursor', self.type, pygame.SYSTEM_CURSOR_ARROW)
         # Formatting for responsive resize
         # Responsive resize values have to be the same for all widgets
         self.responsive_size = kwargs.get('responsive_size', pgmenu.Theme.widget_responsive_size)
@@ -136,6 +138,10 @@ class Widget:
         if not isinstance(value, pgmenu.animation.AnimateType):
             # Don't run the animation run if the animation attributes aren't initialized yet
             if not hasattr(self, 'animation_scale') or not hasattr(self, 'animation_duration') or not hasattr(self, 'animation_curve') or not hasattr(self, 'animation_precision'):
+                pass
+
+            # Don't animate the cursor value
+            elif key == "cursor":
                 pass
 
             # Only allow Surface widget's surface to get animations
@@ -330,7 +336,7 @@ class Widget:
         ...
 
     def request_cursor(self):
-        ...
+        pgmenu.vars.widget_cursor = self.cursor
 
 
 # Only fully dynamic Mixin
@@ -627,6 +633,3 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
         self.margin = int(self.base_margin * factor)
 
         self.size = w, h
-
-    def request_cursor(self):
-        pgmenu.vars.widget_cursor = pygame.SYSTEM_CURSOR_HAND
