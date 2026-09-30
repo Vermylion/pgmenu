@@ -12,6 +12,10 @@ BACKWARD = "backward"
 IN = "in"
 OUT = "out"
 IN_OUT = "in_out"
+# Constants for animation looping
+ONCE = "once"
+LOOP = "loop"
+YOYO = "yoyo"
 # Constants for Checkbox
 RIGHT = "right"
 LEFT = "left"

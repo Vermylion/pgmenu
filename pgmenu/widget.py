@@ -565,6 +565,7 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
 
     def draw(self):
         super().draw()
+
         max_w = max(self.size.base_tuple[0], self.size.final_tuple[0])
         max_h = max(self.size.base_tuple[1], self.size.final_tuple[1])
         full_rect = (0, 0, *self.size.int_tuple)

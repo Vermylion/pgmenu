@@ -389,8 +389,8 @@ class Animate(AnimateType):
         self.done = False
 
     def update(self,
-               direction= pgmenu.FORWARD,
-               reach: float = 1):
+               direction = pgmenu.FORWARD,
+               reach: int | float = 1):
 
         if direction != self.direction or reach != self.reach:
             self.last_step = self.step  # capture current progress regardless of direction
@@ -584,8 +584,8 @@ class AnimateSurface(pygame.Surface, AnimateType):
                          base_surface.get_bitsize(),
                          base_surface.get_masks())
 
-        self.base_surface = base_surface#.convert_alpha()
-        self.final_surface = final_surface#.convert_alpha()
+        self.base_surface = base_surface
+        self.final_surface = final_surface
 
         self.base_alpha = resolve(base_alpha, pgmenu.Theme.animation_base_alpha)
         self.final_alpha = resolve(final_alpha, pgmenu.Theme.animation_final_alpha)
@@ -636,7 +636,7 @@ class AnimateSurface(pygame.Surface, AnimateType):
         self.blit(self.base_surface, (0, 0))
 
     def update(self,
-               direction=pgmenu.FORWARD,
+               direction = pgmenu.FORWARD,
                reach: int | float = 1):
         self.animation_alpha.update(direction, reach)
 
@@ -683,13 +683,45 @@ class AnimateMultiple:
             animation.update(direction, reach)
 
 
-# TODO -> Implement RunningAnimation
 class RunningAnimation:
-    def __init__(self):
-        ...
+    def __init__(self,
+                 animation: AnimateType,
+                 direction = pgmenu.FORWARD,
+                 reach: int | float = 1,
+                 loop = pgmenu.ONCE):
+        """
+        :param animation: animation object to be animated
+        :param direction: direction of the animation
+        :param reach: reach/extent of the animation
+        :param loop: Looping of the animation. Takes pgmenu.ONCE for no looping,
+            pgmenu.LOOP for replaying the same directional animation,
+            and pgmenu.YOYO for looping between FORWARD and BACKWARD animation.
+        """
+
+        self.animation = animation
+        self.direction = direction
+        self.reach = reach
+        self.loop = loop
+
+    def update(self):
+        """Advances the animation one frame. Returns True if it should be removed from the running list."""
+        self.animation.update(self.direction, self.reach)
+
+        if not self.animation.done:
+            return False
+
+        if self.loop == pgmenu.YOYO:
+            self.direction = pgmenu.BACKWARD if self.direction == pgmenu.FORWARD else pgmenu.FORWARD
+            return False
+
+        elif self.loop == pgmenu.LOOP:
+            self.animation.reset()
+            return False
+
+        return True
 
 
-# TODO -> Implement yoyo?: reverse_target + loop? -> Is it necessary?
+# TODO -> Implement loop? -> Is it necessary?
 class RunningCallable:
 
     def __init__(self,
@@ -711,12 +743,22 @@ class RunningCallable:
         return True
 
 
-def run_animation() -> RunningCallable:
+def run_animation(animation: AnimateType,
+                 direction = pgmenu.FORWARD,
+                 reach: int | float = 1,
+                 loop = pgmenu.ONCE) -> RunningCallable:
     """
-        Registers an AnimateType to run on its own, updated every frame inside lib.update().
+    Registers an AnimateType to run on its own, updated every frame inside lib.update().
+
+    :param animation: animation object to be animated
+    :param direction: direction of the animation
+    :param reach: reach/extent of the animation
+    :param loop: Looping of the animation. Takes pgmenu.ONCE for no looping,
+        pgmenu.LOOP for replaying the same directional animation,
+        and pgmenu.YOYO for looping between FORWARD and BACKWARD animation.
     """
 
-    running = RunningAnimation()
+    running = RunningAnimation(animation, direction, reach, loop)
     pgmenu.vars.running_animations.append(running)
 
     return running

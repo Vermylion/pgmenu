@@ -73,6 +73,9 @@ radiogroup = pgmenu.radiobutton.RadioGroup(radiobutton1, radiobutton2, radiobutt
 
 toggleswitch = pgmenu.toggleswitch.ToggleSwitch(frame, (50, 350), (60, 30), toggle_direction=pgmenu.RIGHT)
 
+size_animated = pgmenu.animation.AnimateTuple((100, 130), (50, 50*1.3), duration=0.6)
+pgmenu.animation.run_animation(size_animated, pgmenu.FORWARD, loop=True)
+
 go = False
 start = time.time()
 incr = 0
@@ -129,6 +132,7 @@ while running:
         screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
         pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
+    pgmenu.draw.aarect(screen, (200, 50, 50), (450, 50, *size_animated.int_tuple))
 
     pgmenu.draw_all()
 
