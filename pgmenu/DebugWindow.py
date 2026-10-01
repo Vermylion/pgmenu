@@ -8,7 +8,8 @@ from pgmenu.animation import Animate
 
 pygame.init()
 
-screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
+win_size = (1080, 720)
+screen = pygame.display.set_mode(win_size, pygame.RESIZABLE)
 pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
 fps = 1000
@@ -18,7 +19,7 @@ fps = 1000
 gradient = pygame.image.load("../tests/assets/gradient.png")
 gradient2 = pygame.image.load("../tests/assets/gradient2.png")
 pinksky = pygame.image.load("../tests/assets/pinksky.jpg")
-pinksky = pygame.transform.smoothscale(pinksky, (1080, 720))
+pinksky = pygame.transform.smoothscale(pinksky, win_size)
 
 
 def make_animated_surf(size):
@@ -71,10 +72,13 @@ radiobutton2 = pgmenu.radiobutton.Radiobutton(frame, (50, 225))
 radiobutton3 = pgmenu.radiobutton.Radiobutton(frame, (50, 275))
 radiogroup = pgmenu.radiobutton.RadioGroup(radiobutton1, radiobutton2, radiobutton3)
 
+menu = pgmenu.menu.Menu(frame, radiobutton1, radiobutton2, radiobutton3)
+pgmenu.menu.show(menu)
+
 toggleswitch = pgmenu.toggleswitch.ToggleSwitch(frame, (50, 350), (60, 30), toggle_direction=pgmenu.RIGHT)
 
 size_animated = pgmenu.animation.AnimateTuple((100, 130), (50, 50*1.3), duration=0.6)
-pgmenu.animation.run_animation(size_animated, pgmenu.FORWARD, loop=True)
+pgmenu.animation.run_animation(size_animated, pgmenu.FORWARD, loop=pgmenu.YOYO)
 
 go = False
 start = time.time()
@@ -107,7 +111,7 @@ while running:
                 go = True if not go else False
 
             if event.key == pygame.K_BACKSPACE:
-                screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
+                screen = pygame.display.set_mode(win_size, pygame.RESIZABLE)
                 pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
         screen = pgmenu.display.fullscreen_controls(screen, event)
@@ -122,7 +126,7 @@ while running:
         h = random.randint(10, 3000)
 
         if incr % 100 == 0:
-            w, h = 1080, 720
+            w, h = win_size
             debug = incr
 
         if incr == debug + 1:
@@ -132,9 +136,10 @@ while running:
         screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
         pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
-    pgmenu.draw.aarect(screen, (200, 50, 50), (450, 50, *size_animated.int_tuple))
+    pgmenu.draw.aarect(screen, (200, 50, 50), (*pgmenu.position.center_coords(size_animated.tuple, (450, 50, *size_animated.base_tuple)), *size_animated.int_tuple))
 
     pgmenu.draw_all()
+    # pgmenu.menu.draw()
 
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
     # if pgmenu.vars.kb_selected_widget:

@@ -31,6 +31,9 @@ class Menu:
             if widget in self.widgets:
                 self.widgets.remove(widget)
 
+    def show(self):
+        pgmenu.vars.current_menu_showed = self
+
     def draw(self):
         pgmenu.lib._draw(*self.widgets)
 
