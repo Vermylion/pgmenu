@@ -1,9 +1,13 @@
 import pygame
 import pgmenu
-from pgmenu.widget import Widget, ToggleWidget
-from pgmenu.constants import THEME
-from pgmenu.theme import resolve, resolve_kwarg
-from pgmenu.animation import *
+
+from pgmenu.base import Widget, ToggleWidget
+from pgmenu.core.animation import Animate, AnimateTuple, AnimateSurface, AnimateType
+from pgmenu.core.theme import resolve, resolve_kwarg
+from pgmenu.vars.constants import THEME
+
+
+__all__ = ["Checkbox"]
 
 
 class Checkbox(ToggleWidget):
@@ -57,7 +61,7 @@ class Checkbox(ToggleWidget):
         if not isinstance(kwargs.get("check_transparency"), AnimateType):
             self.check_transparency = pgmenu.animation.Animate(self.check_base_transparency, self.check_transparency, self.animation_duration, self.animation_curve, self.animation_precision)
         
-        pgmenu.widget.add(self)
+        pgmenu.widgets.add(self)
 
     def check(self):
         self.checked = True

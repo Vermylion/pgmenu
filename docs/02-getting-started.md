@@ -169,14 +169,14 @@ the draw/update pair, in the spirit of tkinter's `mainloop`.
 ```python
 import pgmenu
 
-window = pgmenu.simple.PgmenuWindow((400, 400), title="Demo", fps=120)
+window = core.simple.PgmenuWindow((400, 400), title="Demo", fps=120)
 screen = window.screen
 
 button = pgmenu.button.Button(screen, (150, 185), (100, 30), text="Click")
 
 
 def loop():
-    pgmenu.text.write(screen, (10, 10), str(round(window.clock.get_fps())))
+    core.text.write(screen, (10, 10), str(round(window.clock.get_fps())))
 
 
 window.loop(loop)

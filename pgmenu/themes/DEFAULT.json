@@ -10,7 +10,7 @@
 
     "#": "Animation",
     "animation_duration": 0.15,
-    "animation_curve": {"type": "function", "module": "pgmenu.animation", "function": "circ"},
+    "animation_curve": {"type": "function", "module": "pgmenu.core.animation", "function": "circ"},
     "animation_base_alpha": 0,
     "animation_final_alpha": 0,
     "animation_precision": 0,
@@ -66,7 +66,7 @@
     "widget_state": {"type": "variable", "module": "pgmenu", "variable": "NORMAL"},
     "widget_animation_scale": 1.2,
     "widget_animation_duration": 0.15,
-    "widget_animation_curve": {"type": "function", "module": "pgmenu.animation", "function": "circ"},
+    "widget_animation_curve": {"type": "function", "module": "pgmenu.core.animation", "function": "circ"},
     "widget_animation_precision": 1,
     "widget_disable_default_animation": false,
 

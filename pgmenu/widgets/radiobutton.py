@@ -1,10 +1,13 @@
 import pygame
 import pgmenu
-from pgmenu import widget
-from pgmenu.widget import Widget, ToggleWidget
-from pgmenu.constants import THEME
-from pgmenu.theme import resolve, resolve_kwarg
-from pgmenu.animation import *
+
+from pgmenu.base import Widget, ToggleWidget
+from pgmenu.core.animation import Animate, AnimateTuple, AnimateSurface, AnimateType
+from pgmenu.core.theme import resolve, resolve_kwarg
+from pgmenu.vars.constants import THEME
+
+
+__all__ = ["Radiobutton", "RadioGroup"]
 
 
 class Radiobutton(ToggleWidget):
@@ -59,7 +62,7 @@ class Radiobutton(ToggleWidget):
         if not isinstance(kwargs.get("dot_transparency"), AnimateType):
             self.dot_transparency = pgmenu.animation.Animate(self.dot_base_transparency, self.dot_transparency, self.animation_duration, self.animation_curve, self.animation_precision)
 
-        pgmenu.widget.add(self)
+        pgmenu.widgets.add(self)
         
     def select(self):
         self.selected = True
@@ -91,7 +94,7 @@ class Radiobutton(ToggleWidget):
 
 class RadioGroup:
 
-    def __init__(self, *widgets: Radiobutton,):
+    def __init__(self, *widgets: Radiobutton):
         self.widgets = []
         self.add(*widgets)
 

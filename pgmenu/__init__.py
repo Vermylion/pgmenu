@@ -1,54 +1,23 @@
-# FIXME -> Has to be a better way to maintain structure without having to use 'as draw' -> Doesn't work properly when using 'from pgmenu import *'
-
-from pgmenu.constants import *
-
-from pgmenu.lib import *
-
-import pgmenu.system as system
-
-import pgmenu.cache as cache
-
+# Constants, system settings, global state (must come first; everything else reads these)
+from pgmenu.vars import constants, system
+from pgmenu.vars.constants import *
 import pgmenu.vars as vars
+from pgmenu.vars import Theme, AnimationTheme
 
-from pgmenu.vars import Theme
-from pgmenu.vars import AnimationTheme
+# Core
+from pgmenu.core import cache, animation, theme, position, rect, text # utils isn't imported as it's only for lib side
+from pgmenu.core import draw, aarect, resize, display, lib, menu, simple
+from pgmenu.core.lib import *          # draw_all, update, request_cursor...
 
-import pgmenu.animation as animation
-
-import pgmenu.text as text
-
-import pgmenu.draw as draw
-
-import pgmenu.theme as theme
-
-import pgmenu.position as position
-
-import pgmenu.projects as projects
-
-import pgmenu.display as display
-
-import pgmenu.rect as rect
-
-import pgmenu.resize as resize
-
-import pgmenu.simple as simple
-
-import pgmenu.menu as menu
+# Base for widgets (Widget + mixins)
+from pgmenu.base import widget, mixins, togglewidget
+from pgmenu.base import Widget
 
 # Widgets
-import pgmenu.label as label
+import pgmenu.widgets as widgets
 
-import pgmenu.surface as surface
+# TODO -> Define what the star import should import
+__all__ = []
 
-import pgmenu.frame as frame
-
-import pgmenu.button as button
-
-import pgmenu.checkbox as checkbox
-
-import pgmenu.radiobutton as radiobutton
-
-import pgmenu.toggleswitch as toggleswitch
-
-# Initialize library
+# Initialize the library
 lib.init()

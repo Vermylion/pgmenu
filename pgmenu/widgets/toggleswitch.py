@@ -1,9 +1,13 @@
 import pygame
 import pgmenu
-from pgmenu.widget import Widget, ToggleWidget
-from pgmenu.constants import THEME
-from pgmenu.theme import resolve, resolve_kwarg
-from pgmenu.animation import *
+
+from pgmenu.base import Widget, ToggleWidget
+from pgmenu.core.animation import Animate, AnimateTuple, AnimateSurface, AnimateType
+from pgmenu.core.theme import resolve, resolve_kwarg
+from pgmenu.vars.constants import THEME
+
+
+__all__ = ["ToggleSwitch"]
 
 
 class ToggleSwitch(ToggleWidget):
@@ -76,7 +80,7 @@ class ToggleSwitch(ToggleWidget):
 
         # Internal attributes used for responsive resize
 
-        pgmenu.widget.add(self)
+        pgmenu.widgets.add(self)
 
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
@@ -114,11 +118,11 @@ class ToggleSwitch(ToggleWidget):
         full_rect = (0, 0, *self.size.int_tuple)
 
         toggleswitch_surface = pgmenu.draw.aarect(None, self.fill, full_rect, self.width, self.border_radius,
-                                              self.border_top_left_radius, self.border_top_right_radius,
-                                              self.border_bottom_left_radius, self.border_bottom_right_radius,
-                                              self.antialiasing, self.transparency, self.aa_strength,
-                                              inner_fill=self.inner_fill, inner_transparency=self.inner_transparency,
-                                              inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
+                                                self.border_top_left_radius, self.border_top_right_radius,
+                                                self.border_bottom_left_radius, self.border_bottom_right_radius,
+                                                self.antialiasing, self.transparency, self.aa_strength,
+                                                inner_fill=self.inner_fill, inner_transparency=self.inner_transparency,
+                                                inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
         # Code for smooth toggle transition
         x_on = self.size.int_tuple[0] - min(self.size.int_tuple)
@@ -131,17 +135,17 @@ class ToggleSwitch(ToggleWidget):
 
         thumb_rect = (thumb_x, thumb_y, min(self.size.int_tuple) - self.margin.int * 2, min(self.size.int_tuple) - self.margin.int * 2)
         pgmenu.draw.aarect(toggleswitch_surface, self.thumb_fill, thumb_rect, self.thumb_width, self.thumb_border_radius,
-                           self.thumb_border_top_left_radius, self.thumb_border_top_right_radius,
-                           self.thumb_border_bottom_left_radius, self.thumb_border_bottom_right_radius,
-                           self.thumb_antialiasing, self.thumb_transparency, self.thumb_aa_strength,
-                           inner_fill=self.thumb_inner_fill, inner_transparency=self.thumb_inner_transparency,
-                           inner_aa_strength=self.thumb_inner_aa_strength, inner_antialiasing=self.thumb_inner_antialiasing)
+                         self.thumb_border_top_left_radius, self.thumb_border_top_right_radius,
+                         self.thumb_border_bottom_left_radius, self.thumb_border_bottom_right_radius,
+                         self.thumb_antialiasing, self.thumb_transparency, self.thumb_aa_strength,
+                         inner_fill=self.thumb_inner_fill, inner_transparency=self.thumb_inner_transparency,
+                         inner_aa_strength=self.thumb_inner_aa_strength, inner_antialiasing=self.thumb_inner_antialiasing)
 
         has_text = self.text is not None and self.text != ""
         if has_text:
             text_surface = pgmenu.text.fit_height_render(self.size.base_tuple[1], self.text, self.text_color, round(self.text_margin), self.text_font,
-                                                         self.text_background, self.text_antialias, self.text_italic, self.text_bold,
-                                                         self.text_strikethrough, self.text_underline, self.text_transparency)
+                                                       self.text_background, self.text_antialias, self.text_italic, self.text_bold,
+                                                       self.text_strikethrough, self.text_underline, self.text_transparency)
             text_surf_size = text_surface.get_size()
             side_margin = self.text_side_margin
         else:
@@ -152,7 +156,7 @@ class ToggleSwitch(ToggleWidget):
         # Combined surface sized off the MAX toggleswitch extent, plus text
         # (if any), so it's constant across the hover animation either way.
         surface_size = (max_w + side_margin + text_surf_size[0], max_h)
-        self.surface = pgmenu.surface.cached_surface(surface_size, pygame.SRCALPHA)
+        self.surface = pgmenu.cache.cached_surface(surface_size, pygame.SRCALPHA)
 
         if has_text and self.text_side == pgmenu.LEFT:
             text_x = 0

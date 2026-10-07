@@ -1,7 +1,7 @@
 # 7. Responsive resize
 
 pgmenu rescales widget geometry when the window (or a widget's parent `Frame`) changes size.
-The system is implemented in `pgmenu/resize.py` and is driven from inside `pgmenu.update()`.
+The system is implemented in `../pgmenu/core/resize.py` and is driven from inside `pgmenu.update()`.
 
 ---
 

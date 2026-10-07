@@ -84,30 +84,30 @@ objects to their current value so animated arguments still produce stable, hasha
 | Module | Role |
 | --- | --- |
 | `pgmenu/__init__.py` | Package assembly; imports every submodule and calls `lib.init()` |
-| `pgmenu/lib.py` | The engine: `init`, `_draw`, `draw_all`, `update`, `request_cursor` |
-| `pgmenu/constants.py` | All string constants (states, directions, widget types, sentinels) |
-| `pgmenu/vars.py` | Mutable global runtime state (registry, caches, cursor, window sizes) |
-| `pgmenu/system.py` | User-tunable engine settings (`WIDGET_DRAW_PRIORITY`, `MAX_CACHE_SIZE`) |
-| `pgmenu/cache.py` | `Cache` (animation-aware `OrderedDict`) and the LRU helpers |
-| `pgmenu/theme.py` | `Theme` class, JSON loading/saving, `resolve*` helpers |
-| `pgmenu/animation.py` | Easing curves and the four animation object types |
-| `pgmenu/widget.py` | `add()`, `Widget` base class, `RectMixin`, `TextMixin` |
-| `pgmenu/label.py` | `Label` widget |
-| `pgmenu/surface.py` | `Surface` widget and the cached `resize()` helper |
-| `pgmenu/frame.py` | `Frame` widget (container and blit target) |
-| `pgmenu/button.py` | `Button` widget |
-| `pgmenu/checkbox.py` | `Checkbox` widget (in development) |
-| `pgmenu/aarect.py` | `AARect` renderer and a theme-free `aarect()` function |
-| `pgmenu/draw.py` | Theme-aware `aarect()` entry point, `gradient()` stub |
-| `pgmenu/text.py` | Font matching, multi-line rendering, auto-fitting, animated fitting |
-| `pgmenu/rect.py` | `fit_rects`, `center_rects` |
-| `pgmenu/position.py` | `center_coords`, `place()` stub |
-| `pgmenu/resize.py` | Responsive resize implementation |
-| `pgmenu/display.py` | Fullscreen toggle, transparent window helpers (Windows) |
-| `pgmenu/menu.py` | `Menu` grouping object |
-| `pgmenu/simple.py` | `PgmenuWindow`, a tkinter-level convenience wrapper |
+| `../pgmenu/core/lib.py` | The engine: `init`, `_draw`, `draw_all`, `update`, `request_cursor` |
+| `../pgmenu/vars/constants.py` | All string constants (states, directions, widget types, sentinels) |
+| `../pgmenu/vars/vars.py` | Mutable global runtime state (registry, caches, cursor, window sizes) |
+| `../pgmenu/vars/system.py` | User-tunable engine settings (`WIDGET_DRAW_PRIORITY`, `MAX_CACHE_SIZE`) |
+| `../pgmenu/core/cache.py` | `Cache` (animation-aware `OrderedDict`) and the LRU helpers |
+| `../pgmenu/core/theme.py` | `Theme` class, JSON loading/saving, `resolve*` helpers |
+| `../pgmenu/core/animation.py` | Easing curves and the four animation object types |
+| `../pgmenu/base/widget.py` | `add()`, `Widget` base class, `RectMixin`, `TextMixin` |
+| `../pgmenu/widgets/label.py` | `Label` widget |
+| `../pgmenu/widgets/surface.py` | `Surface` widget and the cached `resize()` helper |
+| `../pgmenu/widgets/frame.py` | `Frame` widget (container and blit target) |
+| `../pgmenu/widgets/button.py` | `Button` widget |
+| `../pgmenu/widgets/checkbox.py` | `Checkbox` widget (in development) |
+| `../pgmenu/core/aarect.py` | `AARect` renderer and a theme-free `aarect()` function |
+| `../pgmenu/core/draw.py` | Theme-aware `aarect()` entry point, `gradient()` stub |
+| `../pgmenu/core/text.py` | Font matching, multi-line rendering, auto-fitting, animated fitting |
+| `../pgmenu/core/rect.py` | `fit_rects`, `center_rects` |
+| `../pgmenu/core/position.py` | `center_coords`, `place()` stub |
+| `../pgmenu/core/resize.py` | Responsive resize implementation |
+| `../pgmenu/core/display.py` | Fullscreen toggle, transparent window helpers (Windows) |
+| `../pgmenu/core/menu.py` | `Menu` grouping object |
+| `../pgmenu/core/simple.py` | `PgmenuWindow`, a tkinter-level convenience wrapper |
 | `pgmenu/projects.py` | Skeleton projects, currently `MovablePlaneWindow` |
-| `pgmenu/utils.py` | Alpha blending lookup table and helpers |
+| `../pgmenu/core/utils.py` | Alpha blending lookup table and helpers |
 | `pgmenu/themes/*.json` | Theme files (`DEFAULT`, `FULL-DEFAULT`, `MODERN`) |
 
 Files named `Debug*.py` in the repository are development scratch pads, not part of the

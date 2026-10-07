@@ -23,7 +23,7 @@ for i in range(round(draw_range / 5)):
     color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), random.randint(128, 255))
 
     # Generate new surface with a rect
-    globals()[f"rect{i}"] = pgmenu.draw.aarect(None, color, (0, 0, width, height), border_radius=0, debug=False)
+    globals()[f"rect{i}"] = core.draw.aarect(None, color, (0, 0, width, height), border_radius=0, debug=False)
     # Add surface, or blit, to window
     window.blit(globals()[f"rect{i}"], (x, y))
 
@@ -40,7 +40,7 @@ while running:
             pygame.display.set_caption(f'pgmenu {screen.get_size()}')
 
         # Add fullscreen controls
-        screen = pgmenu.display.fullscreen_controls(screen, event)
+        screen = core.display.fullscreen_controls(screen, event)
 
         # Add window controls
         window.controls(event)
@@ -52,10 +52,10 @@ while running:
 
     # Text for extra info
     # Fps
-    pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
+    core.text.write(screen, (20, 20), str(round(clock.get_fps())))
     x, y = pygame.mouse.get_pos()
     # Cursor's coordinates in the plane
-    pgmenu.text.write(screen, (1000, 20), f"{round(x * window.relative_scale.num)}, {round(y * window.relative_scale.num)}", center_x = True)
+    core.text.write(screen, (1000, 20), f"{round(x * window.relative_scale.num)}, {round(y * window.relative_scale.num)}", center_x = True)
 
     pgmenu.update(events)
     pygame.display.flip()

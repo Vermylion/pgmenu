@@ -1,7 +1,6 @@
 import pygame
 import random
 import time
-import pgmenu
 
 # ------------------ CONFIG ------------------
 SCREEN_WIDTH = 1200
@@ -92,7 +91,7 @@ while running:
     for w in widgets:
         w.draw(screen)
 
-    pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
+    core.text.write(screen, (20, 20), str(round(clock.get_fps())))
 
     pygame.display.flip()
 

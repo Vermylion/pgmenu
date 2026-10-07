@@ -1,5 +1,4 @@
 import random
-import time
 import pygame
 import pgmenu
 
@@ -50,7 +49,7 @@ def make_surface():
     a = random.randint(0, 255)
     color = (r, g, b, a)
 
-    rect = pgmenu.draw.aarect(None, color, (x, y, w, h), antialiasing=True, debug=True)
+    rect = core.draw.aarect(None, color, (x, y, w, h), antialiasing=True, debug=True)
 
     surface = pgmenu.surface.Surface(
         screen,
@@ -72,13 +71,13 @@ while running:
             running = False
             pygame.quit()
 
-        screen = pgmenu.display.fullscreen_controls(screen, event)
+        screen = core.display.fullscreen_controls(screen, event)
 
     screen.fill(pgmenu.Theme.bgcolor)
 
     pgmenu.draw_all()
 
-    pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
+    core.text.write(screen, (20, 20), str(round(clock.get_fps())))
 
     win_size = pygame.display.get_window_size()
     pygame.display.set_caption(f"Window {win_size[0]}x{win_size[1]}")
