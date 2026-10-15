@@ -69,9 +69,7 @@ class RectMixin:
             if prefix != "":
                 default = getattr(self, attr)
 
-            setattr(self,
-                    f"{prefix}{attr}",
-                    resolve_widget(kwargs,f"{prefix}{attr}", self.type, default))
+            setattr(self, f"{prefix}{attr}", resolve_widget(kwargs,f"{prefix}{attr}", self.type, default))
 
     def _mixin_setattr(self, key, value):
 
@@ -88,10 +86,10 @@ class RectMixin:
 
                 return
 
-    def _resize_border_radii(self, w, h):
+    def _resize_border_radii(self, w: int, h: int):
         self._resize_rect("", w, h)
 
-    def _resize_rect(self, prefix, w, h):
+    def _resize_rect(self, prefix: str, w: int, h: int):
 
         factor = min(w / self.base_size[0], h / self.base_size[1])
 

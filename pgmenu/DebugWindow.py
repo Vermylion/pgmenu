@@ -19,7 +19,7 @@ pinksky = pygame.transform.smoothscale(pinksky, (1080, 720))
 
 
 def make_animated_surf(size):
-    rect = pgmenu.draw.aarect(None, (63, 68, 72), (0, 0, *size))
+    rect = pgmenu.draw.aarect(None, (63, 68, 72), (0, 0, *size), width=2)
     rect2 = pgmenu.draw.aarect(None, (68, 72, 77), (0, 0, *size))
     return pgmenu.animation.AnimateSurface(rect, rect2, 0, 255, 0.3, pgmenu.animation.circ)
 
@@ -35,9 +35,11 @@ def on_standby():
 
 def m_animation_on_standby():
     label.color.update(pgmenu.BACKWARD)
+    label.size.update(pgmenu.BACKWARD)
 
 def m_animation_on_hover():
     label.color.update(pgmenu.FORWARD)
+    label.size.update(pgmenu.FORWARD)
     pgmenu.request_cursor(pygame.SYSTEM_CURSOR_HAND)
 
 
@@ -49,11 +51,12 @@ pgmenu.Theme.set(**{'widget_disable_default_animation': False})
 
 
 frame = pgmenu.widgets.Frame(screen, pgmenu.position.center_coords((600, 450), (0, 0, 1080, 720)), (600, 450))
+frame.set_content_size(1000, 1000)
 
 surface = pgmenu.widgets.Surface(frame, make_animated_surf((200, 100)), (300, 275), on_resize=lambda: on_resize(surface.size.int_tuple), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
 
 color2 = pgmenu.animation.AnimateTuple(*((250, 50), (50, 50), (50, 250)), duration=0.5, curve=pgmenu.animation.circ)
-label = pgmenu.widgets.Label(frame, (250, 150), color=color2, size=100, animation_scale=1.4, animation_duration=0.15,
+label = pgmenu.widgets.Label(frame, (250, 150), color=color2, size=100, animation_scale=1.1, animation_duration=0.15,
                            animation_on_standby=m_animation_on_standby, animation_on_hover=m_animation_on_hover,
                            responsive_size=pgmenu.PROPORTIONAL)
 
@@ -70,8 +73,15 @@ radiogroup = pgmenu.widgets.RadioGroup(radiobutton1, radiobutton2, radiobutton3)
 
 toggleswitch = pgmenu.widgets.ToggleSwitch(frame, (50, 350), (60, 30), toggle_direction=pgmenu.RIGHT)
 
-size_animated = pgmenu.animation.AnimateTuple((100, 130), (50, 50*1.3), duration=0.6)
-pgmenu.animation.run_animation(size_animated, pgmenu.FORWARD, loop=pgmenu.YOYO)
+for i in range(int((frame.content_size[1] - frame.size[1]) / 100)):
+    # FIXME -> With f"Button {i}", I get 4 fps with cache of 300. Cache has to be more variable and more dynamic
+    pgmenu.widgets.Button(frame, (50, i*100 + 450), text=f"Button {i}")
+
+scrollbar_x = pgmenu.widgets.Scrollbar(frame, pgmenu.BOTTOM)
+scrollbar_y = pgmenu.widgets.Scrollbar(frame, pgmenu.RIGHT)
+
+# size_animated = pgmenu.animation.AnimateTuple((100, 130), (50, 50*1.3), duration=0.6)
+# pgmenu.animation.run_animation(size_animated, pgmenu.FORWARD, loop=pgmenu.YOYO)
 
 go = False
 start = time.time()
@@ -107,9 +117,19 @@ while running:
                 screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
                 pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
+            if event.key == pygame.K_UP:
+                frame.scroll_y_by(-200)
+
+            if event.key == pygame.K_DOWN:
+                frame.scroll_y_by(200)
+
+            if event.key == pygame.K_RSHIFT:
+                frame.scroll_to(200, 200)
+
         screen = pgmenu.display.fullscreen_controls(screen, event)
 
     screen.fill(pgmenu.Theme.bgcolor)
+
     # screen.blit(pinksky, (0,0))
 
     if go and (time.time() - start) >= 0.05:
@@ -129,13 +149,13 @@ while running:
         screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
         pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
 
-    pgmenu.draw.aarect(screen, (200, 50, 50), (450, 50, *size_animated.int_tuple))
+    # pgmenu.draw.aarect(screen, (200, 50, 50), (450, 50, *size_animated.int_tuple))
 
     pgmenu.draw_all()
 
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
     # if pgmenu.vars.kb_selected_widget:
-    #     pgmenu.text.write(screen, (300, 20), str(checkbox1.check_transparency))
+    # pgmenu.text.write(screen, (300, 20), str(scrollbar.state))
 
     win_size = pygame.display.get_window_size()
     pygame.display.set_caption(f"Window {win_size[0]}x{win_size[1]}")

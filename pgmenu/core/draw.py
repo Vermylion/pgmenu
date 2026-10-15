@@ -54,7 +54,7 @@ def aarect(surface: pygame.Surface | None = None,
     transparency = resolve(transparency, pgmenu.Theme.aarect_transparency)
     aa_strength = resolve(aa_strength, pgmenu.Theme.aarect_aa_strength)
     # Additional parameters for modifying inside rect
-    inner_fill = resolve_kwarg(kwargs, 'inner_fill', pgmenu.Theme.aarect_inner_fill, fill)
+    inner_fill = resolve_kwarg(kwargs, 'inner_fill', pgmenu.Theme.aarect_inner_fill, None)
     inner_transparency = resolve_kwarg(kwargs, 'inner_transparency', pgmenu.Theme.aarect_inner_transparency, transparency)
     inner_aa_strength = resolve_kwarg(kwargs, 'inner_aa_strength', pgmenu.Theme.aarect_inner_aa_strength, aa_strength)
     inner_antialiasing = resolve_kwarg(kwargs, 'inner_antialiasing', pgmenu.Theme.aarect_inner_antialiasing, antialiasing)

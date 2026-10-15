@@ -59,8 +59,6 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
     def draw(self):
         super().draw()
 
-        coords = pgmenu.position.center_coords(self.size.int_tuple, (*self.coords.int_tuple, *self.size.base_tuple))
-
         full_rect = (0, 0, *self.size.int_tuple)
 
         self.surface = pgmenu.draw.aarect(None, self.fill, full_rect, self.width, self.border_radius,
@@ -104,10 +102,14 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
             text_rect = (*text_pos, *text_rect[2:])
 
         self.surface.blit(text_surface, text_rect[:2])
-        self.master.blit(self.surface, coords)
+        self.blit_to_master()
 
-    # FIXME --> Button margin doesn't resize correctly with current factor --> Factor is wrong
-    def resize(self, w, h):
+    def update(self, event):
+        super().update(event)
+
+        self._mixin_hook("_mixin_update", event)
+
+    def resize(self, w: int, h: int):
         self._resize_border_radii(w, h)
 
         factor = min(w / self.base_size[0], h / self.base_size[1])

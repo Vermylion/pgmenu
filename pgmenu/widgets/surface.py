@@ -44,9 +44,9 @@ class Surface(Widget):
     def draw(self):
         super().draw()
 
-        self.master.blit(self.surface, self.coords)
+        self.blit_to_master()
 
-    def resize(self, w, h):
+    def resize(self, w: int, h: int):
         self.size = w, h
 
         original_surface = self._surface

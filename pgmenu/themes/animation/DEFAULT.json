@@ -95,6 +95,17 @@
       {"type": "attribute", "name": "thumb_fill", "args": ["backward"]},
       {"type": "attribute", "name": "fill", "args": ["backward"]},
       {"type": "attribute", "name": "transition", "args": ["backward"]}
+    ],
+
+    "#": "Scrollbar animations",
+    "scrollbar_animation_on_standby": [
+      {"type": "attribute", "name": "thickness", "args": ["backward"]},
+      {"type": "attribute", "name": "transparency", "args": ["backward"]}
+    ],
+    "scrollbar_animation_on_hover": [
+      {"type": "attribute", "name": "thickness", "args": ["forward"]},
+      {"type": "attribute", "name": "transparency", "args": ["forward"]}
     ]
+
   }
 }

@@ -27,8 +27,6 @@ class Label(Widget):
                  strikethrough: bool = THEME,
                  underline: bool = THEME,
                  transparency: int | Animate = THEME,
-                 center_x: bool = THEME,
-                 center_y: bool = THEME,
                  **kwargs):
 
         # self.type has to be defined before super().__init__()
@@ -49,8 +47,6 @@ class Label(Widget):
         self.strikethrough = resolve(strikethrough, pgmenu.Theme.label_strikethrough)
         self.underline = resolve(underline, pgmenu.Theme.label_underline)
         self.transparency = resolve(transparency, pgmenu.Theme.label_transparency)
-        self.center_x = resolve(center_x, pgmenu.Theme.label_center_x)
-        self.center_y = resolve(center_y, pgmenu.Theme.label_center_y)
 
         # Add widget to widget list
         pgmenu.widgets.add(self)
@@ -60,13 +56,7 @@ class Label(Widget):
 
         self.surface = pgmenu.text.render(self.text, self.color, self.size, self.font, self.background, self.antialias, self.italic, self.bold, self.strikethrough, self.underline, self.transparency)
 
-        if self.center_x or self.center_y:
-            coords = pgmenu.position.center_coords(self.surface_size, (*self.coords, 0, 0), self.center_x, self.center_y)
+        self.blit_to_master()
 
-        else:
-            coords = self.coords
-
-        self.master.blit(self.surface, coords)
-
-    def resize(self, w, h):
+    def resize(self, w: int, h: int):
         self.size = h

@@ -86,14 +86,11 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
             text_pos = pgmenu.position.center_coords(text_surf_size, (text_x, 0, text_x + text_surf_size[0], max_h), center_x=False)
             self.surface.blit(text_surface, text_pos)
 
-        self.master.blit(self.surface, self.coords.int_tuple)
+        self.blit_to_master()
 
     # TODO: IMPORTANT -> Revamp update system with states and/or update mixin handling
     def update(self, event):
-        # super().update(event)
-
-        self.surface_size = self.surface.get_size()
-        self._update_rect(self.surface_size, self.coords)
+        super().update(event)
 
         # Detect mouse collisions
         if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
@@ -108,7 +105,7 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
 
         self._mixin_hook("_mixin_update", event)
 
-    def resize(self, w, h):
+    def resize(self, w: int, h: int):
         self._resize_border_radii(w, h)
         self._resize_rect(self._indicator_prefix, w, h)
 

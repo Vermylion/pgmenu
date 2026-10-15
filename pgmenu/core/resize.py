@@ -59,6 +59,7 @@ def responsive_resize(widget, event):
 
             w, h = _scale(base_size, master_size, master_base_size, widget.responsive_size, widget.responsive_size_w, widget.responsive_size_h)
 
+            # FIXME -> Pass w, h to on_resize?
             widget.resize(w, h)
             widget.on_resize()
 

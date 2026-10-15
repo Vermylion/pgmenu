@@ -51,8 +51,10 @@ class Widget:
         self.on_key_hold = resolve_widget(kwargs, 'on_key_hold', self.type, self.m_on_key_hold)
         self.on_key_release = resolve_widget(kwargs, 'on_key_release', self.type, self.m_on_key_release)
         self.on_resize = resolve_widget(kwargs, 'on_resize', self.type, self.m_on_resize)
-        # Base hover cursor for the widget
-        self.cursor = resolve_widget(kwargs, 'cursor', self.type, pygame.SYSTEM_CURSOR_ARROW)
+        # Widget placement centering attributes
+        self.center_x = resolve_widget(kwargs, 'center_x', self.type, pgmenu.Theme.widget_center_x)
+        self.center_y = resolve_widget(kwargs, 'center_y', self.type, pgmenu.Theme.widget_center_y)
+        self.animation_anchor = resolve_widget(kwargs, 'animation_anchor', self.type, pgmenu.Theme.widget_animation_anchor)
         # Formatting for responsive resize
         # Responsive resize values have to be the same for all widgets
         self.responsive_size = kwargs.get('responsive_size', pgmenu.Theme.widget_responsive_size)
@@ -61,8 +63,11 @@ class Widget:
         self.responsive_coords = kwargs.get('responsive_coords', pgmenu.Theme.widget_responsive_coords)
         self.responsive_coords_x = kwargs.get('responsive_coords_x', pgmenu.Theme.widget_responsive_coords_x)
         self.responsive_coords_y = kwargs.get('responsive_coords_y', pgmenu.Theme.widget_responsive_coords_y)
+        # Base hover cursor for the widget
+        self.cursor = resolve_widget(kwargs, 'cursor', self.type, pgmenu.Theme.widget_cursor)
         # Base widget should be able to be enabled and disabled, but could be removed later
         self.state = kwargs.get('state', pgmenu.Theme.widget_state)
+        # Internal attributes
         # Detection rect for update; no detection zone by default
         self.rect = pygame.Rect(0, 0, 0, 0)
         # Base attributes that have to be defined for a widget
@@ -72,6 +77,7 @@ class Widget:
         # The widget's size on screen, updated when drawn
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
         self.surface_size = (0, 0)
+        self.surface_coords = (0, 0)
         # Internal attributes used in responsive resize
         self.base_size = None
         self.base_coords = None
@@ -80,6 +86,8 @@ class Widget:
         self.has_draw_priority = False
         # Save widget's drawn state
         self._drawn = False
+        # Widget's resting size for centered placement
+        self._rest_size = None
 
     def __setattr__(self, key, value):
 
@@ -110,7 +118,7 @@ class Widget:
             elif isinstance(value, (int, float)) and not isinstance(value, bool):
                 value = Animate(value, value * self.animation_scale, self.animation_duration, self.animation_curve, self.animation_precision)
 
-            elif isinstance(value, (tuple, list)) and all(isinstance(val, (int, float)) for val in value):
+            elif isinstance(value, (tuple, list)) and all(isinstance(val, (int, float, Animate)) for val in value):
                 pairs = [(v, v * self.animation_scale) for v in value]
 
                 value = AnimateTuple(*pairs, duration=self.animation_duration, curve=self.animation_curve, precision=self.animation_precision)
@@ -150,12 +158,51 @@ class Widget:
             if m_hook:
                 m_hook(self, *params, **kwargs)
 
-    def _update_rect(self, size, coords):
-        if isinstance(self.master, pgmenu.widgets.Frame):
-            size = min(self.master.size[0] - coords[0], size[0]), min(self.master.size[1] - coords[1], size[1])
-            coords = self.master.coords[0] + coords[0], self.master.coords[1] + coords[1]
+    def _place_surface(self):
+        sw, sh = self.surface.get_size()
 
-        self.rect = pygame.Rect(*coords, *size)
+        # Learn the rest size: the surface size whenever size is not mid-animation
+        if isinstance(self.size, AnimateType) and self.size == self.size.base_value:
+            self._rest_size = (sw, sh)
+        rw, rh = self._rest_size or (sw, sh)
+
+        x, y = self._make_2d(self.coords)
+
+        # Scrolling is applied here, never written into coords
+        if isinstance(self.master, pgmenu.widgets.Frame) and not isinstance(self, pgmenu.widgets.Scrollbar):
+            sx, sy = self.master._make_2d(self.master.scroll_offset)
+            x, y = x - sx, y - sy
+
+        ax, ay = self.animation_anchor
+
+        # coords is the center point instead of the top-left
+        if self.center_x:
+            x -= rw / 2
+        if self.center_y:
+            y -= rh / 2
+
+        # Anchor the surface inside its rest area while it grows or shrinks
+        x += (rw - sw) * ax
+        y += (rh - sh) * ay
+
+        return round(x), round(y)
+
+    # FIXME -> Performance issue (especially with frame)
+    def _update_rect(self, size, coords):
+        x, y = coords
+        w, h = size
+
+        if isinstance(self.master, pgmenu.widgets.Frame):
+            master_w, master_h = self.master.size
+            master_x, master_y = self.master.coords
+
+            # Visible span = overlap of [x, x + w] with [0, master_size]
+            left, top = max(x, 0), max(y, 0)
+            w = min(x + w, master_w) - left
+            h = min(y + h, master_h) - top
+            x, y = left + master_x, top + master_y
+
+        self.rect = pygame.Rect(x, y, w, h)
 
     def _format_size(self, size):
         """
@@ -217,18 +264,22 @@ class Widget:
         # Default call for mixins
         self._mixin_hook("_mixin_draw")
 
+    def blit_to_master(self):
+        self.surface_coords = self._place_surface()
+        self.master.blit(self.surface, self.surface_coords)
+
     def update(self, event):
         self.surface_size = self.surface.get_size()
-        self._update_rect(self.surface_size, self.coords)
+        self._update_rect(self.surface_size, self.surface_coords)
 
         # Default call for mixins
-        self._mixin_hook("_mixin_update", event)
+        # self._mixin_hook("_mixin_update", event)
 
     def destroy(self):
         """Remove this widget from the engine."""
         pgmenu.widgets.remove(self)
 
-    def resize(self, w, h):
+    def resize(self, w: int, h: int):
         ...
 
     def m_animation_on_standby(self):

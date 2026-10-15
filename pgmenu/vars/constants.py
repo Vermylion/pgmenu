@@ -17,9 +17,13 @@ IN_OUT = "in_out"
 ONCE = "once"
 LOOP = "loop"
 YOYO = "yoyo"
-# Constants for Checkbox
+# Directional constants
 RIGHT = "right"
 LEFT = "left"
+TOP = "top"
+BOTTOM = "bottom"
+HORIZONTAL = "horizontal"
+VERTICAL = "vertical"
 # Widget types constants
 WIDGET = "widget"
 LABEL = "label"
@@ -29,6 +33,7 @@ BUTTON = "button"
 CHECKBOX = "checkbox"
 RADIOBUTTON = "radiobutton"
 TOGGLESWITCH = "toggleswitch"
+SCROLLBAR = "scrollbar"
 # Constant to know when to use theme
 THEME = "theme"
 # Constant to determine if an attribute derived from Theme is undefined

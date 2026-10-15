@@ -7,6 +7,7 @@ from .button import Button
 from .checkbox import Checkbox
 from .radiobutton import Radiobutton, RadioGroup
 from .toggleswitch import ToggleSwitch
+from .scrollbar import Scrollbar
 
 __all__ = [
     "add",
@@ -21,4 +22,5 @@ __all__ = [
     "Radiobutton",
     "RadioGroup",
     "ToggleSwitch",
+    "Scrollbar",
 ]

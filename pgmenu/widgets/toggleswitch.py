@@ -172,9 +172,9 @@ class ToggleSwitch(ToggleWidget):
             text_pos = pgmenu.position.center_coords(text_surf_size, (text_x, 0, text_x + text_surf_size[0], max_h), center_x=False)
             self.surface.blit(text_surface, text_pos)
 
-        self.master.blit(self.surface, self.coords.int_tuple)
+        self.blit_to_master()
 
-    def resize(self, w, h):
+    def resize(self, w: int, h: int):
         self._resize_border_radii(w, h)
         self._resize_rect("thumb_", w, h)
 
