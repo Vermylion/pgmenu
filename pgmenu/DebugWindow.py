@@ -51,7 +51,7 @@ pgmenu.Theme.set(**{'widget_disable_default_animation': False})
 
 
 frame = pgmenu.widgets.Frame(screen, pgmenu.position.center_coords((600, 450), (0, 0, 1080, 720)), (600, 450))
-frame.set_content_size(1000, 1000)
+frame.set_content_size(1000, 5000)
 
 surface = pgmenu.widgets.Surface(frame, make_animated_surf((200, 100)), (300, 275), on_resize=lambda: on_resize(surface.size.int_tuple), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
 
@@ -61,10 +61,10 @@ label = pgmenu.widgets.Label(frame, (250, 150), color=color2, size=100, animatio
                            responsive_size=pgmenu.PROPORTIONAL)
 
 icon = pgmenu.draw.aarect(None, (255, 0, 0), (0, 0, 50, 50))
-button = pgmenu.widgets.Button(frame, (300, 50), (100, 30), icon=icon, animation_duration=0.1, text="Button", margin=3, text_italic=False, text_bold=False, animation_curve=pgmenu.animation.circ, on_release=button_action)
+button = pgmenu.widgets.Button(frame, (300, 50), (100, 30), animation_duration=0.1, text="Button", margin=3, text_italic=False, text_bold=False, animation_curve=pgmenu.animation.circ, on_release=button_action)
 
-checkbox1 = pgmenu.widgets.Checkbox(frame, (50, 50), text_side=pgmenu.RIGHT)
-checkbox2 = pgmenu.widgets.Checkbox(frame, (50, 100), text_side=pgmenu.RIGHT)
+checkbox1 = pgmenu.widgets.Checkbox(frame, (50, 50))
+checkbox2 = pgmenu.widgets.Checkbox(frame, (50, 100))
 
 radiobutton1 = pgmenu.widgets.Radiobutton(frame, (50, 175))
 radiobutton2 = pgmenu.widgets.Radiobutton(frame, (50, 225))
@@ -125,6 +125,10 @@ while running:
 
             if event.key == pygame.K_RSHIFT:
                 frame.scroll_to(200, 200)
+
+            if event.key == pygame.K_w:
+                button.coords = (550, 300)
+
 
         screen = pgmenu.display.fullscreen_controls(screen, event)
 

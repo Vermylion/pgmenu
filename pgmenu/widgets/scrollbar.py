@@ -96,6 +96,8 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
     def draw(self):
         super().draw()
 
+        self._update_base_attr()
+
         # idx picks the axis we care about, y for vertical and x for horizontal
         is_vertical = self.orientation == pgmenu.VERTICAL
         idx = 1 if is_vertical else 0
@@ -133,8 +135,6 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
 
     def update(self, event):
         super().update(event)
-
-        self._update_base_attr()
 
         # Nothing to do unless the mouse is on us or we're mid-drag
         if self.state not in (pgmenu.HOVERED, pgmenu.ACTIVE):

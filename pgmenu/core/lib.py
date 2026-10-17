@@ -74,6 +74,39 @@ def _widget_kb_selection():
                 break
 
 
+def _merge_wheel_events(events):
+    """Merge MOUSEWHEEL events into one and drop legacy wheel button events."""
+    _WHEEL_BUTTONS = (4, 5, 6, 7)  # legacy wheel "buttons" SDL still emits
+    merged = []
+    x = y = 0
+    px = py = 0.0
+    last = None
+
+    for event in events:
+        if event.type == pygame.MOUSEWHEEL:
+            x += event.x
+            y += event.y
+            px += getattr(event, "precise_x", event.x)
+            py += getattr(event, "precise_y", event.y)
+            last = event
+
+        elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP) and event.button in _WHEEL_BUTTONS:
+            continue  # wheel emulation, not a real click
+
+        else:
+            merged.append(event)
+
+    if last is not None:
+        merged.append(pygame.event.Event(
+            pygame.MOUSEWHEEL,
+            x=x, y=y, precise_x=px, precise_y=py,
+            flipped=getattr(last, "flipped", False),
+            which=getattr(last, "which", 0),
+        ))
+
+    return merged
+
+
 def update(events):
     # Hacky solution for getting base window size
     # Detects first call to update
@@ -82,6 +115,7 @@ def update(events):
 
     # Format input, so we can iterate it if event is passed as input instead of events
     events = [events] if isinstance(events, pygame.event.Event) else list(events)
+    events = _merge_wheel_events(events)
     # General idle event for update logic
     events.append(pygame.event.Event(pgmenu.IDLE_EVENT))
 
