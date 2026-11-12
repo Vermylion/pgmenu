@@ -42,17 +42,17 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
         super().__init__(**kwargs)
 
         self.master = master
-        self.coords = resolve(coords, pgmenu.Theme.button_coords)
-        self.size = resolve(size, pgmenu.Theme.button_size)
-        self.fill = resolve(fill, pgmenu.Theme.button_fill)
+        self.coords = resolve(coords, "coords", self.type)
+        self.size = resolve(size, "size", self.type)
+        self.fill = resolve(fill, "fill", self.type)
 
-        self.text = resolve(text, pgmenu.Theme.button_text)
-        self.text_color = resolve(text_color, pgmenu.Theme.button_text_color)
-        self.icon = resolve(icon, pgmenu.Theme.button_icon)
-        self.margin = resolve(margin, pgmenu.Theme.button_margin)
+        self.text = resolve(text, "text", self.type)
+        self.text_color = resolve(text_color, "text_color", self.type)
+        self.icon = resolve(icon, "icon", self.type)
+        self.margin = resolve(margin, "margin", self.type)
 
-        self.width = resolve(width, pgmenu.Theme.button_width)
-        self.border_radius = resolve(border_radius, pgmenu.Theme.button_border_radius, round(min(self.size) / 3))
+        self.width = resolve(width, "width", self.type)
+        self.border_radius = resolve(border_radius, "border_radius", self.type, round(min(self.size) / 3))
 
         pgmenu.widgets.add(self)
 
@@ -105,8 +105,6 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
         self.blit_to_master()
 
     def update(self, event):
-        super().update(event)
-
         self._mixin_hook("_mixin_update", event)
 
     def resize(self, w: int, h: int):

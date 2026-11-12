@@ -17,10 +17,5 @@ MAX_CACHE_SIZE = 1000 # Min value of 1
 # Key (or None) to be used for keyboard widget selection
 KB_SELECTION = pygame.K_TAB
 # Library's base widget types
-WIDGET_TYPES = ("label",
-                "surface",
-                "frame",
-                "button",
-                "checkbox",
-                "radiobutton",
-                "toggleswitch")
+# FIXME -> Keep it dynamically set in widget.set_type()? If so, should the name change to lowercase?
+WIDGET_TYPES = set() # ("label", "surface", "frame", "button", "checkbox", "radiobutton", "toggleswitch", "scrollbar", "textarea")

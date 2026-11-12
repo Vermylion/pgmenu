@@ -11,6 +11,11 @@ from pgmenu.vars.constants import THEME
 __all__ = ["Frame"]
 
 
+# FIXME -> Has lagback when blitted to another frame on scrolling
+
+# FIXME -> Scrolling doesn't work well, gets worse at low frame rate
+
+
 class Frame(Widget, RectMixin):
 
     def __init__(self,
@@ -27,24 +32,24 @@ class Frame(Widget, RectMixin):
         super().__init__(**kwargs)
 
         self.master = master
-        self.coords = resolve(coords, pgmenu.Theme.frame_coords)
-        self.size = resolve(size, pgmenu.Theme.frame_size)
+        self.coords = resolve(coords, "coords", self.type)
+        self.size = resolve(size, "size", self.type)
 
-        self.fill = resolve(fill, pgmenu.Theme.frame_fill)
-        self.width = resolve(width, pgmenu.Theme.frame_width)
+        self.fill = resolve(fill, "fill", self.type)
+        self.width = resolve(width, "width", self.type)
 
-        self.border_radius = resolve(border_radius, pgmenu.Theme.frame_border_radius, round(min(self.size) / 7))
+        self.border_radius = resolve(border_radius, "border_radius", self.type, round(min(self.size) / 7))
 
-        self.content_size = resolve_kwarg(kwargs, "content_size", pgmenu.Theme.frame_content_size, self.size)
-        self.scroll_offset = resolve_kwarg(kwargs, "scroll_offset", pgmenu.Theme.frame_scroll_offset)
+        self.content_size = resolve_kwarg(kwargs, "content_size", self.type, self.size)
+        self.scroll_offset = resolve_kwarg(kwargs, "scroll_offset", self.type)
 
         x, y = self.scroll_offset
         self.scroll_offset = pgmenu.animation.AnimateTuple([x, x], [y, y], duration=self.animation_duration, curve=self.animation_curve, precision=self.animation_precision)
         # Mouse wheel scroll step
-        self.scroll_step = resolve_kwarg(kwargs, "scroll_step", pgmenu.Theme.frame_scroll_step)
+        self.scroll_step = resolve_kwarg(kwargs, "scroll_step", self.type)
         # Min Max duration of scroll animation
-        self.min_scroll_duration = resolve_kwarg(kwargs, "min_scroll_duration", pgmenu.Theme.frame_min_scroll_duration)
-        self.max_scroll_duration = resolve_kwarg(kwargs, "max_scroll_duration", pgmenu.Theme.frame_max_scroll_duration)
+        self.min_scroll_duration = resolve_kwarg(kwargs, "min_scroll_duration", self.type)
+        self.max_scroll_duration = resolve_kwarg(kwargs, "max_scroll_duration", self.type)
         # Internal attribute for clearing up loose animations quicker
         self._animate_scroll = None
 
@@ -56,8 +61,14 @@ class Frame(Widget, RectMixin):
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
 
-        if key == "content_size" and not pgmenu.vars.videoresized:
-            setattr(self, f"base_{key}", value)
+        # FIXME -> Doesn't work with animation
+        if key == "content_size":
+            value = max(value[0], self.size[0]), max(value[1], self.size[1])
+
+            super().__setattr__(key, value)
+
+            if not pgmenu.vars.videoresized:
+                setattr(self, f"base_{key}", value)
 
     def add(self, *widgets):
         self.widgets += widgets
@@ -72,36 +83,40 @@ class Frame(Widget, RectMixin):
         self._widgets_to_blit[surface] = coords
 
     def scroll_x_by(self, dx: int, animate: bool = THEME):
-        animate = resolve(animate, pgmenu.Theme.frame_animate_scroll)
+        animate = resolve(animate, "animate_scroll", self.type)
 
         self.scroll_by(dx, 0, animate)
 
     def scroll_y_by(self, dy: int, animate: bool = THEME):
-        animate = resolve(animate, pgmenu.Theme.frame_animate_scroll)
+        animate = resolve(animate, "animate_scroll", self.type)
 
         self.scroll_by(0, dy, animate)
 
     def scroll_by(self, dx: int, dy: int, animate: bool = THEME):
-        animate = resolve(animate, pgmenu.Theme.frame_animate_scroll)
+        animate = resolve(animate, "animate_scroll", self.type)
 
         self.scroll_to(self.scroll_offset.final_value[0] + dx, self.scroll_offset.final_value[1] + dy, animate)
 
     def scroll_x_to(self, x: int, animate: bool = THEME):
-        animate = resolve(animate, pgmenu.Theme.frame_animate_scroll)
+        animate = resolve(animate, "animate_scroll", self.type)
 
         self.scroll_to(x, self.scroll_offset.final_value[1], animate)
 
     def scroll_y_to(self, y: int, animate: bool = THEME):
-        animate = resolve(animate, pgmenu.Theme.frame_animate_scroll)
+        animate = resolve(animate, "animate_scroll", self.type)
 
         self.scroll_to(self.scroll_offset.final_value[0], y, animate)
 
     def scroll_to(self, x: int, y: int, animate: bool = THEME):
-        animate = resolve(animate, pgmenu.Theme.frame_animate_scroll)
+        animate = resolve(animate, "animate_scroll", self.type)
 
         # Clamp scroll offset x,y
         x, y = max(x, 0), max(y, 0)
         x, y = min(x, self.content_size[0] - self.size[0]),  min(y, self.content_size[1] - self.size[1])
+
+        # Don't scroll if there is no scrollable content
+        if x == 0 and y == 0:
+            return
 
         # Wether new pos should trigger animation or not
         base_x, base_y = self.scroll_offset.float_tuple if animate else (x, y)
@@ -124,17 +139,13 @@ class Frame(Widget, RectMixin):
 
         self._animate_scroll = pgmenu.animation.run_animation(self.scroll_offset, pgmenu.FORWARD)
 
-
-    def set_content_size(self, w: int, h: int):
-        self.content_size = max(w, self.size[0]), max(h, self.size[1])
-
     def draw(self):
         super().draw()
 
         self.surface = pgmenu.draw.aarect(None, self.fill, (0, 0, *self.size.int_tuple), self.width, self.border_radius,
-                                        self.border_top_left_radius, self.border_top_right_radius, self.border_bottom_left_radius, self.border_bottom_right_radius,
-                                        self.antialiasing, self.transparency, self.aa_strength, inner_fill=self.inner_fill,
-                                        inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
+                                          self.border_top_left_radius, self.border_top_right_radius, self.border_bottom_left_radius, self.border_bottom_right_radius,
+                                          self.antialiasing, self.transparency, self.aa_strength, inner_fill=self.inner_fill,
+                                          inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
         self.draw_widgets()
 
@@ -150,10 +161,8 @@ class Frame(Widget, RectMixin):
         self._widgets_to_blit.clear()
 
     def update(self, event):
-        super().update(event)
-
         if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
-            if event.type == pygame.MOUSEWHEEL:
+            if event.type == pygame.MOUSEWHEEL and not pygame.key.get_pressed()[pygame.K_LCTRL]:
                 scroll_travel_x = max(min(event.precise_x * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
                 scroll_travel_y = max(min(event.precise_y * -1 * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
 

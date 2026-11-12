@@ -2,7 +2,7 @@ import pygame
 import pgmenu
 
 from pgmenu.vars.constants import FORWARD, BACKWARD, THEME
-from pgmenu.core.theme import resolve_widget
+from pgmenu.core.theme import resolve_kwarg
 
 
 __all__ = ["RectMixin", "TextMixin", "ActionableMixin"]
@@ -69,7 +69,7 @@ class RectMixin:
             if prefix != "":
                 default = getattr(self, attr)
 
-            setattr(self, f"{prefix}{attr}", resolve_widget(kwargs,f"{prefix}{attr}", self.type, default))
+            setattr(self, f"{prefix}{attr}", resolve_kwarg(kwargs, f"{prefix}{attr}", self.type, default))
 
     def _mixin_setattr(self, key, value):
 
@@ -123,14 +123,14 @@ class TextMixin:
 
     def _mixin_init(self,
                     **kwargs):
-        self.text_font = resolve_widget(kwargs, "text_font", self.type, pgmenu.UNSET)
-        self.text_background = resolve_widget(kwargs, "text_background", self.type, pgmenu.UNSET)
-        self.text_antialias = resolve_widget(kwargs, "text_antialias", self.type, pgmenu.UNSET)
-        self.text_italic = resolve_widget(kwargs, "text_italic", self.type, pgmenu.UNSET)
-        self.text_bold = resolve_widget(kwargs, "text_bold", self.type, pgmenu.UNSET)
-        self.text_strikethrough = resolve_widget(kwargs, "text_strikethrough", self.type, pgmenu.UNSET)
-        self.text_underline = resolve_widget(kwargs, "text_underline", self.type, pgmenu.UNSET)
-        self.text_transparency = resolve_widget(kwargs, "text_transparency", self.type, pgmenu.UNSET)
+        self.text_font = resolve_kwarg(kwargs, "text_font", self.type, pgmenu.UNSET)
+        self.text_background = resolve_kwarg(kwargs, "text_background", self.type, pgmenu.UNSET)
+        self.text_antialias = resolve_kwarg(kwargs, "text_antialias", self.type, pgmenu.UNSET)
+        self.text_italic = resolve_kwarg(kwargs, "text_italic", self.type, pgmenu.UNSET)
+        self.text_bold = resolve_kwarg(kwargs, "text_bold", self.type, pgmenu.UNSET)
+        self.text_strikethrough = resolve_kwarg(kwargs, "text_strikethrough", self.type, pgmenu.UNSET)
+        self.text_underline = resolve_kwarg(kwargs, "text_underline", self.type, pgmenu.UNSET)
+        self.text_transparency = resolve_kwarg(kwargs, "text_transparency", self.type, pgmenu.UNSET)
 
 
 class ActionableMixin:
@@ -142,14 +142,15 @@ class ActionableMixin:
     def _mixin_update(self, event):
 
         def down_action():
-            self.state = pgmenu.ACTIVE
+            pgmenu.lib.set_active(self)
             self.on_press()
             self.animation_on_press()
 
         def up_action():
-            self.state = pgmenu.NORMAL
-            self.on_release()
-            self.animation_on_release()
+            if self.state == pgmenu.ACTIVE:
+                self.state = pgmenu.NORMAL
+                self.on_release()
+                self.animation_on_release()
 
         def hold_action():
             self.on_hold()
@@ -161,11 +162,13 @@ class ActionableMixin:
             # Keyboard activation
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    down_action()
+                    if self.state != pgmenu.ACTIVE:
+                        down_action()
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RETURN:
-                    up_action()
+                    if self.state != pgmenu.ACTIVE:
+                        up_action()
 
             elif event.type == pgmenu.IDLE_EVENT:
                 if pygame.key.get_pressed()[pygame.K_RETURN]:

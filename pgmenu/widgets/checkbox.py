@@ -34,29 +34,29 @@ class Checkbox(ToggleWidget):
         super().__init__(**kwargs)
 
         self.master = master
-        self.coords = resolve(coords, pgmenu.Theme.checkbox_coords)
+        self.coords = resolve(coords, "coords", self.type)
         self.size = self._format_size(size)
-        self.fill = resolve(fill, pgmenu.Theme.checkbox_fill)
+        self.fill = resolve(fill, "fill", self.type)
 
-        self.text = resolve(text, pgmenu.Theme.checkbox_text)
-        self.text_color = resolve(text_color, pgmenu.Theme.checkbox_text_color)
-        self.check_fill = resolve(check_fill, pgmenu.Theme.checkbox_check_fill)
-        self.margin = resolve(margin, pgmenu.Theme.checkbox_margin)
+        self.text = resolve(text, "text", self.type)
+        self.text_color = resolve(text_color, "text_color", self.type)
+        self.check_fill = resolve(check_fill, "check_fill", self.type)
+        self.margin = resolve(margin, "margin", self.type)
 
-        self.width = resolve(width, pgmenu.Theme.checkbox_width)
-        self.border_radius = resolve(border_radius, pgmenu.Theme.checkbox_border_radius, round(min(self.size) / 3.3))
+        self.width = resolve(width, "width", self.type)
+        self.border_radius = resolve(border_radius, "border_radius", self.type, round(min(self.size) / 3.3))
 
-        self.checked = resolve(checked, pgmenu.Theme.checkbox_checked)
+        self.checked = resolve(checked, "checked", self.type)
 
         # Kwargs attributes
-        self.text_side = resolve_kwarg(kwargs, "text_side", pgmenu.Theme.checkbox_text_side)
-        self.text_margin = resolve_kwarg(kwargs, "text_margin", pgmenu.Theme.checkbox_text_margin)
-        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.checkbox_text_side_margin, self.margin.base_value)
+        self.text_side = resolve_kwarg(kwargs, "text_side", self.type)
+        self.text_margin = resolve_kwarg(kwargs, "text_margin", self.type)
+        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", self.type, self.margin.base_value)
         # Checkmark (rect) kwargs attributes
         self._init_rect(kwargs, "check_")
-        self.check_border_radius = resolve_kwarg(kwargs, "check_border_radius", pgmenu.Theme.checkbox_check_border_radius, self.border_radius.base_value - self.margin.base_value)
+        self.check_border_radius = resolve_kwarg(kwargs, "check_border_radius", self.type, self.border_radius.base_value - self.margin.base_value)
 
-        self.check_base_transparency = resolve_kwarg(kwargs, "check_base_transparency", pgmenu.Theme.checkbox_check_base_transparency)
+        self.check_base_transparency = resolve_kwarg(kwargs, "check_base_transparency", self.type)
         # Setting base custom animation
         if not isinstance(kwargs.get("check_transparency"), AnimateType):
             self.check_transparency = pgmenu.animation.Animate(self.check_base_transparency, self.check_transparency, self.animation_duration, self.animation_curve, self.animation_precision)

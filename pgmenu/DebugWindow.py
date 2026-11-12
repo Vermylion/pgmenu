@@ -8,7 +8,7 @@ pygame.init()
 screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
 pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
-fps = 1000
+fps = 120
 
 # pgmenu.AnimationTheme.load("SIMPLE")
 
@@ -51,7 +51,9 @@ pgmenu.Theme.set(**{'widget_disable_default_animation': False})
 
 
 frame = pgmenu.widgets.Frame(screen, pgmenu.position.center_coords((600, 450), (0, 0, 1080, 720)), (600, 450))
-frame.set_content_size(1000, 5000)
+frame.content_size = (1000, 5000)
+
+frame2 = pgmenu.widgets.Frame(frame, (350, 450), fill=pgmenu.Theme.bgcolor, transparency=255, content_size = (200, 400))
 
 surface = pgmenu.widgets.Surface(frame, make_animated_surf((200, 100)), (300, 275), on_resize=lambda: on_resize(surface.size.int_tuple), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
 
@@ -65,6 +67,8 @@ button = pgmenu.widgets.Button(frame, (300, 50), (100, 30), animation_duration=0
 
 checkbox1 = pgmenu.widgets.Checkbox(frame, (50, 50))
 checkbox2 = pgmenu.widgets.Checkbox(frame, (50, 100))
+checkbox3 = pgmenu.widgets.Checkbox(frame2, (25, 50), text="Checkbox3\nsmaller")
+
 
 radiobutton1 = pgmenu.widgets.Radiobutton(frame, (50, 175))
 radiobutton2 = pgmenu.widgets.Radiobutton(frame, (50, 225))
@@ -73,9 +77,19 @@ radiogroup = pgmenu.widgets.RadioGroup(radiobutton1, radiobutton2, radiobutton3)
 
 toggleswitch = pgmenu.widgets.ToggleSwitch(frame, (50, 350), (60, 30), toggle_direction=pgmenu.RIGHT)
 
-for i in range(int((frame.content_size[1] - frame.size[1]) / 100)):
-    # FIXME -> With f"Button {i}", I get 4 fps with cache of 300. Cache has to be more variable and more dynamic
-    pgmenu.widgets.Button(frame, (50, i*100 + 450), text=f"Button {i}")
+test_text = """TextArea
+TextArea
+TextArea"""
+textarea = pgmenu.widgets.TextArea(frame, (50, 450), (250, 250), content_size=(600, 600), text=test_text)
+
+scrollbar_text_x = pgmenu.widgets.Scrollbar(textarea, pgmenu.BOTTOM)
+scrollbar_text_y = pgmenu.widgets.Scrollbar(textarea, pgmenu.RIGHT)
+
+# for i in range(int((frame.content_size[1] - frame.size[1]) / 100)):
+#     # FIXME -> With f"Button {i}", I get 4 fps with cache of 300. Cache has to be more variable and more dynamic
+#     pgmenu.widgets.Button(frame, (50, i*100 + 800), text=f"Button {i}")
+
+scrollbar_frame2_y = pgmenu.widgets.Scrollbar(frame2, pgmenu.RIGHT)
 
 scrollbar_x = pgmenu.widgets.Scrollbar(frame, pgmenu.BOTTOM)
 scrollbar_y = pgmenu.widgets.Scrollbar(frame, pgmenu.RIGHT)
@@ -97,37 +111,37 @@ while running:
             running = False
             pygame.quit()
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
-                frame.size = (450, 400)
-
-            if event.key == pygame.K_b:
-                frame.coords = (50, 50)
-
-            if event.key == pygame.K_c:
-                radiobutton1.selected = False
-
-            if event.key == pygame.K_d:
-                frame.border_radius = 30
-
-            if event.key == pygame.K_ASTERISK:
-                go = True if not go else False
-
-            if event.key == pygame.K_BACKSPACE:
-                screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
-                pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
-
-            if event.key == pygame.K_UP:
-                frame.scroll_y_by(-200)
-
-            if event.key == pygame.K_DOWN:
-                frame.scroll_y_by(200)
-
-            if event.key == pygame.K_RSHIFT:
-                frame.scroll_to(200, 200)
-
-            if event.key == pygame.K_w:
-                button.coords = (550, 300)
+        # if event.type == pygame.KEYUP:
+        #     if event.key == pygame.K_a:
+        #         frame.size = (450, 400)
+#
+        #     if event.key == pygame.K_b:
+        #         frame.coords = (50, 50)
+#
+        #     if event.key == pygame.K_c:
+        #         radiobutton1.selected = False
+#
+        #     if event.key == pygame.K_d:
+        #         frame.border_radius = 30
+#
+        #     if event.key == pygame.K_ASTERISK:
+        #         go = True if not go else False
+#
+        #     if event.key == pygame.K_BACKSPACE:
+        #         screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
+        #         pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE))
+#
+        #     if event.key == pygame.K_UP:
+        #         frame.scroll_y_by(-200)
+#
+        #     if event.key == pygame.K_DOWN:
+        #         frame.scroll_y_by(200)
+#
+        #     if event.key == pygame.K_RSHIFT:
+        #         frame.scroll_to(200, 200)
+#
+        #     if event.key == pygame.K_w:
+        #         button.coords = (550, 300)
 
 
         screen = pgmenu.display.fullscreen_controls(screen, event)
@@ -159,7 +173,8 @@ while running:
 
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
     # if pgmenu.vars.kb_selected_widget:
-    # pgmenu.text.write(screen, (300, 20), str(scrollbar.state))
+    pgmenu.text.write(screen, (300, 20), str(pgmenu.vars.mouse_x) + " x " + str(pgmenu.vars.mouse_y))
+    pgmenu.text.write(screen, (600, 20), str(textarea.text_cursor_pos))
 
     win_size = pygame.display.get_window_size()
     pygame.display.set_caption(f"Window {win_size[0]}x{win_size[1]}")

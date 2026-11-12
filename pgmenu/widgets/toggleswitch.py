@@ -34,51 +34,50 @@ class ToggleSwitch(ToggleWidget):
         super().__init__(**kwargs)
 
         self.master = master
-        self.coords = resolve(coords, pgmenu.Theme.toggleswitch_coords)
+        self.coords = resolve(coords, "coords", self.type)
         self.size = self._format_size(size)
 
-        self.fill = resolve(fill, pgmenu.Theme.toggleswitch_fill)
-        self.final_fill = resolve_kwarg(kwargs, "final_fill", pgmenu.Theme.toggleswitch_final_fill)
+        self.fill = resolve(fill, "fill", self.type)
+        self.final_fill = resolve_kwarg(kwargs, "final_fill", self.type)
         # Setting base custom animation
         if not isinstance(fill, AnimateType):
             self.fill = pgmenu.animation.AnimateTuple((self.fill[0], self.final_fill[0]), (self.fill[1], self.final_fill[1]), (self.fill[2], self.final_fill[2]), duration=self.animation_duration, curve=self.animation_curve, precision=self.animation_precision)
 
-        self.text = resolve(text, pgmenu.Theme.toggleswitch_text)
-        self.text_color = resolve(text_color, pgmenu.Theme.toggleswitch_text_color)
+        self.text = resolve(text, "text", self.type)
+        self.text_color = resolve(text_color, "text_color", self.type)
 
-        self.thumb_fill = resolve(thumb_fill, pgmenu.Theme.toggleswitch_thumb_fill)
-        self.thumb_final_fill = resolve_kwarg(kwargs, "thumb_final_fill", pgmenu.Theme.toggleswitch_thumb_final_fill)
+        self.thumb_fill = resolve(thumb_fill, "thumb_fill", self.type)
+        self.thumb_final_fill = resolve_kwarg(kwargs, "thumb_final_fill", self.type)
         # Setting base custom animation
         if not isinstance(thumb_fill, AnimateType):
             self.thumb_fill = pgmenu.animation.AnimateTuple((self.thumb_fill[0], self.thumb_final_fill[0]), (self.thumb_fill[1], self.thumb_final_fill[1]), (self.thumb_fill[2], self.thumb_final_fill[2]), duration=self.animation_duration, curve=self.animation_curve, precision=self.animation_precision)
 
-        self.final_margin = resolve_kwarg(kwargs, "final_margin", pgmenu.Theme.toggleswitch_final_margin)
-        self.margin = resolve(margin, pgmenu.Theme.toggleswitch_margin)
+        self.final_margin = resolve_kwarg(kwargs, "final_margin", self.type)
+        self.margin = resolve(margin, "margin", self.type)
         # Setting base custom animation
         if not isinstance(margin, AnimateType):
             self.margin = pgmenu.animation.Animate(self.margin, self.final_margin, self.animation_duration, self.animation_curve, self.animation_precision)
 
-        self.width = resolve(width, pgmenu.Theme.toggleswitch_width)
-        self.border_radius = resolve(border_radius, pgmenu.Theme.toggleswitch_border_radius, round(min(self.size) / 3.3))
+        self.width = resolve(width, "width", self.type)
+        self.border_radius = resolve(border_radius, "border_radius", self.type, round(min(self.size) / 3.3))
 
-        self.on = resolve(on, pgmenu.Theme.toggleswitch_on)
+        self.on = resolve(on, "on", self.type)
 
         # Kwargs attributes
-        self.text_side = resolve_kwarg(kwargs, "text_side", pgmenu.Theme.toggleswitch_text_side)
-        self.text_margin = resolve_kwarg(kwargs, "text_margin", pgmenu.Theme.toggleswitch_text_margin)
-        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.toggleswitch_text_side_margin, self.margin.base_value)
+        self.text_side = resolve_kwarg(kwargs, "text_side", self.type)
+        self.text_margin = resolve_kwarg(kwargs, "text_margin", self.type)
+        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", self.type, self.margin.base_value)
         # Checkmark (rect) kwargs attributes
         self._init_rect(kwargs, "thumb_")
-        self.thumb_border_radius = resolve_kwarg(kwargs, "thumb_border_radius", pgmenu.Theme.toggleswitch_thumb_border_radius, self.border_radius.base_value - self.margin.base_value)
+        self.thumb_rect = (0, 0, 0, 0)
+        self.thumb_border_radius = resolve_kwarg(kwargs, "thumb_border_radius", self.type, self.border_radius.base_value - self.margin.base_value)
 
-        self.toggle_direction = resolve_kwarg(kwargs, "toggle_direction", pgmenu.Theme.toggleswitch_toggle_direction)
+        self.toggle_direction = resolve_kwarg(kwargs, "toggle_direction", self.type)
 
-        self.transition = resolve_kwarg(kwargs, "transition", pgmenu.Theme.toggleswitch_transition)
+        self.transition = resolve_kwarg(kwargs, "transition", self.type)
         # Setting base custom animation
         if not isinstance(kwargs.get("transition"), AnimateType):
             self.transition = pgmenu.animation.Animate(self.transition, 1, self.animation_duration, self.animation_curve, None)
-
-        # Internal attributes used for responsive resize
 
         pgmenu.widgets.add(self)
 
@@ -133,8 +132,9 @@ class ToggleSwitch(ToggleWidget):
         thumb_x = self.margin.int + x_on * transition
         thumb_y = self.margin.int + y_on * transition
 
-        thumb_rect = (thumb_x, thumb_y, min(self.size.int_tuple) - self.margin.int * 2, min(self.size.int_tuple) - self.margin.int * 2)
-        pgmenu.draw.aarect(toggleswitch_surface, self.thumb_fill, thumb_rect, self.thumb_width, self.thumb_border_radius,
+        self.thumb_rect = (thumb_x, thumb_y, min(self.size.int_tuple) - self.margin.int * 2, min(self.size.int_tuple) - self.margin.int * 2)
+
+        pgmenu.draw.aarect(toggleswitch_surface, self.thumb_fill, self.thumb_rect, self.thumb_width, self.thumb_border_radius,
                          self.thumb_border_top_left_radius, self.thumb_border_top_right_radius,
                          self.thumb_border_bottom_left_radius, self.thumb_border_bottom_right_radius,
                          self.thumb_antialiasing, self.thumb_transparency, self.thumb_aa_strength,

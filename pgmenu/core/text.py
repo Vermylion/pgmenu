@@ -15,6 +15,9 @@ __all__ = ["match_font", "format_font", "render", "write",
            "fit_width_render_smoothscale", "fit_height_render_smoothscale", "fit_render_smoothscale"]
 
 
+# TODO -> Finish implementing line_spacing arg into every function that takes it as an arg
+
+
 def match_font(font, italic=False, bold=False):
     # Remove file extention in case since match_font only takes in names
     font_name = os.path.splitext(font)[0]
@@ -32,7 +35,7 @@ def match_font(font, italic=False, bold=False):
 
 def format_font(font, italic=False, bold=False):
     # Format font path to default if None
-    if font is None or font.lower() == "VarelaRound.ttf".lower():
+    if font is None or font == pgmenu.UNSET or font == pgmenu.THEME or font.lower() == "VarelaRound.ttf".lower():
         font = os.path.abspath(os.path.join(os.path.dirname(__file__), "../VarelaRound.ttf"))
 
     # Check with system fonts if we still don't have a path
@@ -53,22 +56,24 @@ def render(text: str = THEME,
            bold: bool = THEME,
            strikethrough: bool = THEME,
            underline: bool = THEME,
-           transparency: int = THEME):
+           transparency: int = THEME,
+           line_spacing: int = THEME):
 
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    size = resolve(size, pgmenu.Theme.text_size)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    size = resolve(size, "size", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
     # Keep same cache_id in function
-    cache_id = (text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+    cache_id = (text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     # Load from cache if already in cache
     cached = pgmenu.cache.lru_get(cache["text"], cache_id)
@@ -103,7 +108,7 @@ def render(text: str = THEME,
         y = 0
         for line_surf in text_lines_surf:
             text_surface.blit(line_surf, (0, y))
-            y += line_surf.get_height()
+            y += line_surf.get_height() + line_spacing
 
     if transparency <= 255:
         text_surface.set_alpha(transparency)
@@ -126,23 +131,24 @@ def write(surface,
           strikethrough: bool = THEME,
           underline: bool = THEME,
           transparency: int = THEME,
+          line_spacing: int = THEME,
           center_x: bool = THEME,
           center_y: bool = THEME):
 
-    coords = resolve(coords, pgmenu.Theme.text_coords)
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    size = resolve(size, pgmenu.Theme.text_size)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
-    center_x = resolve(center_x, pgmenu.Theme.text_center_x)
-    center_y = resolve(center_y, pgmenu.Theme.text_center_y)
+    coords = resolve(coords, "coords", "text")
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    size = resolve(size, "size", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
+    center_x = resolve(center_x, "center_x", "text")
+    center_y = resolve(center_y, "center_y", "text")
 
     text_surface = render(text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
 
@@ -175,12 +181,12 @@ def fit_width(dest_width: int = THEME,
     :return: Returns the int size of the text that would fit into the given width
     """
 
-    dest_width = resolve(dest_width, pgmenu.Theme.text_dest_width)
-    text = resolve(text, pgmenu.Theme.text_text)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
+    dest_width = resolve(dest_width, "dest_width", "text")
+    text = resolve(text, "text", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
 
     # Cache render with width instead of size
     # Keep same cache_id in function
@@ -196,7 +202,7 @@ def fit_width(dest_width: int = THEME,
     # Starting guess for text size, using dest_width as it's the only dimension we care about
     text_size = dest_width
 
-    text_surf = pgmenu.text.render(text, size=text_size, font=font, italic=italic, bold=bold)
+    text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold)
 
     # Catch when the text is too big/doesn't fit
     size_x = text_surf.get_size()[0]
@@ -218,7 +224,8 @@ def fit_height(dest_height: int = THEME,
               margin: int = THEME,
               font: str = THEME,
               italic: bool = THEME,
-              bold: bool = THEME):
+              bold: bool = THEME,
+              line_spacing: int = THEME):
     """
     Returns the int size of the text that would fit into the given height, ignoring width
     :param dest_height: height of the area the text is going to be fit into
@@ -230,12 +237,12 @@ def fit_height(dest_height: int = THEME,
     :return: Returns the int size of the text that would fit into the given height
     """
 
-    dest_height = resolve(dest_height, pgmenu.Theme.text_dest_height)
-    text = resolve(text, pgmenu.Theme.text_text)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
+    dest_height = resolve(dest_height, "dest_height", "text")
+    text = resolve(text, "text", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
 
     # Cache render with height instead of size
     # Keep same cache_id in function
@@ -251,7 +258,7 @@ def fit_height(dest_height: int = THEME,
     # Starting guess for text size, using dest_height as it's the only dimension we care about
     text_size = dest_height
 
-    text_surf = pgmenu.text.render(text, size=text_size, font=font, italic=italic, bold=bold)
+    text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold)
 
     # Catch when the text is too big/doesn't fit
     size_y = text_surf.get_size()[1]
@@ -273,7 +280,8 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
              margin: int = THEME,
              font: str = THEME,
              italic: bool = THEME,
-             bold: bool = THEME):
+             bold: bool = THEME,
+             line_spacing: int = THEME):
     """
         Returns the int size of the text that would fit into the given area
         :param dest_rect: main rect where text is going to be fit in
@@ -285,12 +293,12 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
         :return: Returns the int size of the text that would fit into the given area
         """
 
-    dest_rect = resolve(dest_rect, pgmenu.Theme.text_dest_rect)
-    text = resolve(text, pgmenu.Theme.text_text)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
+    dest_rect = resolve(dest_rect, "dest_rect", "text")
+    text = resolve(text, "text", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
 
     # Cache render with rect instead of size
     # Keep same cache_id in function
@@ -306,7 +314,7 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
     # Minimum size of rect for text surface
     text_size = min(dest_rect)
 
-    text_surf = pgmenu.text.render(text, size=text_size, font=font, italic=italic, bold=bold)
+    text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold)
 
     # Catch when the text is too big/doesn't fit
     size_x = text_surf.get_size()[0]
@@ -314,7 +322,7 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
         # math.floor to make sure it doesn't go out of bounds
         text_size = math.floor(text_size * dest_rect[0] / size_x)
         # Create new text surface for min size check afterward
-        text_surf = pgmenu.text.render(text, size=text_size, font=font, italic=italic, bold=bold)
+        text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold)
 
     size_y = text_surf.get_size()[1]
     if size_y > dest_rect[1]:
@@ -341,7 +349,8 @@ def fit_width_render(dest_width: int = THEME,
                      bold: bool = THEME,
                      strikethrough: bool = THEME,
                      underline: bool = THEME,
-                     transparency: int = THEME):
+                     transparency: int = THEME,
+                     line_spacing: int = THEME):
     """
     Returns a surface of the rendered text fitted to the given width, ignoring height
     :param dest_width: width of the area the text is going to be fit into
@@ -359,18 +368,18 @@ def fit_width_render(dest_width: int = THEME,
     :return: Returns a surface of the rendered text
     """
 
-    dest_width = resolve(dest_width, pgmenu.Theme.text_dest_width)
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    dest_width = resolve(dest_width, "dest_width", "text")
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
 
     text_size = fit_width(dest_width, text, margin, font, italic, bold)
 
@@ -391,7 +400,8 @@ def fit_height_render(dest_height: int = THEME,
                       bold: bool = THEME,
                       strikethrough: bool = THEME,
                       underline: bool = THEME,
-                      transparency: int = THEME):
+                      transparency: int = THEME,
+                      line_spacing: int = THEME):
     """
     Returns a surface of the rendered text fitted to the given height, ignoring width
     :param dest_height: height of the area the text is going to be fit into
@@ -409,18 +419,18 @@ def fit_height_render(dest_height: int = THEME,
     :return: Returns a surface of the rendered text
     """
 
-    dest_height = resolve(dest_height, pgmenu.Theme.text_dest_height)
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    dest_height = resolve(dest_height, "dest_height", "text")
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
 
     text_size = fit_height(dest_height, text, margin, font, italic, bold)
 
@@ -441,7 +451,8 @@ def fit_render(dest_rect: list[int, int] | tuple[int, int] = THEME,
                bold: bool = THEME,
                strikethrough: bool = THEME,
                underline: bool = THEME,
-               transparency: int = THEME):
+               transparency: int = THEME,
+               line_spacing: int = THEME):
     """
     Returns a surface of the rendered text
     :param dest_rect: main rect where text is going to be fit in
@@ -459,18 +470,18 @@ def fit_render(dest_rect: list[int, int] | tuple[int, int] = THEME,
     :return: Returns a surface of the rendered text
     """
 
-    dest_rect = resolve(dest_rect, pgmenu.Theme.text_dest_rect)
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    dest_rect = resolve(dest_rect, "dest_rect", "text")
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
 
     text_size = fit_size(dest_rect, text, margin, font, italic, bold)
 
@@ -493,7 +504,8 @@ def fit_width_render_smoothscale(dest_width: int = THEME,
                                  bold: bool = THEME,
                                  strikethrough: bool = THEME,
                                  underline: bool = THEME,
-                                 transparency: int = THEME):
+                                 transparency: int = THEME,
+                                 line_spacing: int = THEME):
     """
     Fits rendered text to a destination width which can be animated, fitting text with per-pixel precision using
     smoothscale instead of per font size as is with regular fit_width_render. Height is scaled proportionally.
@@ -514,19 +526,19 @@ def fit_width_render_smoothscale(dest_width: int = THEME,
     :return: Returns a surface of the fitted text (by smoothscale) and a text_rect[int, int, int, int]
     """
 
-    dest_width = resolve(dest_width, pgmenu.Theme.text_dest_width)
-    max_dest_width = resolve(max_dest_width, pgmenu.Theme.text_max_dest_width, dest_width)
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    dest_width = resolve(dest_width, "dest_width", "text")
+    max_dest_width = resolve(max_dest_width, "max_dest_width", "text", dest_width)
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
 
     if max_dest_width is None:
         max_dest_width = dest_width
@@ -568,7 +580,8 @@ def fit_height_render_smoothscale(dest_height: int = THEME,
                                   bold: bool = THEME,
                                   strikethrough: bool = THEME,
                                   underline: bool = THEME,
-                                  transparency: int = THEME):
+                                  transparency: int = THEME,
+                                  line_spacing: int = THEME):
     """
     Fits rendered text to a destination height which can be animated, fitting text with per-pixel precision using
     smoothscale instead of per font size as is with regular fit_height_render. Width is scaled proportionally.
@@ -589,19 +602,19 @@ def fit_height_render_smoothscale(dest_height: int = THEME,
     :return: Returns a surface of the fitted text (by smoothscale) and a text_rect[int, int, int, int]
     """
 
-    dest_height = resolve(dest_height, pgmenu.Theme.text_dest_height)
-    max_dest_height = resolve(max_dest_height, pgmenu.Theme.text_max_dest_height, dest_height)
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    dest_height = resolve(dest_height, "dest_height", "text")
+    max_dest_height = resolve(max_dest_height, "max_dest_height", "text", dest_height)
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
 
     if max_dest_height is None:
         max_dest_height = dest_height
@@ -642,7 +655,8 @@ def fit_render_smoothscale(dest_rect: tuple[int, int] = THEME,
                            bold: bool = THEME,
                            strikethrough: bool = THEME,
                            underline: bool = THEME,
-                           transparency: int = THEME) -> tuple[pygame.Surface, tuple[int, int, int, int]]:
+                           transparency: int = THEME,
+                           line_spacing: int = THEME) -> tuple[pygame.Surface, tuple[int, int, int, int]]:
     """
     Fits rendered text to a destination area which can be animated, fitting text with per-pixel precision using smoothscale instead of per font size as is with regular fit_render.
     Returns a surface of the fitted text (by smoothscale) and a text_rect[int, int, int, int].
@@ -662,19 +676,19 @@ def fit_render_smoothscale(dest_rect: tuple[int, int] = THEME,
     :return: Returns a surface of the fitted text (by smoothscale) and a text_rect[int, int, int, int]
     """
 
-    dest_rect = resolve(dest_rect, pgmenu.Theme.text_dest_rect)
-    max_dest_rect = resolve(max_dest_rect, pgmenu.Theme.text_max_dest_rect, dest_rect)
-    text = resolve(text, pgmenu.Theme.text_text)
-    color = resolve(color, pgmenu.Theme.text_color)
-    margin = resolve(margin, pgmenu.Theme.text_margin)
-    font = resolve(font, pgmenu.Theme.text_font)
-    background = resolve(background, pgmenu.Theme.text_background)
-    antialias = resolve(antialias, pgmenu.Theme.text_antialias)
-    italic = resolve(italic, pgmenu.Theme.text_italic)
-    bold = resolve(bold, pgmenu.Theme.text_bold)
-    strikethrough = resolve(strikethrough, pgmenu.Theme.text_strikethrough)
-    underline = resolve(underline, pgmenu.Theme.text_underline)
-    transparency = resolve(transparency, pgmenu.Theme.text_transparency)
+    dest_rect = resolve(dest_rect, "dest_rect", "text")
+    max_dest_rect = resolve(max_dest_rect, "max_dest_rect", "text", dest_rect)
+    text = resolve(text, "text", "text")
+    color = resolve(color, "color", "text")
+    margin = resolve(margin, "margin", "text")
+    font = resolve(font, "font", "text")
+    background = resolve(background, "background", "text")
+    antialias = resolve(antialias, "antialias", "text")
+    italic = resolve(italic, "italic", "text")
+    bold = resolve(bold, "bold", "text")
+    strikethrough = resolve(strikethrough, "strikethrough", "text")
+    underline = resolve(underline, "underline", "text")
+    transparency = resolve(transparency, "transparency", "text")
 
     if max_dest_rect is None:
         max_dest_rect = dest_rect

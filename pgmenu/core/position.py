@@ -12,8 +12,8 @@ def center_coords(size: list[int, int] | tuple[int, int],
                   center_x: bool = THEME,
                   center_y: bool = THEME) -> tuple[float, float]:
 
-    center_x = resolve(center_x, pgmenu.Theme.position_center_x)
-    center_y = resolve(center_y, pgmenu.Theme.position_center_y)
+    center_x = resolve(center_x, "center_x", "position")
+    center_y = resolve(center_y, "center_y", "position")
 
     x, y, w, h = rect
     sw, sh = size

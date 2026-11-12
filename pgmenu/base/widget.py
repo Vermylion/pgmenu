@@ -2,7 +2,7 @@ import pygame
 import pgmenu
 
 from pgmenu.core.animation import Animate, AnimateTuple, AnimateSurface, AnimateType
-from pgmenu.core.theme import resolve, resolve_widget
+from pgmenu.core.theme import resolve, resolve_kwarg
 
 
 __all__ = ["Widget"]
@@ -19,42 +19,42 @@ class Widget:
         # self.type should be defined before calling super().__init__(), if not, defaults to WIDGET
         self.set_type(pgmenu.WIDGET)
         # Set animation attributes to theme according to widget type
-        self.animation_scale = resolve_widget(kwargs, 'animation_scale', self.type, pgmenu.Theme.widget_animation_scale)
-        self.animation_duration = resolve_widget(kwargs, 'animation_duration', self.type, pgmenu.Theme.widget_animation_duration)
-        self.animation_curve = resolve_widget(kwargs, 'animation_curve', self.type, pgmenu.Theme.widget_animation_curve)
-        self.animation_precision = resolve_widget(kwargs, 'animation_precision', self.type, pgmenu.Theme.widget_animation_precision)
+        self.animation_scale = resolve_kwarg(kwargs, 'animation_scale', self.type, pgmenu.Theme.widget_animation_scale)
+        self.animation_duration = resolve_kwarg(kwargs, 'animation_duration', self.type, pgmenu.Theme.widget_animation_duration)
+        self.animation_curve = resolve_kwarg(kwargs, 'animation_curve', self.type, pgmenu.Theme.widget_animation_curve)
+        self.animation_precision = resolve_kwarg(kwargs, 'animation_precision', self.type, pgmenu.Theme.widget_animation_precision)
         # Disable animation
-        self.disable_default_animation = resolve_widget(kwargs, 'disable_default_animation', self.type, pgmenu.Theme.widget_disable_default_animation)
+        self.disable_default_animation = resolve_kwarg(kwargs, 'disable_default_animation', self.type, pgmenu.Theme.widget_disable_default_animation)
         # No need to define attr in DEFAULT theme, as an absence of theme attr goes to default in resolve_widget
-        self.animation_on_standby = resolve_widget(kwargs, 'animation_on_standby', self.type, self.m_animation_on_standby, pgmenu.AnimationTheme, self)
-        self.animation_on_hover = resolve_widget(kwargs, 'animation_on_hover', self.type, self.m_animation_on_hover, pgmenu.AnimationTheme, self)
-        self.animation_on_press = resolve_widget(kwargs, 'animation_on_press', self.type, self.m_animation_on_press, pgmenu.AnimationTheme, self)
-        self.animation_on_hold = resolve_widget(kwargs, 'animation_on_hold', self.type, self.m_animation_on_hold, pgmenu.AnimationTheme, self)
-        self.animation_on_active = resolve_widget(kwargs, 'animation_on_active', self.type, self.m_animation_on_active, pgmenu.AnimationTheme, self)
-        self.animation_on_release = resolve_widget(kwargs, 'animation_on_release', self.type, self.m_animation_on_release, pgmenu.AnimationTheme, self)
-        self.animation_on_select = resolve_widget(kwargs, 'animation_on_select', self.type, self.m_animation_on_select, pgmenu.AnimationTheme, self)
-        self.animation_on_deselect = resolve_widget(kwargs, 'animation_on_deselect', self.type, self.m_animation_on_deselect, pgmenu.AnimationTheme, self)
-        self.animation_on_key_press = resolve_widget(kwargs, 'animation_on_key_press', self.type, self.m_animation_on_key_press, pgmenu.AnimationTheme, self)
-        self.animation_on_key_hold = resolve_widget(kwargs, 'animation_on_key_hold', self.type, self.m_animation_on_key_hold, pgmenu.AnimationTheme, self)
-        self.animation_on_key_release = resolve_widget(kwargs, 'animation_on_key_release', self.type, self.m_animation_on_key_release, pgmenu.AnimationTheme, self)
+        self.animation_on_standby = resolve_kwarg(kwargs, 'animation_on_standby', self.type, self.m_animation_on_standby, pgmenu.AnimationTheme, self)
+        self.animation_on_hover = resolve_kwarg(kwargs, 'animation_on_hover', self.type, self.m_animation_on_hover, pgmenu.AnimationTheme, self)
+        self.animation_on_press = resolve_kwarg(kwargs, 'animation_on_press', self.type, self.m_animation_on_press, pgmenu.AnimationTheme, self)
+        self.animation_on_hold = resolve_kwarg(kwargs, 'animation_on_hold', self.type, self.m_animation_on_hold, pgmenu.AnimationTheme, self)
+        self.animation_on_active = resolve_kwarg(kwargs, 'animation_on_active', self.type, self.m_animation_on_active, pgmenu.AnimationTheme, self)
+        self.animation_on_release = resolve_kwarg(kwargs, 'animation_on_release', self.type, self.m_animation_on_release, pgmenu.AnimationTheme, self)
+        self.animation_on_select = resolve_kwarg(kwargs, 'animation_on_select', self.type, self.m_animation_on_select, pgmenu.AnimationTheme, self)
+        self.animation_on_deselect = resolve_kwarg(kwargs, 'animation_on_deselect', self.type, self.m_animation_on_deselect, pgmenu.AnimationTheme, self)
+        self.animation_on_key_press = resolve_kwarg(kwargs, 'animation_on_key_press', self.type, self.m_animation_on_key_press, pgmenu.AnimationTheme, self)
+        self.animation_on_key_hold = resolve_kwarg(kwargs, 'animation_on_key_hold', self.type, self.m_animation_on_key_hold, pgmenu.AnimationTheme, self)
+        self.animation_on_key_release = resolve_kwarg(kwargs, 'animation_on_key_release', self.type, self.m_animation_on_key_release, pgmenu.AnimationTheme, self)
         # Set action attributes to theme according to widget type
         # No need to define attr in DEFAULT theme, as an absence of theme attr goes to default in resolve_widget
-        self.on_standby = resolve_widget(kwargs, 'on_standby', self.type, self.m_on_standby)
-        self.on_hover = resolve_widget(kwargs, 'on_hover', self.type, self.m_on_hover)
-        self.on_press = resolve_widget(kwargs, 'on_press', self.type, self.m_on_press)
-        self.on_hold = resolve_widget(kwargs, 'on_hold', self.type, self.m_on_hold)
-        self.on_active = resolve_widget(kwargs, 'on_active', self.type, self.m_on_active)
-        self.on_release = resolve_widget(kwargs, 'on_release', self.type, self.m_on_release)
-        self.on_select = resolve_widget(kwargs, 'on_select', self.type, self.m_on_select)
-        self.on_deselect = resolve_widget(kwargs, 'on_deselect', self.type, self.m_on_deselect)
-        self.on_key_press = resolve_widget(kwargs, 'on_key_press', self.type, self.m_on_key_press)
-        self.on_key_hold = resolve_widget(kwargs, 'on_key_hold', self.type, self.m_on_key_hold)
-        self.on_key_release = resolve_widget(kwargs, 'on_key_release', self.type, self.m_on_key_release)
-        self.on_resize = resolve_widget(kwargs, 'on_resize', self.type, self.m_on_resize)
+        self.on_standby = resolve_kwarg(kwargs, 'on_standby', self.type, self.m_on_standby)
+        self.on_hover = resolve_kwarg(kwargs, 'on_hover', self.type, self.m_on_hover)
+        self.on_press = resolve_kwarg(kwargs, 'on_press', self.type, self.m_on_press)
+        self.on_hold = resolve_kwarg(kwargs, 'on_hold', self.type, self.m_on_hold)
+        self.on_active = resolve_kwarg(kwargs, 'on_active', self.type, self.m_on_active)
+        self.on_release = resolve_kwarg(kwargs, 'on_release', self.type, self.m_on_release)
+        self.on_select = resolve_kwarg(kwargs, 'on_select', self.type, self.m_on_select)
+        self.on_deselect = resolve_kwarg(kwargs, 'on_deselect', self.type, self.m_on_deselect)
+        self.on_key_press = resolve_kwarg(kwargs, 'on_key_press', self.type, self.m_on_key_press)
+        self.on_key_hold = resolve_kwarg(kwargs, 'on_key_hold', self.type, self.m_on_key_hold)
+        self.on_key_release = resolve_kwarg(kwargs, 'on_key_release', self.type, self.m_on_key_release)
+        self.on_resize = resolve_kwarg(kwargs, 'on_resize', self.type, self.m_on_resize)
         # Widget placement centering attributes
-        self.center_x = resolve_widget(kwargs, 'center_x', self.type, pgmenu.Theme.widget_center_x)
-        self.center_y = resolve_widget(kwargs, 'center_y', self.type, pgmenu.Theme.widget_center_y)
-        self.animation_anchor = resolve_widget(kwargs, 'animation_anchor', self.type, pgmenu.Theme.widget_animation_anchor)
+        self.center_x = resolve_kwarg(kwargs, 'center_x', self.type, pgmenu.Theme.widget_center_x)
+        self.center_y = resolve_kwarg(kwargs, 'center_y', self.type, pgmenu.Theme.widget_center_y)
+        self.animation_anchor = resolve_kwarg(kwargs, 'animation_anchor', self.type, pgmenu.Theme.widget_animation_anchor)
         # Formatting for responsive resize
         # Responsive resize values have to be the same for all widgets
         self.responsive_size = kwargs.get('responsive_size', pgmenu.Theme.widget_responsive_size)
@@ -64,7 +64,7 @@ class Widget:
         self.responsive_coords_x = kwargs.get('responsive_coords_x', pgmenu.Theme.widget_responsive_coords_x)
         self.responsive_coords_y = kwargs.get('responsive_coords_y', pgmenu.Theme.widget_responsive_coords_y)
         # Base hover cursor for the widget
-        self.cursor = resolve_widget(kwargs, 'cursor', self.type, pgmenu.Theme.widget_cursor)
+        self.cursor = resolve_kwarg(kwargs, 'cursor', self.type, pgmenu.Theme.widget_cursor)
         # Base widget should be able to be enabled and disabled, but could be removed later
         self.state = kwargs.get('state', pgmenu.Theme.widget_state)
         # Internal attributes
@@ -191,16 +191,23 @@ class Widget:
     def _update_rect(self, size, coords):
         x, y = coords
         w, h = size
+        master = self.master
 
-        if isinstance(self.master, pgmenu.widgets.Frame):
-            master_w, master_h = self.master.size
-            master_x, master_y = self.master.coords
+        while isinstance(master, pgmenu.widgets.Frame):
+            master_w, master_h = master.surface.get_size()
 
-            # Visible span = overlap of [x, x + w] with [0, master_size]
-            left, top = max(x, 0), max(y, 0)
-            w = min(x + w, master_w) - left
-            h = min(y + h, master_h) - top
+            left = max(x, 0)
+            top = max(y, 0)
+            right = min(x + w, master_w)
+            bottom = min(y + h, master_h)
+
+            w = max(0, right - left)
+            h = max(0, bottom - top)
+
+            master_x, master_y = master._place_surface()
             x, y = left + master_x, top + master_y
+
+            master = master.master
 
         self.rect = pygame.Rect(x, y, w, h)
 
@@ -210,7 +217,7 @@ class Widget:
         :return:
         Function to format size to a tuple(size, size)
         """
-        size = resolve(size, getattr(pgmenu.Theme, f'{self.type}_size', None))
+        size = resolve(size, "size", self.type)
 
         if isinstance(size, (int, float)):
             size = size, size
@@ -250,6 +257,7 @@ class Widget:
         Sets type of widget to the passed type only if type wasn't assigned previously.
         """
         self.type = getattr(self, "type") if hasattr(self, "type") else type
+        pgmenu.system.WIDGET_TYPES.add(self.type)
 
     # Method allows to modify multiple attributes at a time
     def modify(self,
@@ -268,12 +276,15 @@ class Widget:
         self.surface_coords = self._place_surface()
         self.master.blit(self.surface, self.surface_coords)
 
-    def update(self, event):
+    def base_update(self):
         self.surface_size = self.surface.get_size()
         self._update_rect(self.surface_size, self.surface_coords)
 
         # Default call for mixins
         # self._mixin_hook("_mixin_update", event)
+
+    def update(self, event):
+        ...
 
     def destroy(self):
         """Remove this widget from the engine."""
@@ -309,7 +320,7 @@ class Widget:
     def m_animation_on_key_press(self, key):
         ...
 
-    def m_animation_on_key_hold(self):
+    def m_animation_on_key_hold(self, key):
         ...
 
     def m_animation_on_key_release(self, key):

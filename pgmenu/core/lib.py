@@ -23,6 +23,16 @@ def init():
     pgmenu.vars.widget_cursor = pygame.SYSTEM_CURSOR_ARROW
 
 
+def _first_update_init():
+    pgmenu.vars._first_update_call = True
+
+    pygame.key.set_repeat(400, 50)
+    print("zjkajkhksjqha")
+
+    if pgmenu.vars.base_window_size is None:
+        pgmenu.vars.base_window_size = pygame.display.get_window_size()
+
+
 def _draw(*widgets):
     # Save active or hovered widgets to be drawn on top
     top_widgets = []
@@ -107,11 +117,19 @@ def _merge_wheel_events(events):
     return merged
 
 
+def set_active(widget):
+    if pgmenu.vars.active_widget is not None:
+        pgmenu.vars.active_widget.state = pgmenu.NORMAL
+
+    pgmenu.vars.active_widget = widget
+    widget.state = pgmenu.ACTIVE
+
+
 def update(events):
     # Hacky solution for getting base window size
     # Detects first call to update
-    if pgmenu.vars.base_window_size is None:
-        pgmenu.vars.base_window_size = pygame.display.get_window_size()
+    if not pgmenu.vars._first_update_call:
+        _first_update_init()
 
     # Format input, so we can iterate it if event is passed as input instead of events
     events = [events] if isinstance(events, pygame.event.Event) else list(events)
@@ -153,6 +171,9 @@ def update(events):
             widget.on_active()
             widget.animation_on_active()
 
+        # Base widget update
+        widget.base_update()
+
         # Check events
         for event in events:
             pgmenu.resize.responsive_resize(widget, event)
@@ -162,7 +183,9 @@ def update(events):
                 pgmenu.vars.kb_selected_widget = None
 
             # Other widget actions
-            widget.update(event)
+            # FIXME -> Only activates if widget is selected for performance reasons, but doesn't seem to do much
+            if widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE:
+                widget.update(event)
 
         # Reset every widget's draw state, as widgets are normally not interacted with after update state
         widget._drawn = False

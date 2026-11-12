@@ -34,6 +34,7 @@ CHECKBOX = "checkbox"
 RADIOBUTTON = "radiobutton"
 TOGGLESWITCH = "toggleswitch"
 SCROLLBAR = "scrollbar"
+TEXTAREA = "textarea"
 # Constant to know when to use theme
 THEME = "theme"
 # Constant to determine if an attribute derived from Theme is undefined

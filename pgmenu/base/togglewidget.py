@@ -9,6 +9,10 @@ from pgmenu.base.mixins import RectMixin, TextMixin, ActionableMixin
 __all__ = ["ToggleWidget"]
 
 
+# TODO -> Rewrite, like I mean this is a mess
+#       -> New inheritance means __init__ is possible
+
+
 class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
     """
     Shared base for indicator+label widgets (Checkbox, Radiobutton, ...).
@@ -90,18 +94,18 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
 
     # TODO: IMPORTANT -> Revamp update system with states and/or update mixin handling
     def update(self, event):
-        super().update(event)
-
         # Detect mouse collisions
         if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_RETURN:
-                    self.toggle()
+                    if self.state == pgmenu.ACTIVE:
+                        self.toggle()
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == pygame.BUTTON_LEFT:
-                    self.toggle()
+                    if self.state == pgmenu.ACTIVE:
+                        self.toggle()
 
         self._mixin_hook("_mixin_update", event)
 

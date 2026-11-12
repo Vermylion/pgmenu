@@ -5,7 +5,7 @@ import pygame
 import pgmenu
 
 
-__all__ = ["Theme", "AnimationTheme", "resolve", "resolve_kwarg", "resolve_widget"]
+__all__ = ["Theme", "AnimationTheme", "resolve", "resolve_kwarg"]
 
 
 # TODO -> Clean up code and comments
@@ -183,7 +183,7 @@ resolve_widget(...)
 │                     └── Return default
 """
 
-def resolve(value, theme_attr, default = None, bind = None):
+def resolve(value, key, theme_prefix, default = None, theme = None, bind = None):
     """
     Function to resolve THEME affectation and Theme default case with None.
     Any value that is pgmenu.UNSET is disregarded and sent to theme_attr or default
@@ -202,6 +202,12 @@ def resolve(value, theme_attr, default = None, bind = None):
                   └── return default
     """
 
+    # Set unspecified theme to base theme
+    theme = theme if theme is not None else pgmenu.Theme
+
+    # an absence of theme attr sends to default -> returns None, hence default
+    theme_attr = getattr(theme, f'{theme_prefix}_{key}', None)
+
     if value != pgmenu.THEME and value != pgmenu.UNSET:
         result = value
 
@@ -216,24 +222,11 @@ def resolve(value, theme_attr, default = None, bind = None):
 
     return result
 
-def resolve_kwarg(kwargs, key, theme_attr, default = None, bind = None):
-    """
-    Function to resolve kwarg affectation and Theme default case with None.
-    Any value that is pgmenu.UNSET is disregarded and sent to theme_attr or default
-    """
 
-    return resolve(kwargs.get(key, pgmenu.THEME), theme_attr, default, bind)
-
-def resolve_widget(kwargs, key, widget_type, default = None, theme = None, bind = None):
+def resolve_kwarg(kwargs, key, theme_prefix, default = None, theme = None, bind = None):
     """
     Function to resolve kwarg affectation and Theme default case with None with theme attribute per widget type.
     Any value that is pgmenu.UNSET is disregarded and sent to theme_attr or default
     """
 
-    # Set unspecified theme to base theme
-    theme = theme if theme is not None else pgmenu.Theme
-
-    # an absence of theme attr goes to default in resolve_widget -> returns None, hence default
-    theme_attr = getattr(theme, f'{widget_type}_{key}', None)
-
-    return resolve_kwarg(kwargs, key, theme_attr, default, bind)
+    return resolve(kwargs.get(key, pgmenu.THEME), key, theme_prefix, default, theme, bind)

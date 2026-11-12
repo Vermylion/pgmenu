@@ -34,34 +34,33 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
             raise TypeError("Scrollbar master must be a Frame object/widget")
 
         # Left/right means vertical bar, top/bottom means horizontal
-        self.placement = resolve(placement, pgmenu.Theme.scrollbar_placement)
+        self.placement = resolve(placement, "placement", self.type)
         self.orientation = pgmenu.VERTICAL if self.placement in (pgmenu.LEFT, pgmenu.RIGHT) else pgmenu.HORIZONTAL
-        self.thickness = resolve(thickness, pgmenu.Theme.scrollbar_thickness)
-        self.base_thickness = resolve_kwarg(kwargs, "base_thickness", pgmenu.Theme.scrollbar_base_thickness)
+        self.thickness = resolve(thickness, "thickness", self.type)
+        self.base_thickness = resolve_kwarg(kwargs, "base_thickness", self.type)
         # Setting base custom animation
         if not isinstance(thickness, AnimateType):
             self.thickness = pgmenu.animation.Animate(self.base_thickness, self.thickness, self.animation_duration, self.animation_curve, self.animation_precision)
 
-        self.fill = resolve(fill, pgmenu.Theme.scrollbar_fill)
-        self.thumb_fill = resolve(thumb_fill, pgmenu.Theme.scrollbar_thumb_fill)
-        self.margin = resolve(margin, pgmenu.Theme.scrollbar_margin)
+        self.fill = resolve(fill, "fill", self.type)
+        self.thumb_fill = resolve(thumb_fill, "thumb_fill", self.type)
+        self.margin = resolve(margin, "margin", self.type)
 
-        self.border_radius = resolve_kwarg(kwargs, "border_radius", pgmenu.Theme.scrollbar_border_radius)
+        self.border_radius = resolve_kwarg(kwargs, "border_radius", self.type)
 
         # Thumb gets its own rect attributes, hence the prefix
         self._init_rect(kwargs, "thumb_")
         self.thumb_rect = (0, 0, 0, 0)
         # Default radius is half the thumb width so the ends are fully round
-        self.thumb_border_radius = resolve_kwarg(kwargs, "thumb_border_radius", pgmenu.Theme.scrollbar_thumb_border_radius, (self.thickness.final_value / 2) - self.margin)
-        self.thumb_min_length = resolve_kwarg(kwargs, "thumb_min_length", pgmenu.Theme.scrollbar_thumb_min_length)
+        self.thumb_border_radius = resolve_kwarg(kwargs, "thumb_border_radius", self.type, (self.thickness.final_value / 2) - self.margin)
+        self.thumb_min_length = resolve_kwarg(kwargs, "thumb_min_length", self.type)
 
-        self.disable_track = resolve_kwarg(kwargs, "disable_track", pgmenu.Theme.scrollbar_disable_track)
+        self.disable_track = resolve_kwarg(kwargs, "disable_track", self.type)
 
         # Setting base custom animation
-        self.base_transparency = resolve_kwarg(kwargs, "base_transparency", pgmenu.Theme.scrollbar_base_transparency)
+        self.base_transparency = resolve_kwarg(kwargs, "base_transparency", self.type)
         if not isinstance(kwargs.get("transparency", None), AnimateType):
             self.transparency = pgmenu.animation.Animate(self.base_transparency, self.transparency, self.animation_duration, self.animation_curve, self.animation_precision)
-
 
         pgmenu.widgets.add(self)
 
@@ -134,7 +133,6 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
         self.blit_to_master()
 
     def update(self, event):
-        super().update(event)
 
         # Nothing to do unless the mouse is on us or we're mid-drag
         if self.state not in (pgmenu.HOVERED, pgmenu.ACTIVE):
@@ -146,17 +144,18 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
             # thumb_rect is relative to the scrollbar, so convert it to screen coords for the mouse check
             tx, ty, tw, th = self.thumb_rect
-            cx, cy = self.coords[0] + self.master.coords[0], self.coords[1] + self.master.coords[1]
+            cx, cy = self.rect[:2]
             abs_thumb_rect = pygame.Rect((cx, ty + cy, self.thickness.int, th) if is_vertical else (tx + cx, cy, tw, self.thickness.int))
 
             if abs_thumb_rect.collidepoint(pgmenu.vars.mouse_x, pgmenu.vars.mouse_y):
                     # Clear the stored mouse movement so the drag doesn't start with a jump
                     pygame.mouse.get_rel()
-                    self.state = pgmenu.ACTIVE
+                    pgmenu.lib.set_active(self)
+
             else:
                 # Clicked on the track, scroll to that spot
                 mouse_val = pgmenu.vars.mouse_y if is_vertical else pgmenu.vars.mouse_x
-                ratio = (mouse_val - self.coords[idx] - self.master.coords[idx]) / self.size[idx]
+                ratio = (mouse_val - self.rect[idx]) / self.size[idx]
                 target_pos = ratio * (self.master.content_size[idx] - self.master.size[idx])
 
                 (self.master.scroll_y_to if is_vertical else self.master.scroll_x_to)(target_pos, animate=True)

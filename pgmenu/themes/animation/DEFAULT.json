@@ -106,6 +106,5 @@
       {"type": "attribute", "name": "thickness", "args": ["forward"]},
       {"type": "attribute", "name": "transparency", "args": ["forward"]}
     ]
-
   }
 }

@@ -2,6 +2,7 @@ from pgmenu.core.cache import Cache
 
 
 __all__ = [
+    "_first_update_call",
     "widgets",
     "widgets_draw_order",
     "running_animations",
@@ -16,10 +17,13 @@ __all__ = [
     "mouse_x",
     "mouse_y",
     "current_menu_showed",
-    "kb_selected_widget"
+    "kb_selected_widget",
+    "active_widget"
 ]
 
 
+# First update call to init necessary pygame processes once
+_first_update_call = False
 # All widgets created during runtime
 widgets = []
 # Finer control over functions that need widgets
@@ -52,3 +56,5 @@ mouse_x, mouse_y = 0, 0
 current_menu_showed = None
 # Current SELECTED widget
 kb_selected_widget = None
+# Current ACTIVE widget
+active_widget = None

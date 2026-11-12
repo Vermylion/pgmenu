@@ -25,7 +25,7 @@ class Surface(Widget):
 
         self.master = master
         self.surface = surface
-        self.coords = resolve(coords, pgmenu.Theme.surface_coords)
+        self.coords = resolve(coords, "coords", self.type)
 
         self.size = self.surface.get_size()
 
@@ -56,6 +56,4 @@ class Surface(Widget):
         self._surface = original_surface
 
     def update(self, event):
-        super().update(event)
-
         self.size = self.surface.get_size()

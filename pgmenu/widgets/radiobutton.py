@@ -34,30 +34,30 @@ class Radiobutton(ToggleWidget):
         super().__init__(**kwargs)
 
         self.master = master
-        self.coords = resolve(coords, pgmenu.Theme.radiobutton_coords)
+        self.coords = resolve(coords, "coords", self.type)
         self.size = self._format_size(size)
-        self.fill = resolve(fill, pgmenu.Theme.radiobutton_fill)
+        self.fill = resolve(fill, "fill", self.type)
 
-        self.text = resolve(text, pgmenu.Theme.radiobutton_text)
-        self.text_color = resolve(text_color, pgmenu.Theme.radiobutton_text_color)
-        self.dot_fill = resolve(dot_fill, pgmenu.Theme.radiobutton_dot_fill)
-        self.margin = resolve(margin, pgmenu.Theme.radiobutton_margin)
+        self.text = resolve(text, "text", self.type)
+        self.text_color = resolve(text_color, "text_color", self.type)
+        self.dot_fill = resolve(dot_fill, "dot_fill", self.type)
+        self.margin = resolve(margin, "margin", self.type)
 
-        self.width = resolve(width, pgmenu.Theme.radiobutton_width)
-        self.border_radius = resolve(border_radius, pgmenu.Theme.radiobutton_border_radius, round(min(self.size) / 3.3))
+        self.width = resolve(width, "width", self.type)
+        self.border_radius = resolve(border_radius, "border_radius", self.type, round(min(self.size) / 3.3))
 
-        self.selected = resolve(selected, pgmenu.Theme.radiobutton_selected)
+        self.selected = resolve(selected, "selected", self.type)
         self.group = None
 
         # Kwargs attributes
-        self.text_side = resolve_kwarg(kwargs, "text_side", pgmenu.Theme.radiobutton_text_side)
-        self.text_margin = resolve_kwarg(kwargs, "text_margin", pgmenu.Theme.radiobutton_text_margin)
-        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", pgmenu.Theme.radiobutton_text_side_margin, self.margin.base_value)
+        self.text_side = resolve_kwarg(kwargs, "text_side", self.type)
+        self.text_margin = resolve_kwarg(kwargs, "text_margin", self.type)
+        self.text_side_margin = resolve_kwarg(kwargs, "text_side_margin", self.type, self.margin.base_value)
         # Dot (Inner indicator) (rect) kwargs attributes
         self._init_rect(kwargs, "dot_")
-        self.dot_border_radius = resolve_kwarg(kwargs, "dot_border_radius", pgmenu.Theme.radiobutton_dot_border_radius, self.border_radius.base_value - self.margin.base_value)
+        self.dot_border_radius = resolve_kwarg(kwargs, "dot_border_radius", self.type, self.border_radius.base_value - self.margin.base_value)
 
-        self.dot_base_transparency = resolve_kwarg(kwargs, "dot_base_transparency", pgmenu.Theme.radiobutton_dot_base_transparency)
+        self.dot_base_transparency = resolve_kwarg(kwargs, "dot_base_transparency", self.type)
         # Setting base custom animation
         if not isinstance(kwargs.get("dot_transparency"), AnimateType):
             self.dot_transparency = pgmenu.animation.Animate(self.dot_base_transparency, self.dot_transparency, self.animation_duration, self.animation_curve, self.animation_precision)

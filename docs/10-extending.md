@@ -20,7 +20,7 @@ from widgets import _handling
 | 6 | Docs | Add the attribute table to [Widgets](04-widgets.md) |
 
 Steps 1 and 2 matter more than they look. The type constant is the prefix used by
-`resolve_widget` for every theme lookup, and `vars.widget_types` is what the theme engine uses
+`resolve_kwarg` for every theme lookup, and `vars.widget_types` is what the theme engine uses
 to recognise widget-prefixed keys when expanding a global `widgets_` attribute.
 
 ---
@@ -33,7 +33,7 @@ import pgmenu
 from pgmenu.base.widget import Widget
 from pgmenu.base.mixins import RectMixin, TextMixin
 from vars.constants import THEME
-from core.theme import resolve, resolve_widget
+from core.theme import resolve, resolve_kwarg
 from core.animation import *
 
 
@@ -72,9 +72,9 @@ class Slider(Widget, RectMixin, TextMixin):
                                  round(min(self.size) / 2))
 
     # 4. Optional sub-part styling, resolved per widget type with a shared fallback
-    self.handle_antialiasing = resolve_widget(kwargs, 'handle_antialiasing',
-                                              self.type,
-                                              pgmenu.Theme.rectmixin_antialiasing)
+    self.handle_antialiasing = resolve_kwarg(kwargs, 'handle_antialiasing',
+                                             self.type,
+                                             pgmenu.Theme.rectmixin_antialiasing)
 
     # 5. Register with the engine, always last
     _handling.add(self)
@@ -172,7 +172,7 @@ And the theme block:
 
 | Contract | Why |
 | --- | --- |
-| `self.type` before `super().__init__()` | Mixins and `resolve_widget` need it |
+| `self.type` before `super().__init__()` | Mixins and `resolve_kwarg` need it |
 | `pgmenu.widget.add(self)` at the end of `__init__` | Registers with the draw and update passes |
 | `super().draw()` first in `draw()` | Sets `_drawn`, without which the widget is never updated |
 | `super().update(event)` first in `update()` | Measures `surface_size` and refreshes the hit rect |

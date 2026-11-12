@@ -268,11 +268,11 @@ class Animate(AnimateType):
 
         self.base_num = base_num
         self.final_num = final_num
-        self.duration = resolve(duration, pgmenu.Theme.animation_duration)
+        self.duration = resolve(duration, "duration", "animation")
         # Makes sure it can never be 0 (because of division by 0)
         self.duration = max(self.duration, sys.float_info.epsilon)
-        self.curve = resolve(curve, pgmenu.Theme.animation_curve) # Different from animation_curve?
-        self.precision = resolve(precision, pgmenu.Theme.animation_precision)
+        self.curve = resolve(curve, "curve", "animation") # Different from animation_curve?
+        self.precision = resolve(precision, "precision", "animation")
 
         self.start_time = None
         self.diff_num = self.final_num - self.base_num
@@ -465,9 +465,9 @@ class AnimateTuple(AnimateType):
 
         super().__init__()
 
-        self.duration = resolve(duration, pgmenu.Theme.animation_duration)
-        self.curve = resolve(curve, pgmenu.Theme.animation_curve)
-        self.precision = resolve(precision, pgmenu.Theme.animation_precision)
+        self.duration = resolve(duration, "duration", "animation")
+        self.curve = resolve(curve, "curve", "animation")
+        self.precision = resolve(precision, "precision", "animation")
 
         self.items = []
         # This is done for optimization and to reduce for loops. Hopefully worth it
@@ -587,12 +587,12 @@ class AnimateSurface(pygame.Surface, AnimateType):
         self.base_surface = base_surface
         self.final_surface = final_surface
 
-        self.base_alpha = resolve(base_alpha, pgmenu.Theme.animation_base_alpha)
-        self.final_alpha = resolve(final_alpha, pgmenu.Theme.animation_final_alpha)
+        self.base_alpha = resolve(base_alpha, "base_alpha", "animation")
+        self.final_alpha = resolve(final_alpha, "final_alpha", "animation")
 
-        self.duration = resolve(duration, pgmenu.Theme.animation_duration)
-        self.curve = resolve(curve, pgmenu.Theme.animation_curve)
-        self.precision = resolve(precision, pgmenu.Theme.animation_precision)
+        self.duration = resolve(duration, "duration", "animation")
+        self.curve = resolve(curve, "curve", "animation")
+        self.precision = resolve(precision, "precision", "animation")
 
         self.animation_alpha = Animate(self.base_alpha, self.final_alpha, self.duration, self.curve, self.precision)
 

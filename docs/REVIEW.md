@@ -190,7 +190,7 @@ blit destination would be a one-line change per widget.
 The three `Debug*.py` scripts are effectively manual tests. The pieces most worth covering
 automatically, in order of value per line of test code:
 
-1. `theme.resolve` / `resolve_kwarg` / `resolve_widget` truth tables, which are pure functions.
+1. `theme.resolve` / `resolve_kwarg` / `resolve_kwarg` truth tables, which are pure functions.
 2. `resize._scale` for both modes, both axes disabled, and the round-trip property that
    scaling to a new size and back restores the base exactly.
 3. `Animate.update` step, direction reversal and `reach` clamping, driven by a fake clock.

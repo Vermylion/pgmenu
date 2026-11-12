@@ -79,7 +79,7 @@ the remaining keyword arguments with `super().__init__(**kwargs)`.
 | `_drawn` | `False` | Per-frame flag, gates the update pass |
 
 Note the difference in resolution style: the animation and callback attributes go through
-`resolve_widget` (theme-aware with a per-type key), while the responsive and state attributes
+`resolve_kwarg` (theme-aware with a per-type key), while the responsive and state attributes
 use a plain `kwargs.get(...)` with the global theme value. Responsive behaviour is therefore
 uniform across widget types by design.
 
@@ -468,7 +468,7 @@ Design decisions already committed to in the source:
 * `size` accepts a scalar and is normalised to a square by `_format_size`, including when an
   `Animate` is passed.
 * The check mark gets its own `check_*` styling family (`check_fill`, `check_antialiasing`,
-  `check_transparency`, `check_aa_strength`, `check_inner_*`), resolved via `resolve_widget`
+  `check_transparency`, `check_aa_strength`, `check_inner_*`), resolved via `resolve_kwarg`
   against `checkbox_*` theme keys with `rectmixin_*` fallbacks. This is the template for any
   widget that draws more than one rectangle.
 * `check_border_radius` is deliberately omitted for now.

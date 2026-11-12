@@ -94,7 +94,7 @@ Module-level mutable state. See [9.6](09-menus-and-utilities.md#96-pgmenuvars) f
 | `_format_theme_path` | `(theme)` | `(name, absolute_path)` for a theme name with or without extension |
 | `resolve` | `(value, theme_attr, default=None)` | Sentinel resolution |
 | `resolve_kwarg` | `(kwargs, key, theme_attr, default=None)` | `resolve` sourcing from `kwargs` |
-| `resolve_widget` | `(kwargs, key, widget_type, default=None)` | `resolve_kwarg` against `{widget_type}_{key}` |
+| `resolve_kwarg` | `(kwargs, key, widget_type, default=None)` | `resolve_kwarg` against `{widget_type}_{key}` |
 
 ---
 

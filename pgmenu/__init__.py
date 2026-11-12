@@ -74,7 +74,7 @@ from pgmenu.base import Widget, RectMixin, TextMixin, ActionableMixin   # adjust
 
 # Widgets
 import pgmenu.widgets as widgets
-from pgmenu.widgets import Label, Surface, Frame, Button, Checkbox, Radiobutton, Scrollbar
+from pgmenu.widgets import Label, Surface, Frame, Button, Checkbox, Radiobutton, RadioGroup, Scrollbar, TextArea
 
 # Expose any module not explicitly imported above (e.g. utils, scrollbar, future files)
 for _name, _real in _ALIASES.items():
@@ -90,7 +90,7 @@ __all__ = sorted(
     | {"Theme", "AnimationTheme"}
     | {"draw_all", "update", "request_cursor"}
     | {"Widget", "RectMixin", "TextMixin", "ActionableMixin"}
-    | {"Label", "Surface", "Frame", "Button", "Checkbox", "Radiobutton", "Scrollbar"}
+    | {"Label", "Surface", "Frame", "Button", "Checkbox", "Radiobutton", "RadioGroup", "Scrollbar", "TextArea"}
 )
 
 # Initialize the library

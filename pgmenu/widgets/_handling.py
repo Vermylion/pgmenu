@@ -9,12 +9,12 @@ def add(widget):
     # Sets Frame objects at the end of the draw order so other surfaces have time to blit on to them
     def insert_before_frames():
         for i in range(len(pgmenu.vars.widgets_draw_order)):
-            if pgmenu.vars.widgets_draw_order[i].type == pgmenu.FRAME:
+            if isinstance(pgmenu.vars.widgets_draw_order[i], pgmenu.widgets.Frame):
                 pgmenu.vars.widgets_draw_order.insert(i, widget)
                 return
         pgmenu.vars.widgets_draw_order.append(widget)
 
-    if widget.type == pgmenu.FRAME:
+    if isinstance(widget, pgmenu.widgets.Frame):
         # Frames always go at the true end, so multiple frames keep their original (e.g. nesting) order relative to each other
         pgmenu.vars.widgets_draw_order.append(widget)
     else:
