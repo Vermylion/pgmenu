@@ -26,31 +26,31 @@ class Widget:
         # Disable animation
         self.disable_default_animation = resolve_kwarg(kwargs, 'disable_default_animation', self.type, pgmenu.Theme.widget_disable_default_animation)
         # No need to define attr in DEFAULT theme, as an absence of theme attr goes to default in resolve_widget
-        self.animation_on_standby = resolve_kwarg(kwargs, 'animation_on_standby', self.type, self.m_animation_on_standby, pgmenu.AnimationTheme, self)
-        self.animation_on_hover = resolve_kwarg(kwargs, 'animation_on_hover', self.type, self.m_animation_on_hover, pgmenu.AnimationTheme, self)
-        self.animation_on_press = resolve_kwarg(kwargs, 'animation_on_press', self.type, self.m_animation_on_press, pgmenu.AnimationTheme, self)
-        self.animation_on_hold = resolve_kwarg(kwargs, 'animation_on_hold', self.type, self.m_animation_on_hold, pgmenu.AnimationTheme, self)
-        self.animation_on_active = resolve_kwarg(kwargs, 'animation_on_active', self.type, self.m_animation_on_active, pgmenu.AnimationTheme, self)
-        self.animation_on_release = resolve_kwarg(kwargs, 'animation_on_release', self.type, self.m_animation_on_release, pgmenu.AnimationTheme, self)
-        self.animation_on_select = resolve_kwarg(kwargs, 'animation_on_select', self.type, self.m_animation_on_select, pgmenu.AnimationTheme, self)
-        self.animation_on_deselect = resolve_kwarg(kwargs, 'animation_on_deselect', self.type, self.m_animation_on_deselect, pgmenu.AnimationTheme, self)
-        self.animation_on_key_press = resolve_kwarg(kwargs, 'animation_on_key_press', self.type, self.m_animation_on_key_press, pgmenu.AnimationTheme, self)
-        self.animation_on_key_hold = resolve_kwarg(kwargs, 'animation_on_key_hold', self.type, self.m_animation_on_key_hold, pgmenu.AnimationTheme, self)
-        self.animation_on_key_release = resolve_kwarg(kwargs, 'animation_on_key_release', self.type, self.m_animation_on_key_release, pgmenu.AnimationTheme, self)
+        self.animation_on_standby = resolve_kwarg(kwargs, 'animation_on_standby', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_hover = resolve_kwarg(kwargs, 'animation_on_hover', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_press = resolve_kwarg(kwargs, 'animation_on_press', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_hold = resolve_kwarg(kwargs, 'animation_on_hold', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_active = resolve_kwarg(kwargs, 'animation_on_active', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_release = resolve_kwarg(kwargs, 'animation_on_release', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_select = resolve_kwarg(kwargs, 'animation_on_select', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_deselect = resolve_kwarg(kwargs, 'animation_on_deselect', self.type, lambda: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_key_press = resolve_kwarg(kwargs, 'animation_on_key_press', self.type, lambda key: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_key_hold = resolve_kwarg(kwargs, 'animation_on_key_hold', self.type, lambda key: ..., pgmenu.AnimationTheme, self)
+        self.animation_on_key_release = resolve_kwarg(kwargs, 'animation_on_key_release', self.type, lambda key: ..., pgmenu.AnimationTheme, self)
         # Set action attributes to theme according to widget type
         # No need to define attr in DEFAULT theme, as an absence of theme attr goes to default in resolve_widget
-        self.on_standby = resolve_kwarg(kwargs, 'on_standby', self.type, self.m_on_standby)
-        self.on_hover = resolve_kwarg(kwargs, 'on_hover', self.type, self.m_on_hover)
-        self.on_press = resolve_kwarg(kwargs, 'on_press', self.type, self.m_on_press)
-        self.on_hold = resolve_kwarg(kwargs, 'on_hold', self.type, self.m_on_hold)
-        self.on_active = resolve_kwarg(kwargs, 'on_active', self.type, self.m_on_active)
-        self.on_release = resolve_kwarg(kwargs, 'on_release', self.type, self.m_on_release)
-        self.on_select = resolve_kwarg(kwargs, 'on_select', self.type, self.m_on_select)
-        self.on_deselect = resolve_kwarg(kwargs, 'on_deselect', self.type, self.m_on_deselect)
-        self.on_key_press = resolve_kwarg(kwargs, 'on_key_press', self.type, self.m_on_key_press)
-        self.on_key_hold = resolve_kwarg(kwargs, 'on_key_hold', self.type, self.m_on_key_hold)
-        self.on_key_release = resolve_kwarg(kwargs, 'on_key_release', self.type, self.m_on_key_release)
-        self.on_resize = resolve_kwarg(kwargs, 'on_resize', self.type, self.m_on_resize)
+        self.on_standby = resolve_kwarg(kwargs, 'on_standby', self.type, lambda: ...)
+        self.on_hover = resolve_kwarg(kwargs, 'on_hover', self.type, lambda: ...)
+        self.on_press = resolve_kwarg(kwargs, 'on_press', self.type, lambda: ...)
+        self.on_hold = resolve_kwarg(kwargs, 'on_hold', self.type, lambda: ...)
+        self.on_active = resolve_kwarg(kwargs, 'on_active', self.type, lambda: ...)
+        self.on_release = resolve_kwarg(kwargs, 'on_release', self.type, lambda: ...)
+        self.on_select = resolve_kwarg(kwargs, 'on_select', self.type, lambda: ...)
+        self.on_deselect = resolve_kwarg(kwargs, 'on_deselect', self.type, lambda: ...)
+        self.on_key_press = resolve_kwarg(kwargs, 'on_key_press', self.type, lambda key: ...)
+        self.on_key_hold = resolve_kwarg(kwargs, 'on_key_hold', self.type, lambda key: ...)
+        self.on_key_release = resolve_kwarg(kwargs, 'on_key_release', self.type, lambda key: ...)
+        self.on_resize = resolve_kwarg(kwargs, 'on_resize', self.type, lambda: ...)
         # Widget placement centering attributes
         self.center_x = resolve_kwarg(kwargs, 'center_x', self.type, pgmenu.Theme.widget_center_x)
         self.center_y = resolve_kwarg(kwargs, 'center_y', self.type, pgmenu.Theme.widget_center_y)
@@ -297,77 +297,6 @@ class Widget:
         pgmenu.widgets.remove(self)
 
     def resize(self, w: int, h: int):
-        ...
-
-    # Defined only as fallbacks for syntax -> Could become lambda()
-    # TODO -> Remove all m_?
-    def m_animation_on_standby(self):
-        ...
-
-    def m_animation_on_hover(self):
-        ...
-
-    def m_animation_on_press(self):
-        ...
-
-    def m_animation_on_hold(self):
-        ...
-
-    def m_animation_on_active(self):
-        ...
-
-    def m_animation_on_select(self):
-        ...
-
-    def m_animation_on_deselect(self):
-        ...
-
-    def m_animation_on_release(self):
-        ...
-
-    def m_animation_on_key_press(self, key):
-        ...
-
-    def m_animation_on_key_hold(self, key):
-        ...
-
-    def m_animation_on_key_release(self, key):
-        ...
-
-    def m_on_standby(self):
-        ...
-
-    def m_on_hover(self):
-        ...
-
-    def m_on_press(self):
-        ...
-
-    def m_on_hold(self):
-        ...
-
-    def m_on_active(self):
-        ...
-
-    def m_on_select(self):
-        ...
-
-    def m_on_deselect(self):
-        ...
-
-    def m_on_release(self):
-        ...
-
-    def m_on_key_press(self, key):
-        ...
-
-    def m_on_key_hold(self, key):
-        ...
-
-    def m_on_key_release(self, key):
-        ...
-
-    def m_on_resize(self):
         ...
 
     # Per action defined per widget for simpler mixin update handling
