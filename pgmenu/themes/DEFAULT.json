@@ -93,6 +93,7 @@
     "label_strikethrough": false,
     "label_underline": false,
     "label_transparency": 255,
+    "label_line_spacing": 0,
     "label_center_x": false,
     "label_center_y": false,
 
@@ -219,7 +220,7 @@
     "textarea_margin": 12,
     "textarea_width": 0,
     "textarea_border_radius": null,
-    "textarea_text_line_spacing": 4,
+    "textarea_text_line_spacing": 0,
     "textarea_text_cursor_fill": [255, 255, 255],
     "textarea_text_cursor_margin": 2,
     "textarea_text_cursor_thickness": 3,

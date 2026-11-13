@@ -27,7 +27,6 @@ def _first_update_init():
     pgmenu.vars._first_update_call = True
 
     pygame.key.set_repeat(400, 50)
-    print("zjkajkhksjqha")
 
     if pgmenu.vars.base_window_size is None:
         pgmenu.vars.base_window_size = pygame.display.get_window_size()
@@ -73,6 +72,9 @@ def _widget_kb_selection():
 
         if pgmenu.vars.kb_selected_widget is None:
             pgmenu.vars.kb_selected_widget = pgmenu.vars.widgets[0]
+            # Remove any widget from its active state
+            if pgmenu.vars.active_widget is not None:
+                pgmenu.vars.active_widget.state = pgmenu.NORMAL
 
         current, widgets = pgmenu.vars.kb_selected_widget, pgmenu.vars.widgets
 
@@ -115,14 +117,6 @@ def _merge_wheel_events(events):
         ))
 
     return merged
-
-
-def set_active(widget):
-    if pgmenu.vars.active_widget is not None:
-        pgmenu.vars.active_widget.state = pgmenu.NORMAL
-
-    pgmenu.vars.active_widget = widget
-    widget.state = pgmenu.ACTIVE
 
 
 def update(events):

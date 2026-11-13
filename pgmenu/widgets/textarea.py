@@ -39,8 +39,6 @@ class TextArea(Frame, TextMixin, ActionableMixin):
 
         self.margin = resolve(margin, "margin", self.type)
 
-        self.text_line_spacing = resolve_kwarg(kwargs, "text_line_spacing", self.type)
-
         self._init_rect(kwargs, "text_cursor_")
         self.text_cursor_fill = resolve_kwarg(kwargs, "text_cursor_fill", self.type)
         self.text_cursor_margin = resolve_kwarg(kwargs, "text_cursor_margin", self.type)
@@ -84,8 +82,8 @@ class TextArea(Frame, TextMixin, ActionableMixin):
                                           self.antialiasing, self.transparency, self.aa_strength, inner_fill=self.inner_fill,
                                           inner_transparency=self.inner_transparency, inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
-        text_surface = pgmenu.text.render(self.text, self.text_color, self.text_size, self.text_font,
-                           self.text_background, self.text_antialias, self.text_italic, self.text_bold, self.text_strikethrough, self.text_underline, self.text_transparency)
+        text_surface = pgmenu.text.render(self.text, self.text_color, self.text_size, self.text_font, self.text_background, self.text_antialias,
+                                          self.text_italic, self.text_bold, self.text_strikethrough, self.text_underline, self.text_transparency, self.text_line_spacing)
 
         x, y = self.scroll_offset
         self.blit(text_surface, (self.margin - x, self.margin - y))
@@ -100,7 +98,7 @@ class TextArea(Frame, TextMixin, ActionableMixin):
 
             w_text, h_text = text_font.size(line_text)
 
-            text_cursor_rect = (w_text, current_line * h_text, self.text_cursor_thickness, h_text)
+            text_cursor_rect = (w_text, current_line * (h_text + self.text_line_spacing), self.text_cursor_thickness, h_text)
 
             text_cursor_surface = pgmenu.draw.aarect(None, self.text_cursor_fill, text_cursor_rect, self.text_cursor_width, self.text_cursor_border_radius,
                                                 self.text_cursor_border_top_left_radius, self.text_cursor_border_top_right_radius, self.text_cursor_border_bottom_left_radius, self.text_cursor_border_bottom_right_radius,
@@ -113,14 +111,14 @@ class TextArea(Frame, TextMixin, ActionableMixin):
 
         self.blit_to_master()
 
+    def _on_press(self):
+        ...
+
+    def _on_release(self):
+        self.set_active()
+
     def update(self, event):
-
-        self._mixin_hook("_mixin_update", event)
-
-        if self.state == pgmenu.NORMAL or self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == pygame.BUTTON_LEFT:
-                    pgmenu.lib.set_active(self)
+        Widget.update(self, event)
 
         if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
 

@@ -101,7 +101,7 @@ def render(text: str = THEME,
         ]
 
         width = max(surf.get_width() for surf in text_lines_surf)
-        height = sum(surf.get_height() for surf in text_lines_surf)
+        height = sum(surf.get_height()+line_spacing for surf in text_lines_surf)
 
         text_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
@@ -147,10 +147,11 @@ def write(surface,
     strikethrough = resolve(strikethrough, "strikethrough", "text")
     underline = resolve(underline, "underline", "text")
     transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
     center_x = resolve(center_x, "center_x", "text")
     center_y = resolve(center_y, "center_y", "text")
 
-    text_surface = render(text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+    text_surface = render(text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     if center_x or center_y:
         surface_size = text_surface.get_size()
@@ -243,10 +244,11 @@ def fit_height(dest_height: int = THEME,
     font = resolve(font, "font", "text")
     italic = resolve(italic, "italic", "text")
     bold = resolve(bold, "bold", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
     # Cache render with height instead of size
     # Keep same cache_id in function
-    cache_id = (text, dest_height, margin, font, italic, bold)
+    cache_id = (text, dest_height, margin, font, italic, bold, line_spacing)
 
     # Load from cache if already in cache
     cached = pgmenu.cache.lru_get(cache["text"], cache_id)
@@ -258,7 +260,7 @@ def fit_height(dest_height: int = THEME,
     # Starting guess for text size, using dest_height as it's the only dimension we care about
     text_size = dest_height
 
-    text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold)
+    text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold, line_spacing=line_spacing)
 
     # Catch when the text is too big/doesn't fit
     size_y = text_surf.get_size()[1]
@@ -299,10 +301,11 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
     font = resolve(font, "font", "text")
     italic = resolve(italic, "italic", "text")
     bold = resolve(bold, "bold", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
     # Cache render with rect instead of size
     # Keep same cache_id in function
-    cache_id = (text, dest_rect, margin, font, italic, bold)
+    cache_id = (text, dest_rect, margin, font, italic, bold, line_spacing)
 
     # Load from cache if already in cache
     cached = pgmenu.cache.lru_get(cache["text"], cache_id)
@@ -314,7 +317,7 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
     # Minimum size of rect for text surface
     text_size = min(dest_rect)
 
-    text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold)
+    text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold, line_spacing=line_spacing)
 
     # Catch when the text is too big/doesn't fit
     size_x = text_surf.get_size()[0]
@@ -322,7 +325,7 @@ def fit_size(dest_rect: list[int, int] | tuple[int, int] = THEME,
         # math.floor to make sure it doesn't go out of bounds
         text_size = math.floor(text_size * dest_rect[0] / size_x)
         # Create new text surface for min size check afterward
-        text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold)
+        text_surf = render(text, size=text_size, font=font, italic=italic, bold=bold, line_spacing=line_spacing)
 
     size_y = text_surf.get_size()[1]
     if size_y > dest_rect[1]:
@@ -380,11 +383,12 @@ def fit_width_render(dest_width: int = THEME,
     strikethrough = resolve(strikethrough, "strikethrough", "text")
     underline = resolve(underline, "underline", "text")
     transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
     text_size = fit_width(dest_width, text, margin, font, italic, bold)
 
     # Render text; caching is done in render
-    text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+    text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     return text_surface.copy()
 
@@ -431,11 +435,12 @@ def fit_height_render(dest_height: int = THEME,
     strikethrough = resolve(strikethrough, "strikethrough", "text")
     underline = resolve(underline, "underline", "text")
     transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
-    text_size = fit_height(dest_height, text, margin, font, italic, bold)
+    text_size = fit_height(dest_height, text, margin, font, italic, bold, line_spacing)
 
     # Render text; caching is done in render
-    text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+    text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     return text_surface.copy()
 
@@ -482,11 +487,12 @@ def fit_render(dest_rect: list[int, int] | tuple[int, int] = THEME,
     strikethrough = resolve(strikethrough, "strikethrough", "text")
     underline = resolve(underline, "underline", "text")
     transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
-    text_size = fit_size(dest_rect, text, margin, font, italic, bold)
+    text_size = fit_size(dest_rect, text, margin, font, italic, bold, line_spacing)
 
     # Render text; caching is done in render
-    text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency)
+    text_surface = render(text, color, text_size, font, background, antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     return text_surface.copy()
 
@@ -539,6 +545,7 @@ def fit_width_render_smoothscale(dest_width: int = THEME,
     strikethrough = resolve(strikethrough, "strikethrough", "text")
     underline = resolve(underline, "underline", "text")
     transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
     if max_dest_width is None:
         max_dest_width = dest_width
@@ -546,7 +553,7 @@ def fit_width_render_smoothscale(dest_width: int = THEME,
     # Get rendered text fitted to max width
     # In case margin is animated, it has to be passed as a whole number into fit_width_render
     text_surface = pgmenu.text.fit_width_render(max_dest_width, text, color, round(margin), font, background,
-                                              antialias, italic, bold, strikethrough, underline, transparency)
+                                              antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     # Target width for the smoothscale step, matching fit_render_smoothscale's margin handling
     target_width = max(1, round(dest_width - margin * 2))
@@ -615,6 +622,7 @@ def fit_height_render_smoothscale(dest_height: int = THEME,
     strikethrough = resolve(strikethrough, "strikethrough", "text")
     underline = resolve(underline, "underline", "text")
     transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
     if max_dest_height is None:
         max_dest_height = dest_height
@@ -622,7 +630,7 @@ def fit_height_render_smoothscale(dest_height: int = THEME,
     # Get rendered text fitted to max height
     # In case margin is animated, it has to be passed as a whole number into fit_height_render
     text_surface = pgmenu.text.fit_height_render(max_dest_height, text, color, round(margin), font, background,
-                                               antialias, italic, bold, strikethrough, underline, transparency)
+                                               antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     # Target height for the smoothscale step, matching fit_render_smoothscale's margin handling
     target_height = max(1, round(dest_height - margin * 2))
@@ -673,6 +681,7 @@ def fit_render_smoothscale(dest_rect: tuple[int, int] = THEME,
     :param strikethrough:
     :param underline:
     :param transparency:
+    :param line_spacing:
     :return: Returns a surface of the fitted text (by smoothscale) and a text_rect[int, int, int, int]
     """
 
@@ -689,6 +698,7 @@ def fit_render_smoothscale(dest_rect: tuple[int, int] = THEME,
     strikethrough = resolve(strikethrough, "strikethrough", "text")
     underline = resolve(underline, "underline", "text")
     transparency = resolve(transparency, "transparency", "text")
+    line_spacing = resolve(line_spacing, "line_spacing", "text")
 
     if max_dest_rect is None:
         max_dest_rect = dest_rect
@@ -696,7 +706,7 @@ def fit_render_smoothscale(dest_rect: tuple[int, int] = THEME,
     # Get rendered text fitted to max button size
     # In case margin is animated, it has to be passed as a whole number into fit_text
     text_surface = pgmenu.text.fit_render(max_dest_rect, text, color, round(margin), font, background,
-                                        antialias, italic, bold, strikethrough, underline, transparency)
+                                        antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
     # Text rect is found to smoothscale text surface to correct dimensions
     text_rect = pgmenu.rect.fit_rects(dest_rect, text_surface.get_size(), margin=margin)

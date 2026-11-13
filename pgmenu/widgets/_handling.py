@@ -6,20 +6,23 @@ __all__ = ["add", "remove", "remove_all"]
 
 # Adds widget to the system and update loop
 def add(widget):
-    # Sets Frame objects at the end of the draw order so other surfaces have time to blit on to them
-    def insert_before_frames():
-        for i in range(len(pgmenu.vars.widgets_draw_order)):
-            if isinstance(pgmenu.vars.widgets_draw_order[i], pgmenu.widgets.Frame):
-                pgmenu.vars.widgets_draw_order.insert(i, widget)
-                return
-        pgmenu.vars.widgets_draw_order.append(widget)
+    draw_order = pgmenu.vars.widgets_draw_order
 
     if isinstance(widget, pgmenu.widgets.Frame):
-        # Frames always go at the true end, so multiple frames keep their original (e.g. nesting) order relative to each other
-        pgmenu.vars.widgets_draw_order.append(widget)
+        master = widget.master
+        if isinstance(master, pgmenu.widgets.Frame) and master in draw_order:
+            # Nested frame: must draw before its parent so it is queued before the parent flushes
+            draw_order.insert(draw_order.index(master), widget)
+        else:
+            draw_order.append(widget)
     else:
-        # Regular widgets must be inserted before any existing Frame, otherwise they'd draw after it and the Frame couldn't have them blitted onto it yet
-        insert_before_frames()
+        # Regular widgets before any frame
+        for i, w in enumerate(draw_order):
+            if isinstance(w, pgmenu.widgets.Frame):
+                draw_order.insert(i, widget)
+                break
+        else:
+            draw_order.append(widget)
 
     pgmenu.vars.widgets.append(widget)
 

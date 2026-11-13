@@ -150,7 +150,7 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
             if abs_thumb_rect.collidepoint(pgmenu.vars.mouse_x, pgmenu.vars.mouse_y):
                     # Clear the stored mouse movement so the drag doesn't start with a jump
                     pygame.mouse.get_rel()
-                    pgmenu.lib.set_active(self)
+                    self.set_active()
 
             else:
                 # Clicked on the track, scroll to that spot

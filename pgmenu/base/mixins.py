@@ -131,6 +131,7 @@ class TextMixin:
         self.text_strikethrough = resolve_kwarg(kwargs, "text_strikethrough", self.type, pgmenu.UNSET)
         self.text_underline = resolve_kwarg(kwargs, "text_underline", self.type, pgmenu.UNSET)
         self.text_transparency = resolve_kwarg(kwargs, "text_transparency", self.type, pgmenu.UNSET)
+        self.text_line_spacing = resolve_kwarg(kwargs, "text_line_spacing", self.type, pgmenu.UNSET)
 
 
 class ActionableMixin:
@@ -142,17 +143,17 @@ class ActionableMixin:
     def _mixin_update(self, event):
 
         def down_action():
-            pgmenu.lib.set_active(self)
+            self._on_press()
             self.on_press()
             self.animation_on_press()
 
         def up_action():
-            if self.state == pgmenu.ACTIVE:
-                self.state = pgmenu.NORMAL
-                self.on_release()
-                self.animation_on_release()
+            self._on_release()
+            self.on_release()
+            self.animation_on_release()
 
         def hold_action():
+            self._on_hold()
             self.on_hold()
             self.animation_on_hold()
 
@@ -162,13 +163,11 @@ class ActionableMixin:
             # Keyboard activation
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if self.state != pgmenu.ACTIVE:
-                        down_action()
+                    down_action()
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RETURN:
-                    if self.state != pgmenu.ACTIVE:
-                        up_action()
+                    up_action()
 
             elif event.type == pgmenu.IDLE_EVENT:
                 if pygame.key.get_pressed()[pygame.K_RETURN]:

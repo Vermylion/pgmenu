@@ -68,8 +68,8 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
         has_text = self.text is not None and self.text != ""
         if has_text:
             text_surface = pgmenu.text.fit_height_render(self.size.base_tuple[1], self.text, self.text_color, round(self.text_margin), self.text_font,
-                                                       self.text_background, self.text_antialias, self.text_italic, self.text_bold,
-                                                       self.text_strikethrough, self.text_underline, self.text_transparency)
+                                                         self.text_background, self.text_antialias, self.text_italic, self.text_bold,
+                                                         self.text_strikethrough, self.text_underline, self.text_transparency, self.text_line_spacing)
             text_surf_size = text_surface.get_size()
             side_margin = self.text_side_margin
         else:
@@ -92,22 +92,14 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
 
         self.blit_to_master()
 
-    # TODO: IMPORTANT -> Revamp update system with states and/or update mixin handling
-    def update(self, event):
-        # Detect mouse collisions
-        if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
+    def _on_press(self):
+        self.set_active()
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_RETURN:
-                    if self.state == pgmenu.ACTIVE:
-                        self.toggle()
+    def _on_release(self):
+        if self.state == pgmenu.ACTIVE:
+            self.toggle()
 
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == pygame.BUTTON_LEFT:
-                    if self.state == pgmenu.ACTIVE:
-                        self.toggle()
-
-        self._mixin_hook("_mixin_update", event)
+            self.state = pgmenu.NORMAL
 
     def resize(self, w: int, h: int):
         self._resize_border_radii(w, h)

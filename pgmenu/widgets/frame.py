@@ -151,7 +151,7 @@ class Frame(Widget, RectMixin):
 
         self.blit_to_master()
 
-    # FIXME -> Performance issue: all widgets, in clntent_size or not, get drawn to the surface
+    # FIXME -> Performance issue: all widgets, in content_size or not, get drawn to the surface
     def draw_widgets(self):
         for surface, coords in self._widgets_to_blit.items():
             # w, h = surface.get_size()
@@ -162,7 +162,12 @@ class Frame(Widget, RectMixin):
 
     def update(self, event):
         if self.state == pgmenu.HOVERED or self.state == pgmenu.ACTIVE:
-            if event.type == pygame.MOUSEWHEEL and not pygame.key.get_pressed()[pygame.K_LCTRL]:
+            # FIXME --> Hopefully temporary solution to deactivated active widgets, especially textarea
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pgmenu.vars.active_widget is not None:
+                    pgmenu.vars.active_widget.state = pgmenu.NORMAL
+
+            elif event.type == pygame.MOUSEWHEEL and not pygame.key.get_pressed()[pygame.K_LCTRL]:
                 scroll_travel_x = max(min(event.precise_x * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
                 scroll_travel_y = max(min(event.precise_y * -1 * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
 

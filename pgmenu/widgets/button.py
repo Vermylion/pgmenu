@@ -89,7 +89,7 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
         # round(margin) in case margin is animated, it has to be passed as a whole number into fit_text
         text_surface, rendered_rect = pgmenu.text.fit_render_smoothscale(text_layout_rect[2:], max_text_layout_rect, self.text, self.text_color, 0, self.text_font,
                                                                        self.text_background, self.text_antialias, self.text_italic, self.text_bold,
-                                                                       self.text_strikethrough, self.text_underline, self.text_transparency)
+                                                                       self.text_strikethrough, self.text_underline, self.text_transparency, self.text_line_spacing)
 
         text_rect = (text_layout_rect[0], text_layout_rect[1], rendered_rect[2], rendered_rect[3])
 
@@ -104,8 +104,11 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
         self.surface.blit(text_surface, text_rect[:2])
         self.blit_to_master()
 
-    def update(self, event):
-        self._mixin_hook("_mixin_update", event)
+    def _on_press(self):
+        self.set_active()
+
+    def _on_release(self):
+        self.state = pgmenu.NORMAL
 
     def resize(self, w: int, h: int):
         self._resize_border_radii(w, h)

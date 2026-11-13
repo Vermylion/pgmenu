@@ -259,6 +259,14 @@ class Widget:
         self.type = getattr(self, "type") if hasattr(self, "type") else type
         pgmenu.system.WIDGET_TYPES.add(self.type)
 
+    # FIXME -> Scrollbar can't become active if on top of a textarea
+    def set_active(self):
+        if pgmenu.vars.active_widget is not None:
+            pgmenu.vars.active_widget.state = pgmenu.NORMAL
+
+        pgmenu.vars.active_widget = self
+        self.state = pgmenu.ACTIVE
+
     # Method allows to modify multiple attributes at a time
     def modify(self,
                **kwargs):
@@ -280,11 +288,9 @@ class Widget:
         self.surface_size = self.surface.get_size()
         self._update_rect(self.surface_size, self.surface_coords)
 
-        # Default call for mixins
-        # self._mixin_hook("_mixin_update", event)
-
     def update(self, event):
-        ...
+        # Default call for mixins
+        self._mixin_hook("_mixin_update", event)
 
     def destroy(self):
         """Remove this widget from the engine."""
@@ -293,6 +299,8 @@ class Widget:
     def resize(self, w: int, h: int):
         ...
 
+    # Defined only as fallbacks for syntax -> Could become lambda()
+    # TODO -> Remove all m_?
     def m_animation_on_standby(self):
         ...
 
@@ -360,6 +368,43 @@ class Widget:
         ...
 
     def m_on_resize(self):
+        ...
+
+    # Per action defined per widget for simpler mixin update handling
+    def _on_standby(self):
+        ...
+
+    def _on_hover(self):
+        ...
+
+    def _on_press(self):
+        ...
+
+    def _on_hold(self):
+        ...
+
+    def _on_active(self):
+        ...
+
+    def _on_select(self):
+        ...
+
+    def _on_deselect(self):
+        ...
+
+    def _on_release(self):
+        ...
+
+    def _on_key_press(self, key):
+        ...
+
+    def _on_key_hold(self, key):
+        ...
+
+    def _on_key_release(self, key):
+        ...
+
+    def _on_resize(self):
         ...
 
     def request_cursor(self):

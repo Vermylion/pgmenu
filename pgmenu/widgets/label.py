@@ -27,6 +27,7 @@ class Label(Widget):
                  strikethrough: bool = THEME,
                  underline: bool = THEME,
                  transparency: int | Animate = THEME,
+                 line_spacing: int = THEME,
                  **kwargs):
 
         # self.type has to be defined before super().__init__()
@@ -47,6 +48,7 @@ class Label(Widget):
         self.strikethrough = resolve(strikethrough, "strikethrough", self.type)
         self.underline = resolve(underline, "underline", self.type)
         self.transparency = resolve(transparency, "transparency", self.type)
+        self.line_spacing = resolve(line_spacing, "line_spacing", self.type)
 
         # Add widget to widget list
         pgmenu.widgets.add(self)
@@ -54,7 +56,7 @@ class Label(Widget):
     def draw(self):
         super().draw()
 
-        self.surface = pgmenu.text.render(self.text, self.color, self.size, self.font, self.background, self.antialias, self.italic, self.bold, self.strikethrough, self.underline, self.transparency)
+        self.surface = pgmenu.text.render(self.text, self.color, self.size, self.font, self.background, self.antialias, self.italic, self.bold, self.strikethrough, self.underline, self.transparency, self.line_spacing)
 
         self.blit_to_master()
 

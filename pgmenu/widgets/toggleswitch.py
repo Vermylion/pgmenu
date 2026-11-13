@@ -145,7 +145,7 @@ class ToggleSwitch(ToggleWidget):
         if has_text:
             text_surface = pgmenu.text.fit_height_render(self.size.base_tuple[1], self.text, self.text_color, round(self.text_margin), self.text_font,
                                                        self.text_background, self.text_antialias, self.text_italic, self.text_bold,
-                                                       self.text_strikethrough, self.text_underline, self.text_transparency)
+                                                       self.text_strikethrough, self.text_underline, self.text_transparency, self.text_line_spacing)
             text_surf_size = text_surface.get_size()
             side_margin = self.text_side_margin
         else:
