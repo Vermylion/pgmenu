@@ -18,7 +18,9 @@ __all__ = [
     "mouse_y",
     "current_menu_showed",
     "kb_selected_widget",
-    "active_widget"
+    "active_widget",
+    "dt",
+    "_last_update_time"
 ]
 
 
@@ -58,3 +60,6 @@ current_menu_showed = None
 kb_selected_widget = None
 # Current ACTIVE widget
 active_widget = None
+# Have built in delta time
+dt = 1  / 60 # Placeholder value
+_last_update_time = None

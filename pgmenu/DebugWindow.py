@@ -8,7 +8,7 @@ pygame.init()
 screen = pygame.display.set_mode((1080, 720), pygame.RESIZABLE)
 pygame.display.set_caption("Window")
 clock = pygame.time.Clock()
-fps = 30
+fps = 1000
 
 # pgmenu.AnimationTheme.load("SIMPLE")
 
@@ -85,9 +85,9 @@ textarea = pgmenu.widgets.TextArea(frame, (50, 450), (250, 250), content_size=(6
 scrollbar_text_x = pgmenu.widgets.Scrollbar(textarea, pgmenu.BOTTOM)
 scrollbar_text_y = pgmenu.widgets.Scrollbar(textarea, pgmenu.RIGHT)
 
-for i in range(int((frame.content_size[1] - frame.size[1]) / 100)):
-    # FIXME -> With f"Button {i}", I get 4 fps with cache of 300. Cache has to be more variable and more dynamic
-    pgmenu.widgets.Button(frame, (50, i*100 + 800), text=f"Button {i}")
+# for i in range(int((frame.content_size[1] - frame.size[1]) / 100)):
+#     # FIXME -> With f"Button {i}", I get 4 fps with cache of 300. Cache has to be more variable and more dynamic
+#     pgmenu.widgets.Button(frame, (50, i*100 + 800), text=f"Button {i}")
 
 scrollbar_frame2_y = pgmenu.widgets.Scrollbar(frame2, pgmenu.RIGHT)
 

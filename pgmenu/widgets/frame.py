@@ -1,4 +1,4 @@
-import math
+import math, time
 import pygame
 import pgmenu
 
@@ -9,11 +9,6 @@ from pgmenu.vars.constants import THEME
 
 
 __all__ = ["Frame"]
-
-
-# FIXME -> Has lagback when blitted to another frame on scrolling
-
-# FIXME -> Scrolling doesn't work well, gets worse at low frame rate
 
 
 class Frame(Widget, RectMixin):
@@ -110,28 +105,27 @@ class Frame(Widget, RectMixin):
     def scroll_to(self, x: int, y: int, animate: bool = THEME):
         animate = resolve(animate, "animate_scroll", self.type)
 
-        # Clamp scroll offset x,y
-        x, y = max(x, 0), max(y, 0)
-        x, y = min(x, self.content_size[0] - self.size[0]),  min(y, self.content_size[1] - self.size[1])
+        max_x = max(self.content_size[0] - self.size[0], 0)
+        max_y = max(self.content_size[1] - self.size[1], 0)
+        x, y = min(max(x, 0), max_x), min(max(y, 0), max_y)
 
-        # Don't scroll if there is no scrollable content
-        if x == 0 and y == 0:
+        # Already heading to (or at) this target
+        if tuple(self.scroll_offset.final_value) == (x, y):
             return
 
-        # Wether new pos should trigger animation or not
         base_x, base_y = self.scroll_offset.float_tuple if animate else (x, y)
 
-        # Total quadratic distance the frame can travel # TODO -> Test it feels natural with x and y scrolling
-        content_travel = math.sqrt((self.content_size[0] - self.size[0]) ** 2 + (self.content_size[1] - self.size[1]) ** 2)
-        # Duration set from 0 to 1: percentage of distance asked to travel
-        duration = math.sqrt((base_x - x) ** 2 + (base_y - y) ** 2) / content_travel
-        # Clamp scroll animation duration
-        duration = max(duration, self.min_scroll_duration)
-        duration = min(duration, self.max_scroll_duration)
+        travel = math.hypot(max_x, max_y) or 1
+        duration = math.hypot(base_x - x, base_y - y) / travel
+        duration = min(max(duration, self.min_scroll_duration), self.max_scroll_duration)
 
         self.scroll_offset = pgmenu.animation.AnimateTuple([base_x, x], [base_y, y], duration=duration, curve=self.animation_curve, precision=self.animation_precision)
         # Reset previous animation
+        # A new Animate stamps start_time on its first update, so it would move ~0 this frame.
+        # Start its clock one frame ago instead.
+        start = time.time() - pgmenu.vars.dt
         for item in self.scroll_offset.items:
+            item.start_time = start
             item.done = False
 
         # Clear up old animation

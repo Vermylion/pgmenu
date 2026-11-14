@@ -1,3 +1,4 @@
+import time
 import pygame
 import pgmenu
 from pgmenu.base import mixins
@@ -123,11 +124,21 @@ def _merge_wheel_events(events):
     return merged
 
 
+def _update_dt():
+    now = time.perf_counter()
+    if pgmenu.vars._last_update_time is not None:
+        pgmenu.vars.dt = now - pgmenu.vars._last_update_time
+    pgmenu.vars._last_update_time = now
+
+
 def update(events):
     # Hacky solution for getting base window size
     # Detects first call to update
     if not pgmenu.vars._first_update_call:
         _first_update_init()
+
+    # Set delta time
+    _update_dt()
 
     # Format input, so we can iterate it if event is passed as input instead of events
     events = [events] if isinstance(events, pygame.event.Event) else list(events)

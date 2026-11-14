@@ -112,10 +112,10 @@ class TextArea(Frame, TextMixin, ActionableMixin):
         self.blit_to_master()
 
     def _on_press(self):
-        ...
+        self.set_active()
 
     def _on_release(self):
-        self.set_active()
+        ...
 
     def update(self, event):
         Widget.update(self, event)
@@ -154,36 +154,29 @@ class TextArea(Frame, TextMixin, ActionableMixin):
 
                 current_line, current_col = self._get_line_col()
 
-                # --- BACKSPACE ---
                 if event.key == pygame.K_BACKSPACE:
                     if self.text_cursor_pos > 0:
                         self.text = self.text[:self.text_cursor_pos - 1] + self.text[self.text_cursor_pos:]
                         self.text_cursor_pos -= 1
 
-                # --- DELETE ---
                 if event.key == pygame.K_DELETE:
                         self.text = self.text[:self.text_cursor_pos] + self.text[self.text_cursor_pos + 1:]
 
-                # --- RETURN (ENTER) ---
                 elif event.key == pygame.K_RETURN:
                     self.text = self.text[:self.text_cursor_pos] + "\n" + self.text[self.text_cursor_pos:]
                     self.text_cursor_pos += 1
 
-                # --- LEFT ---
                 elif event.key == pygame.K_LEFT:
                     self.text_cursor_pos = max(0, self.text_cursor_pos - 1)
 
-                # --- RIGHT ---
                 elif event.key == pygame.K_RIGHT:
                     self.text_cursor_pos = min(len(self.text), self.text_cursor_pos + 1)
 
-                # --- UP ---
                 elif event.key == pygame.K_UP:
                     if current_line > 0:
                         target_line = current_line - 1
                         self.text_cursor_pos = self._get_abs_pos(target_line, current_col)
 
-                # --- DOWN ---
                 elif event.key == pygame.K_DOWN:
                     if current_line < len(self.text.split("\n")) - 1:
                         target_line = current_line + 1
