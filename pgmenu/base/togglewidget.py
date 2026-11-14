@@ -55,8 +55,7 @@ class ToggleWidget(Widget, RectMixin, TextMixin, ActionableMixin):
                                           inner_fill=self.inner_fill, inner_transparency=self.inner_transparency,
                                           inner_aa_strength=self.inner_aa_strength, inner_antialiasing=self.inner_antialiasing)
 
-        inner_rect = (self.margin.int, self.margin.int,
-                     self.size.int_tuple[0] - self.margin.int * 2, self.size.int_tuple[1] - self.margin.int * 2)
+        inner_rect = (self.margin.int, self.margin.int, self.size.int_tuple[0] - self.margin.int * 2, self.size.int_tuple[1] - self.margin.int * 2)
         pgmenu.draw.aarect(toggle_surface, self._indicator("fill"), inner_rect, self._indicator("width"),
                          self._indicator("border_radius"),
                          self._indicator("border_top_left_radius"), self._indicator("border_top_right_radius"),

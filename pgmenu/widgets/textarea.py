@@ -3,7 +3,7 @@ import pgmenu
 
 from pgmenu.widgets import Frame
 from pgmenu.base import Widget, TextMixin, ActionableMixin
-from pgmenu.core.animation import Animate, AnimateTuple, AnimateSurface
+from pgmenu.core.animation import Animate, AnimateTuple, AnimateSurface, AnimateType
 from pgmenu.core.theme import resolve, resolve_kwarg
 from pgmenu.vars.constants import THEME
 
@@ -45,6 +45,13 @@ class TextArea(Frame, TextMixin, ActionableMixin):
         self.text_cursor_thickness = resolve_kwarg(kwargs, "text_cursor_thickness", self.type)
         # Text Cursor text array position
         self.text_cursor_pos = resolve_kwarg(kwargs, "text_cursor_pos", self.type, len(self.text))
+
+        self.text_cursor_final_transparency = resolve_kwarg(kwargs, "text_cursor_final_transparency", self.type)
+        # Setting base custom animation
+        if not isinstance(kwargs.get("text_cursor_transparency"), AnimateType):
+            self.text_cursor_transparency = pgmenu.animation.Animate(self.text_cursor_transparency, self.text_cursor_final_transparency, 0.4, self.animation_curve, self.animation_precision)
+
+        self._text_cursor_animation = None
 
     def add(self, *widgets):
         for widget in widgets:
@@ -148,6 +155,8 @@ class TextArea(Frame, TextMixin, ActionableMixin):
             self.animation_on_key_release(key)
 
         if self.state == pgmenu.ACTIVE:
+
+            self.animation_on_active()
 
             if event.type == pygame.KEYDOWN:
                 action_key_down(event.key)

@@ -744,9 +744,9 @@ class RunningCallable:
 
 
 def run_animation(animation: AnimateType,
-                 direction = FORWARD,
-                 reach: int | float = 1,
-                 loop = ONCE) -> RunningCallable:
+                  direction = FORWARD,
+                  reach: int | float = 1,
+                  loop = ONCE) -> RunningCallable:
     """
     Registers an AnimateType to run on its own, updated every frame inside lib.update().
 
@@ -765,7 +765,7 @@ def run_animation(animation: AnimateType,
 
 
 def run_callable(target: Callable,
-                  done: Callable = None) -> RunningCallable:
+                 done: Callable = None) -> RunningCallable:
     """
        Registers a  callable to be called every frame inside lib.update()
 

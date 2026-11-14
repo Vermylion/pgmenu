@@ -224,6 +224,7 @@
     "textarea_text_cursor_fill": [255, 255, 255],
     "textarea_text_cursor_margin": 2,
     "textarea_text_cursor_thickness": 3,
+    "textarea_text_cursor_final_transparency": 0,
     "textarea_text_cursor_pos": null,
     "textarea_cursor": {"type": "variable", "module": "pygame", "variable": "SYSTEM_CURSOR_IBEAM"},
     "#": "Frame scroll attrs",

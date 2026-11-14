@@ -105,6 +105,18 @@
     "scrollbar_animation_on_hover": [
       {"type": "attribute", "name": "thickness", "args": ["forward"]},
       {"type": "attribute", "name": "transparency", "args": ["forward"]}
+    ],
+
+    "#": "textArea animations",
+    "textarea_animation_on_active": [
+      {"type": "yoyo", "name": "text_cursor_transparency"}
+    ],
+    "textarea_animation_on_key_press": [
+      {"type": "attribute", "name": "text_cursor_transparency", "method": "reset"},
+      {"type": "hold", "name": "text_cursor_transparency", "args": [0.5]}
+    ],
+    "textarea_animation_on_press": [
+      {"type": "base", "name": "textarea_animation_on_key_press"}
     ]
   }
 }

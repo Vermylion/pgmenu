@@ -65,7 +65,7 @@ label = pgmenu.widgets.Label(frame, (250, 150), color=color2, size=100, animatio
 icon = pgmenu.draw.aarect(None, (255, 0, 0), (0, 0, 50, 50))
 button = pgmenu.widgets.Button(frame, (300, 50), (100, 30), animation_duration=0.1, text="Button", margin=3, text_italic=False, text_bold=False, animation_curve=pgmenu.animation.circ, on_release=button_action)
 
-checkbox1 = pgmenu.widgets.Checkbox(frame, (50, 50))
+checkbox1 = pgmenu.widgets.Checkbox(frame, (50, 50), disable_default_animation=False)
 checkbox2 = pgmenu.widgets.Checkbox(frame, (50, 100))
 checkbox3 = pgmenu.widgets.Checkbox(frame2, (25, 50), text="Checkbox3\nsmaller")
 
@@ -80,7 +80,7 @@ toggleswitch = pgmenu.widgets.ToggleSwitch(frame, (50, 350), (60, 30), toggle_di
 test_text = """TextArea
 TextArea
 TextArea"""
-textarea = pgmenu.widgets.TextArea(frame, (50, 450), (250, 250), content_size=(600, 600), text=test_text)
+textarea = pgmenu.widgets.TextArea(frame, (50, 450), (250, 250), content_size=(600, 600), text=test_text, disable_default_animation=False)
 
 scrollbar_text_x = pgmenu.widgets.Scrollbar(textarea, pgmenu.BOTTOM)
 scrollbar_text_y = pgmenu.widgets.Scrollbar(textarea, pgmenu.RIGHT)

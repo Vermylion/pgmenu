@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, time
 from functools import partial
 import json
 import pygame
@@ -118,7 +118,7 @@ class AnimationTheme:
 
         def create_animation_function(animation):
 
-            def animate(self):
+            def animate(self, *_):
                 if self.disable_default_animation:
                     return
 
@@ -127,14 +127,30 @@ class AnimationTheme:
                     name = action["name"]
                     args = action.get("args", [])
 
+                    # Pause all animations on an attr while a hold is active
+                    # Allow a hold to be reapplied during a hold is active
+                    if action_type != "hold" and self.__dict__.get("_holds", {}).get(name, 0) > time.time():
+                        continue
+
                     if action_type == "attribute":
-                        getattr(self, name).update(*args)
+                        target = getattr(self, name)
+                        getattr(target, action.get("method", "update"))(*args)
 
                     elif action_type == "method":
                         getattr(self, name)(*args)
 
                     elif action_type == "base":
                         animation_funcs[name](self)
+
+                    elif action_type == "hold":
+                        self.__dict__.setdefault("_holds", {})[name] = time.time() + args[0]
+
+                    elif action_type == "yoyo":
+                        anim = getattr(self, name)
+                        direction = anim.direction
+                        if anim.done:
+                            direction = pgmenu.BACKWARD if direction == pgmenu.FORWARD else pgmenu.FORWARD
+                        anim.update(direction)
 
             return animate
 
