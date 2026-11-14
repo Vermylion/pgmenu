@@ -40,8 +40,12 @@ def _draw(*widgets):
         if widget.state == pgmenu.HIDDEN:
             continue
 
+        # Widgets inside a frame are drawn by that frame (see Frame.draw_widgets)
+        if isinstance(widget.master, pgmenu.widgets.Frame):
+            continue
+
         # Enact widget priority
-        if widget.type == pgmenu.FRAME or ((widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE) and pgmenu.system.WIDGET_DRAW_PRIORITY and widget.has_draw_priority):
+        if (widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE) and pgmenu.system.WIDGET_DRAW_PRIORITY and widget.has_draw_priority:
             top_widgets.append(widget)
             continue
 

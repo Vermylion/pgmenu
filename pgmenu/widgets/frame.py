@@ -153,9 +153,14 @@ class Frame(Widget, RectMixin):
 
     # FIXME -> Performance issue: all widgets, in content_size or not, get drawn to the surface
     def draw_widgets(self):
+        # sorted() is stable, so creation order is kept and scrollbars end up last (on top)
+        children = sorted((w for w in self.widgets if w.state != pgmenu.HIDDEN),
+                          key=lambda w: isinstance(w, pgmenu.widgets.Scrollbar))
+
+        for widget in children:
+            widget.draw()  # nested frames recurse here, before this frame flushes
+
         for surface, coords in self._widgets_to_blit.items():
-            # w, h = surface.get_size()
-            # if (self.scroll_offset[0] < coords[0] + w < self.scroll_offset[0] + self.size[0]) and (self.scroll_offset[1] < coords[1] + w < self.scroll_offset[1] + self.size[1]):
             self.surface.blit(surface, coords)
 
         self._widgets_to_blit.clear()
