@@ -46,6 +46,12 @@ def format_font(font, italic=False, bold=False):
     return font
 
 
+def Font(font, size = 20, italic=False, bold=False):
+    """Returns a pygame.font.Font object for the given font name."""
+    font = pgmenu.text.format_font(font, italic, bold)
+    return pygame.font.Font(font, size)
+
+
 def render(text: str = THEME,
            color: list | tuple = THEME,
            size: int = THEME,
@@ -72,6 +78,9 @@ def render(text: str = THEME,
     transparency = resolve(transparency, "transparency", "text")
     line_spacing = resolve(line_spacing, "line_spacing", "text")
 
+    # Normalize line endings
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+
     # Keep same cache_id in function
     cache_id = (text, color, size, font, background, antialias, italic, bold, strikethrough, underline, transparency, line_spacing)
 
@@ -80,9 +89,7 @@ def render(text: str = THEME,
     if cached is not None:
         return cached
 
-    font = format_font(font, italic, bold)
-
-    text_font = pygame.font.Font(font, size)
+    text_font = Font(font, size, italic, bold)
 
     text_font.italic = italic
     text_font.bold = bold

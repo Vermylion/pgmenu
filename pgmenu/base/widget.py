@@ -259,13 +259,17 @@ class Widget:
         self.type = getattr(self, "type") if hasattr(self, "type") else type
         pgmenu.system.WIDGET_TYPES.add(self.type)
 
-    # FIXME -> Scrollbar can't become active if on top of a textarea
-    def set_active(self):
-        if pgmenu.vars.active_widget is not None:
-            pgmenu.vars.active_widget.state = pgmenu.NORMAL
+    def set_state(self, state):
+        self.state = state
 
-        pgmenu.vars.active_widget = self
-        self.state = pgmenu.ACTIVE
+        if state == pgmenu.ACTIVE:
+            if pgmenu.vars.active_widget is not None and pgmenu.vars.active_widget is not self:
+                pgmenu.vars.active_widget.state = pgmenu.NORMAL
+
+            pgmenu.vars.active_widget = self
+        else:
+            if pgmenu.vars.active_widget is self:
+                pgmenu.vars.active_widget = None
 
     # Method allows to modify multiple attributes at a time
     def modify(self,

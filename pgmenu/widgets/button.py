@@ -105,10 +105,10 @@ class Button(Widget, RectMixin, TextMixin, ActionableMixin):
         self.blit_to_master()
 
     def _on_press(self):
-        self.set_active()
+        self.set_state(pgmenu.ACTIVE)
 
     def _on_release(self):
-        self.state = pgmenu.NORMAL
+        self.set_state(pgmenu.NORMAL)
 
     def resize(self, w: int, h: int):
         self._resize_border_radii(w, h)

@@ -27,7 +27,7 @@ def init():
 def _first_update_init():
     pgmenu.vars._first_update_call = True
 
-    pygame.key.set_repeat(400, 50)
+    pygame.key.set_repeat(pgmenu.system.KEY_REPEAT_DELAY, pgmenu.system.KEY_REPEAT_INTERVAL)
 
     if pgmenu.vars.base_window_size is None:
         pgmenu.vars.base_window_size = pygame.display.get_window_size()
@@ -79,7 +79,7 @@ def _widget_kb_selection():
             pgmenu.vars.kb_selected_widget = pgmenu.vars.widgets[0]
             # Remove any widget from its active state
             if pgmenu.vars.active_widget is not None:
-                pgmenu.vars.active_widget.state = pgmenu.NORMAL
+                pgmenu.vars.active_widget.set_state(pgmenu.NORMAL)
 
         current, widgets = pgmenu.vars.kb_selected_widget, pgmenu.vars.widgets
 
@@ -149,6 +149,8 @@ def update(events):
     # Save mouse x, y pos to not call pygame.mouse.get_pos() multiple times
     pgmenu.vars.mouse_x, pgmenu.vars.mouse_y = pygame.mouse.get_pos()
 
+    any_hovered = False
+
     for widget in pgmenu.vars.widgets:
 
         if widget.state in (pgmenu.DISABLED, pgmenu.HIDDEN) or not widget._drawn:
@@ -158,14 +160,15 @@ def update(events):
         hovered = widget.rect.collidepoint(pgmenu.vars.mouse_x, pgmenu.vars.mouse_y)
 
         if hovered:
+            any_hovered = True
             widget.request_cursor()
 
         # State assignment
         if widget.state != pgmenu.ACTIVE:
             if hovered or pgmenu.vars.kb_selected_widget == widget:
-                widget.state = pgmenu.HOVERED
+                widget.set_state(pgmenu.HOVERED)
             else:
-                widget.state = pgmenu.NORMAL
+                widget.set_state(pgmenu.NORMAL)
 
         # State callbacks
         if widget.state == pgmenu.NORMAL:
@@ -195,6 +198,13 @@ def update(events):
             # FIXME -> Only activates if widget is selected for performance reasons, but doesn't seem to do much
             if widget.state == pgmenu.HOVERED or widget.state == pgmenu.ACTIVE:
                 widget.update(event)
+
+        # Screen non-widget click detection
+        if not any_hovered:
+            for event in events:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
+                    if pgmenu.vars.active_widget is not None:
+                        pgmenu.vars.active_widget.set_state(pgmenu.NORMAL)
 
         # Reset every widget's draw state, as widgets are normally not interacted with after update state
         widget._drawn = False

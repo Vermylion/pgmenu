@@ -117,6 +117,9 @@
     ],
     "textarea_animation_on_press": [
       {"type": "base", "name": "textarea_animation_on_key_press"}
+    ],
+    "textarea_animation_on_hold": [
+      {"type": "base", "name": "textarea_animation_on_key_press"}
     ]
   }
 }

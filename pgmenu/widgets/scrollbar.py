@@ -150,7 +150,7 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
             if abs_thumb_rect.collidepoint(pgmenu.vars.mouse_x, pgmenu.vars.mouse_y):
                     # Clear the stored mouse movement so the drag doesn't start with a jump
                     pygame.mouse.get_rel()
-                    self.set_active()
+                    self.set_state(pgmenu.ACTIVE)
 
             else:
                 # Clicked on the track, scroll to that spot
@@ -161,7 +161,7 @@ class Scrollbar(Widget, RectMixin, ActionableMixin):
                 (self.master.scroll_y_to if is_vertical else self.master.scroll_x_to)(target_pos, animate=True)
 
         elif event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
-            self.state = pgmenu.NORMAL
+            self.set_state(pgmenu.NORMAL)
 
         elif event.type == pgmenu.IDLE_EVENT and self.state == pgmenu.ACTIVE:
             # Thumb moves less than the content, so scale the mouse delta up by the content/track ratio

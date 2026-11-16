@@ -1,4 +1,5 @@
-import math, time
+import math
+import time
 import pygame
 import pgmenu
 
@@ -11,6 +12,10 @@ from pgmenu.vars.constants import THEME
 __all__ = ["Frame"]
 
 
+# TODO -> Add ability to expand content_size to content (have it be togglable by a bool)
+# TODO -> Add Scroll Lock (Mouse Middle Button)
+
+
 class Frame(Widget, RectMixin):
 
     def __init__(self,
@@ -20,6 +25,8 @@ class Frame(Widget, RectMixin):
                  fill: tuple[int, int, int] | pygame.Surface | AnimateSurface = THEME,
                  width: int | Animate = THEME,
                  border_radius: int | Animate = THEME,
+                 content_size: list | tuple | AnimateTuple = THEME,
+                 fit_content: bool = THEME,
                  **kwargs):
 
         self.set_type(pgmenu.FRAME)
@@ -35,7 +42,9 @@ class Frame(Widget, RectMixin):
 
         self.border_radius = resolve(border_radius, "border_radius", self.type, round(min(self.size) / 7))
 
-        self.content_size = resolve_kwarg(kwargs, "content_size", self.type, self.size)
+        self.content_size = resolve(content_size, "content_size", self.type, self.size)
+        self.fit_content = resolve(fit_content, "fit_content", self.type)
+
         self.scroll_offset = resolve_kwarg(kwargs, "scroll_offset", self.type)
 
         x, y = self.scroll_offset
@@ -154,7 +163,18 @@ class Frame(Widget, RectMixin):
         for widget in children:
             widget.draw()  # nested frames recurse here, before this frame flushes
 
+        # Reset content size
+        if self.fit_content:
+            self.content_size = self.size
+            sx, sy = self.scroll_offset.float_tuple
+
         for surface, coords in self._widgets_to_blit.items():
+            # Set content_size to max placement + size of all the widgets
+            if self.fit_content:
+                w, h = surface.get_size()
+                self.content_size = (max(self.content_size[0], coords[0] + sx + w),
+                                     max(self.content_size[1], coords[1] + sy + h))
+
             self.surface.blit(surface, coords)
 
         self._widgets_to_blit.clear()
@@ -164,17 +184,49 @@ class Frame(Widget, RectMixin):
             # FIXME --> Hopefully temporary solution to deactivated active widgets, especially textarea
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pgmenu.vars.active_widget is not None:
-                    pgmenu.vars.active_widget.state = pgmenu.NORMAL
+                    pgmenu.vars.active_widget.set_state(pgmenu.NORMAL)
 
-            elif event.type == pygame.MOUSEWHEEL and not pygame.key.get_pressed()[pygame.K_LCTRL]:
-                scroll_travel_x = max(min(event.precise_x * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
-                scroll_travel_y = max(min(event.precise_y * -1 * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
+            if pgmenu.vars.active_widget is not None:
+                return
 
-                # Left Shift inverts x,y movement between themselves -> x becomes y and y becomes x
-                if pygame.key.get_pressed()[pygame.K_LSHIFT]:
-                    scroll_travel_x, scroll_travel_y = scroll_travel_y, scroll_travel_x
+            if event.type == pygame.MOUSEWHEEL:
+                if not pygame.key.get_pressed()[pygame.K_LCTRL]:
 
-                self.scroll_by(scroll_travel_x, scroll_travel_y, animate=True)
+                    scroll_travel_x = max(min(event.precise_x * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
+                    scroll_travel_y = max(min(event.precise_y * -1 * self.scroll_step, self.scroll_step), -1 * self.scroll_step)
+
+                    # Left Shift inverts x,y movement between themselves -> x becomes y and y becomes x
+                    if pygame.key.get_pressed()[pygame.K_LSHIFT]:
+                        scroll_travel_x, scroll_travel_y = scroll_travel_y, scroll_travel_x
+
+                    self.scroll_by(scroll_travel_x, scroll_travel_y, animate=True)
+
+            elif event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_DOWN:
+                    self.scroll_by(0, 1 * self.scroll_step, animate=True)
+
+                if event.key == pygame.K_UP:
+                    self.scroll_by(0, -1 * self.scroll_step, animate=True)
+
+                if event.key == pygame.K_LEFT:
+                    self.scroll_by(-1 * self.scroll_step, 0, animate=True)
+
+                if event.key == pygame.K_RIGHT:
+                    self.scroll_by(1 * self.scroll_step, 0, animate=True)
+
+                if event.key == pygame.K_HOME:
+                    self.scroll_to(0, 0, animate=True)
+
+                if event.key == pygame.K_END:
+                    self.scroll_to(0, self.content_size[1], animate=True)
+
+                if event.key == pygame.K_PAGEDOWN:
+                    self.scroll_by(0, self.size[1], animate=True)
+
+                if event.key == pygame.K_PAGEUP:
+                    self.scroll_by(0, -1*self.size[1], animate=True)
+
 
     def resize(self, w: int, h: int):
         self._resize_border_radii(w, h)

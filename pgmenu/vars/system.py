@@ -19,3 +19,8 @@ KB_SELECTION = pygame.K_TAB
 # Library's base widget types
 # FIXME -> Keep it dynamically set in widget.set_type()? If so, should the name change to lowercase?
 WIDGET_TYPES = set() # ("label", "surface", "frame", "button", "checkbox", "radiobutton", "toggleswitch", "scrollbar", "textarea")
+# Key press down repeat timings (in ms)
+KEY_REPEAT_DELAY = 400
+KEY_REPEAT_INTERVAL = 50
+# Delay for double click
+DOUBLE_CLICK_DELAY = 300

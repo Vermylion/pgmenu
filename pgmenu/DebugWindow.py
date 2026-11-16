@@ -50,10 +50,10 @@ def button_action():
 pgmenu.Theme.set(**{'widget_disable_default_animation': False})
 
 
-frame = pgmenu.widgets.Frame(screen, pgmenu.position.center_coords((600, 450), (0, 0, 1080, 720)), (600, 450))
+frame = pgmenu.widgets.Frame(screen, pgmenu.position.center_coords((600, 450), (0, 0, 1080, 720)), (600, 450), fit_content=True)
 frame.content_size = (1000, 5000)
 
-frame2 = pgmenu.widgets.Frame(frame, (350, 450), fill=pgmenu.Theme.bgcolor, transparency=255, content_size = (200, 400))
+frame2 = pgmenu.widgets.Frame(frame, (350, 550), fill=pgmenu.Theme.bgcolor, transparency=255, content_size = (200, 400))
 
 surface = pgmenu.widgets.Surface(frame, make_animated_surf((200, 100)), (300, 275), on_resize=lambda: on_resize(surface.size.int_tuple), on_hover=on_hover, on_standby=on_standby, state=pgmenu.NORMAL)
 
@@ -77,10 +77,25 @@ radiogroup = pgmenu.widgets.RadioGroup(radiobutton1, radiobutton2, radiobutton3)
 
 toggleswitch = pgmenu.widgets.ToggleSwitch(frame, (50, 350), (60, 30), toggle_direction=pgmenu.RIGHT)
 
-test_text = """TextArea
+test_text = """Text Area bob cat kchfkkdjhkjkfjhkjhskjh
 TextArea
-TextArea"""
-textarea = pgmenu.widgets.TextArea(frame, (50, 450), (250, 250), content_size=(600, 600), text=test_text, disable_default_animation=False)
+TextArea
+hey
+so
+is
+this
+gonna
+work
+you
+think?
+Cause 
+I'd
+ like 
+to 
+use
+this
+yk"""
+textarea = pgmenu.widgets.TextArea(frame, (50, 450), (250, 250), content_size=(600, 600), text=test_text)
 
 scrollbar_text_x = pgmenu.widgets.Scrollbar(textarea, pgmenu.BOTTOM)
 scrollbar_text_y = pgmenu.widgets.Scrollbar(textarea, pgmenu.RIGHT)
@@ -102,6 +117,9 @@ start = time.time()
 incr = 0
 debug=0
 
+DOUBLE_CLICK_TIME = 300  # milliseconds
+last_click = 0
+
 running = True
 while running:
 
@@ -113,7 +131,7 @@ while running:
 
         # if event.type == pygame.KEYUP:
         #     if event.key == pygame.K_a:
-        #         frame.size = (450, 400)
+        #         textarea.set_state(pgmenu.HIDDEN)
 #
         #     if event.key == pygame.K_b:
         #         frame.coords = (50, 50)
@@ -174,7 +192,7 @@ while running:
     pgmenu.text.write(screen, (20, 20), str(round(clock.get_fps())))
     # if pgmenu.vars.kb_selected_widget:
     pgmenu.text.write(screen, (300, 20), str(pgmenu.vars.mouse_x) + " x " + str(pgmenu.vars.mouse_y))
-    pgmenu.text.write(screen, (600, 20), str(textarea.text_cursor_pos))
+    pgmenu.text.write(screen, (600, 20), str(pgmenu.vars.active_widget))
 
     win_size = pygame.display.get_window_size()
     pygame.display.set_caption(f"Window {win_size[0]}x{win_size[1]}")
